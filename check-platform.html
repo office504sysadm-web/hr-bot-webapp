@@ -6,8 +6,8 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #2196F3;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             display: flex;
             justify-content: center;
@@ -15,67 +15,149 @@
             height: 100vh;
             margin: 0;
             padding: 20px;
-            text-align: center;
         }
-        .card {
+        .container {
             background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 30px;
             max-width: 400px;
+            width: 100%;
         }
-        button {
-            background: white;
-            color: #2196F3;
-            border: none;
-            padding: 15px 30px;
+        h1 {
+            margin: 0 0 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        .status {
+            background: rgba(0,0,0,0.3);
             border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 20px;
-            cursor: pointer;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 16px;
         }
+        .debug {
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 12px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success { color: #4ade80; }
+        .error { color: #f87171; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>🔍 ПЕРЕВІРКА ПРИСТРОЮ</h1>
-        <p id="status">Визначаємо платформу...</p>
-        <button onclick="sendData()" style="display: none;">Надіслати дані</button>
+    <div class="container">
+        <h1>🔍 DEBUG WEBAPP</h1>
+        <div class="status" id="status">Завантаження...</div>
+        <div class="debug" id="debug"></div>
     </div>
 
     <script>
-        function sendData() {
-            try {
-                const tg = window.Telegram.WebApp;
-                const platform = tg.platform;
-                const isMobile = platform.includes('android') || platform.includes('ios');
-                
-                const data = {
-                    platform: platform,
-                    isMobile: isMobile,
-                    timestamp: new Date().toISOString()
-                };
-                
-                console.log('Sending:', data);
-                tg.sendData(JSON.stringify(data));
-                
-                document.getElementById('status').innerHTML = '✅ Дані відправлено!';
-                
-                setTimeout(() => tg.close(), 1000);
-                
-            } catch (e) {
-                document.getElementById('status').innerHTML = '❌ Помилка: ' + e.message;
-            }
+        // Функція для логування в консоль і на сторінку
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            
+            // В консоль
+            console.log(logMessage);
+            
+            // На сторінку
+            const debugDiv = document.getElementById('debug');
+            const color = type === 'error' ? '#f87171' : (type === 'success' ? '#4ade80' : '#ffffff');
+            debugDiv.innerHTML += `<div style="color: ${color}">${logMessage}</div>`;
+            debugDiv.scrollTop = debugDiv.scrollHeight;
         }
 
-        // Автоматично відправляємо дані при завантаженні
-        if (window.Telegram && window.Telegram.WebApp) {
-            const tg = window.Telegram.WebApp;
-            tg.expand();
-            sendData();
-        } else {
-            document.getElementById('status').innerHTML = '❌ Не в Telegram';
+        function updateStatus(text, isError = false) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = text;
+            statusDiv.className = 'status ' + (isError ? 'error' : 'success');
         }
+
+        // Початок перевірки
+        log('🚀 WebApp запущено');
+        log('User Agent: ' + navigator.userAgent);
+
+        try {
+            // Крок 1: Перевіряємо чи є Telegram API
+            log('📡 Крок 1: Перевірка window.Telegram');
+            
+            if (typeof window.Telegram !== 'undefined') {
+                log('✅ window.Telegram знайдено', 'success');
+                
+                // Крок 2: Перевіряємо чи є WebApp
+                log('📡 Крок 2: Перевірка window.Telegram.WebApp');
+                
+                if (typeof window.Telegram.WebApp !== 'undefined') {
+                    log('✅ window.Telegram.WebApp знайдено', 'success');
+                    
+                    const tg = window.Telegram.WebApp;
+                    
+                    // Крок 3: Розгортаємо WebApp
+                    log('📡 Крок 3: Виклик tg.expand()');
+                    tg.expand();
+                    log('✅ tg.expand() виконано', 'success');
+                    
+                    // Крок 4: Отримуємо платформу
+                    log('📡 Крок 4: Отримання платформи');
+                    const platform = tg.platform;
+                    log('✅ platform = ' + platform, 'success');
+                    
+                    // Крок 5: Визначаємо мобільний пристрій
+                    log('📡 Крок 5: Перевірка на мобільний пристрій');
+                    const isMobile = platform.includes('android') || platform.includes('ios');
+                    log('✅ isMobile = ' + isMobile, 'success');
+                    
+                    // Крок 6: Формуємо дані
+                    log('📡 Крок 6: Формування даних');
+                    const data = {
+                        platform: platform,
+                        isMobile: isMobile,
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent
+                    };
+                    log('✅ Дані: ' + JSON.stringify(data), 'success');
+                    
+                    // Крок 7: Відправляємо дані
+                    log('📡 Крок 7: Відправка даних боту');
+                    log('📤 sendData(' + JSON.stringify(data) + ')');
+                    
+                    tg.sendData(JSON.stringify(data));
+                    
+                    log('✅ Дані відправлено!', 'success');
+                    updateStatus('✅ Дані успішно відправлено боту!');
+                    
+                    // Крок 8: Закриваємо WebApp
+                    log('📡 Крок 8: Закриття WebApp через 2 секунди');
+                    setTimeout(() => {
+                        log('🔚 Закриття WebApp');
+                        tg.close();
+                    }, 2000);
+                    
+                } else {
+                    log('❌ ПОМИЛКА: window.Telegram.WebApp не знайдено!', 'error');
+                    log('window.Telegram = ' + JSON.stringify(window.Telegram), 'error');
+                    updateStatus('❌ Telegram.WebApp API не доступний', true);
+                }
+            } else {
+                log('❌ ПОМИЛКА: window.Telegram не знайдено!', 'error');
+                log('Це означає, що WebApp відкрито не в Telegram', 'error');
+                log('window.Telegram = ' + window.Telegram, 'error');
+                updateStatus('❌ Запустіть WebApp в Telegram', true);
+            }
+        } catch (error) {
+            log('❌ КРИТИЧНА ПОМИЛКА: ' + error.message, 'error');
+            log('Stack: ' + error.stack, 'error');
+            updateStatus('❌ ' + error.message, true);
+        }
+        
+        log('🏁 Скрипт завершено');
     </script>
 </body>
 </html>
