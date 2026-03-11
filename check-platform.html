@@ -122,7 +122,6 @@
             margin-top: 20px;
         }
         
-        /* Анімація завантаження */
         .loader {
             display: none;
             border: 3px solid rgba(255,255,255,0.3);
@@ -137,6 +136,16 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Додаткова перевірка */
+        .error-box {
+            background: rgba(255,0,0,0.2);
+            border: 1px solid rgba(255,0,0,0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -202,68 +211,76 @@
             <div class="blocked-title">ДОСТУП ЗАБОРОНЕНО</div>
             <div class="blocked-text">HR система доступна тільки з ПК</div>
             <div class="blocked-text">📱 Мобільні пристрої не підтримуються</div>
-            <div class="blocked-small">Будь ласка, використовуйте комп'ютер</div>
             <div class="blocked-small" id="deviceInfo"></div>
         </div>
     </div>
+    
+    <div class="container" id="errorMessage" style="display: none;">
+        <div class="error-box" id="errorText"></div>
+    </div>
 
     <script>
-        // Функція для визначення мобільного пристрою
-        function isMobileDevice() {
-            const ua = navigator.userAgent;
-            const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
-            return mobileRegex.test(ua);
-        }
-
-        // Функція для отримання назви ОС
-        function getOS() {
-            const ua = navigator.userAgent;
-            if (ua.includes('Windows')) return 'Windows';
-            if (ua.includes('Mac')) return 'macOS';
-            if (ua.includes('Linux')) return 'Linux';
-            if (ua.includes('Android')) return 'Android';
-            if (ua.includes('iPhone')) return 'iOS';
-            if (ua.includes('iPad')) return 'iPadOS';
-            return 'Невідома ОС';
-        }
-
-        // Логування інформації про пристрій
-        console.log('=== ІНФОРМАЦІЯ ПРО ПРИСТРІЙ ===');
-        console.log('User Agent:', navigator.userAgent);
-        console.log('Platform:', navigator.platform);
-        console.log('Мобільний пристрій:', isMobileDevice());
-        console.log('ОС:', getOS());
-
-        // Отримуємо Telegram WebApp об'єкт
-        const tg = window.Telegram.WebApp;
+        // Глобальні змінні
+        let tg = null;
         
-        // ПЕРЕВІРКА НА МОБІЛЬНИЙ ПРИСТРІЙ
-        if (isMobileDevice()) {
-            // Ховаємо меню
-            document.getElementById('mainMenu').style.display = 'none';
+        try {
+            // Отримуємо Telegram WebApp об'єкт
+            if (!window.Telegram || !window.Telegram.WebApp) {
+                throw new Error("Telegram WebApp не доступний. Відкрийте через Telegram!");
+            }
             
-            // Показуємо повідомлення про блокування
-            const blockedDiv = document.getElementById('blockedMessage');
-            blockedDiv.style.display = 'block';
+            tg = window.Telegram.WebApp;
             
-            // Додаємо інформацію про пристрій
-            document.getElementById('deviceInfo').innerHTML = 
-                `Виявлено: ${getOS()}<br>Доступ заборонено`;
-            
-            console.log('🚫 Мобільний пристрій заблоковано');
-        } else {
-            // ПК - показуємо меню
-            console.log('✅ ПК виявлено, показуємо меню');
-            
-            // Ініціалізація Telegram WebApp
-            tg.expand();
+            // Важливо: викликаємо ready() перед читанням platform
             tg.ready();
             
-            console.log('Telegram WebApp ініціалізовано');
+            // Отримуємо платформу від Telegram
+            const platform = tg.platform;
+            
+            console.log("=== ІНФОРМАЦІЯ ПРО ПЛАТФОРМУ ===");
+            console.log("Telegram platform:", platform);
+            console.log("Init data:", tg.initData ? "є" : "немає");
+            console.log("Version:", tg.version);
+            
+            // ПЕРЕВІРКА НА МОБІЛЬНІ ПЛАТФОРМИ
+            const isMobile = platform === "android" || platform === "ios";
+            
+            if (isMobile) {
+                // Мобільний пристрій - блокуємо
+                console.log("🚫 Мобільний пристрій виявлено:", platform);
+                
+                document.getElementById('mainMenu').style.display = 'none';
+                document.getElementById('blockedMessage').style.display = 'block';
+                document.getElementById('deviceInfo').innerHTML = 
+                    `Виявлено: ${platform}<br>Доступ дозволено тільки з ПК`;
+            } else {
+                // ПК - показуємо меню
+                console.log("✅ ПК виявлено:", platform);
+                
+                // Розгортаємо WebApp
+                tg.expand();
+                
+                // Приховуємо loader
+                document.getElementById('loader').style.display = 'none';
+            }
+            
+        } catch (error) {
+            // Помилка - показуємо повідомлення
+            console.error("❌ Помилка:", error);
+            
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorText').innerHTML = 
+                `Помилка: ${error.message}<br><br>Будь ласка, відкрийте через Telegram Desktop`;
         }
 
         // Функція відправки дії
         function sendAction(action) {
+            if (!tg) {
+                alert("Помилка: Telegram WebApp не ініціалізовано");
+                return;
+            }
+            
             // Показуємо loader
             document.getElementById('loader').style.display = 'block';
             
@@ -274,17 +291,17 @@
                 platform: tg.platform
             };
             
-            console.log('📤 Відправляємо дані:', data);
+            console.log("📤 Відправляємо дані:", data);
             
             // Відправляємо в бота
             tg.sendData(JSON.stringify(data));
             
-            // Візуальний фідбек
+            // Ховаємо loader через 500ms
             setTimeout(() => {
                 document.getElementById('loader').style.display = 'none';
             }, 500);
             
-            // Показуємо сповіщення
+            // Показуємо popup підтвердження
             const actionNames = {
                 'work_start': 'Прихід на роботу',
                 'coffee_start': 'Початок кави',
@@ -301,14 +318,11 @@
             });
         }
 
-        // Обробка помилок
-        window.onerror = function(msg, url, line) {
-            console.error('Помилка:', msg, 'на рядку', line);
-            tg.showPopup({
-                title: '❌ Помилка',
-                message: 'Сталася помилка. Спробуйте ще раз.',
-                buttons: [{type: 'ok'}]
-            });
+        // Додаткова перевірка при закритті
+        window.onunload = function() {
+            if (tg) {
+                tg.close();
+            }
         };
     </script>
 </body>
