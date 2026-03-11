@@ -2,162 +2,307 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Перевірка пристрою</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #f5f5f5;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
             padding: 20px;
         }
+        
         .container {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            max-width: 400px;
+            max-width: 600px;
             width: 100%;
+            margin: 0 auto;
         }
-        h1 {
-            margin: 0 0 20px;
-            font-size: 24px;
+        
+        /* iOS стилі */
+        .header {
+            margin-bottom: 30px;
             text-align: center;
         }
-        .status {
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1c1c1e;
+            margin-bottom: 8px;
+        }
+        
+        .header p {
             font-size: 16px;
+            color: #8e8e93;
         }
-        .debug {
-            background: rgba(0,0,0,0.5);
-            border-radius: 10px;
-            padding: 15px;
-            font-size: 12px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            max-height: 300px;
-            overflow-y: auto;
+        
+        .menu-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
-        .success { color: #4ade80; }
-        .error { color: #f87171; }
+        
+        .menu-row {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .menu-row .menu-item {
+            flex: 1;
+        }
+        
+        .menu-item {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 1px solid rgba(0,0,0,0.04);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 8px;
+        }
+        
+        .menu-item:active {
+            transform: scale(0.98);
+            background: #f8f8f8;
+        }
+        
+        .menu-item-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .menu-item-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .menu-item-text {
+            flex: 1;
+        }
+        
+        .menu-item-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #1c1c1e;
+            margin-bottom: 2px;
+        }
+        
+        .menu-item-subtitle {
+            font-size: 13px;
+            color: #8e8e93;
+        }
+        
+        .menu-item-right {
+            color: #8e8e93;
+            font-size: 20px;
+        }
+        
+        /* Кольори для іконок */
+        .icon-work { background: #e3f2fd; color: #1976d2; }
+        .icon-coffee { background: #fff3e0; color: #f57c00; }
+        .icon-lunch { background: #e8f5e8; color: #388e3c; }
+        .icon-end { background: #fce4ec; color: #c2185b; }
+        
+        /* Мобільне блокування */
+        .blocked-screen {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .blocked-screen .emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+        
+        .blocked-screen h2 {
+            font-size: 24px;
+            color: #1c1c1e;
+            margin-bottom: 12px;
+        }
+        
+        .blocked-screen p {
+            font-size: 16px;
+            color: #8e8e93;
+            margin-bottom: 30px;
+        }
+        
+        .blocked-screen .platform-info {
+            background: #f2f2f7;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        @media (max-width: 480px) {
+            .menu-row {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔍 DEBUG WEBAPP</h1>
-        <div class="status" id="status">Завантаження...</div>
-        <div class="debug" id="debug"></div>
+    <div class="container" id="mainContainer">
+        <div class="header">
+            <h1>HR Bot</h1>
+            <p>Відмітки робочого часу</p>
+        </div>
+        
+        <div class="menu-grid" id="menuGrid">
+            <!-- Прихід на роботу -->
+            <div class="menu-item" data-action="work_start">
+                <div class="menu-item-content">
+                    <div class="menu-item-icon icon-work">🏢</div>
+                    <div class="menu-item-text">
+                        <div class="menu-item-title">Прихід на роботу</div>
+                        <div class="menu-item-subtitle">Початок робочого дня</div>
+                    </div>
+                    <div class="menu-item-right">›</div>
+                </div>
+            </div>
+            
+            <!-- Кава брейк (рядок з двох кнопок) -->
+            <div class="menu-row">
+                <div class="menu-item" data-action="coffee_start">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon icon-coffee">☕️</div>
+                        <div class="menu-item-text">
+                            <div class="menu-item-title">Кава брейк</div>
+                            <div class="menu-item-subtitle">Початок</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-action="coffee_end">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon icon-end">✅</div>
+                        <div class="menu-item-text">
+                            <div class="menu-item-title">Кінець кави</div>
+                            <div class="menu-item-subtitle">Завершення</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Обід (рядок з двох кнопок) -->
+            <div class="menu-row">
+                <div class="menu-item" data-action="lunch_start">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon icon-lunch">🍽</div>
+                        <div class="menu-item-text">
+                            <div class="menu-item-title">Обід</div>
+                            <div class="menu-item-subtitle">Початок</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="menu-item" data-action="lunch_end">
+                    <div class="menu-item-content">
+                        <div class="menu-item-icon icon-end">✅</div>
+                        <div class="menu-item-text">
+                            <div class="menu-item-title">Кінець обіду</div>
+                            <div class="menu-item-subtitle">Завершення</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Відхід з офісу -->
+            <div class="menu-item" data-action="work_end">
+                <div class="menu-item-content">
+                    <div class="menu-item-icon icon-end">🏠</div>
+                    <div class="menu-item-text">
+                        <div class="menu-item-title">Відхід з офісу</div>
+                        <div class="menu-item-subtitle">Завершення робочого дня</div>
+                    </div>
+                    <div class="menu-item-right">›</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="blocked-screen" id="blockedScreen">
+        <div class="emoji">⛔️</div>
+        <h2>Доступ заборонено</h2>
+        <p>Цей бот працює тільки з комп'ютера</p>
+        <div class="platform-info" id="platformInfo"></div>
     </div>
 
     <script>
-        // Функція для логування в консоль і на сторінку
-        function log(message, type = 'info') {
-            const timestamp = new Date().toLocaleTimeString();
-            const logMessage = `[${timestamp}] ${message}`;
+        // Функція для визначення пристрою
+        function getDeviceInfo() {
+            const ua = navigator.userAgent;
+            const platform = navigator.platform;
             
-            // В консоль
-            console.log(logMessage);
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) 
+                || (platform && platform.includes('Mac') && navigator.maxTouchPoints > 1); // iPad Pro
+                
+            const deviceType = isMobile ? 'mobile' : 'desktop';
+            let os = 'unknown';
             
-            // На сторінку
-            const debugDiv = document.getElementById('debug');
-            const color = type === 'error' ? '#f87171' : (type === 'success' ? '#4ade80' : '#ffffff');
-            debugDiv.innerHTML += `<div style="color: ${color}">${logMessage}</div>`;
-            debugDiv.scrollTop = debugDiv.scrollHeight;
+            if (ua.includes('Windows')) os = 'Windows';
+            else if (ua.includes('Mac')) os = 'macOS';
+            else if (ua.includes('Linux')) os = 'Linux';
+            else if (ua.includes('Android')) os = 'Android';
+            else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+            
+            return { isMobile, deviceType, os, ua };
         }
 
-        function updateStatus(text, isError = false) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.innerHTML = text;
-            statusDiv.className = 'status ' + (isError ? 'error' : 'success');
-        }
+        // Перевіряємо пристрій при завантаженні
+        const device = getDeviceInfo();
+        console.log('Device info:', device);
 
-        // Початок перевірки
-        log('🚀 WebApp запущено');
-        log('User Agent: ' + navigator.userAgent);
-
-        try {
-            // Крок 1: Перевіряємо чи є Telegram API
-            log('📡 Крок 1: Перевірка window.Telegram');
+        // Якщо мобільний пристрій - блокуємо
+        if (device.isMobile) {
+            document.getElementById('mainContainer').style.display = 'none';
+            document.getElementById('blockedScreen').style.display = 'block';
+            document.getElementById('platformInfo').textContent = 
+                `Виявлено: ${device.os}\nМобільні пристрої не підтримуються`;
+        } else {
+            // Якщо ПК - показуємо меню
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.ready();
             
-            if (typeof window.Telegram !== 'undefined') {
-                log('✅ window.Telegram знайдено', 'success');
-                
-                // Крок 2: Перевіряємо чи є WebApp
-                log('📡 Крок 2: Перевірка window.Telegram.WebApp');
-                
-                if (typeof window.Telegram.WebApp !== 'undefined') {
-                    log('✅ window.Telegram.WebApp знайдено', 'success');
+            // Обробка кліків по меню
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const action = item.dataset.action;
+                    const now = new Date();
                     
-                    const tg = window.Telegram.WebApp;
+                    // Відправляємо дію в бота
+                    tg.sendData(JSON.stringify({
+                        action: action,
+                        timestamp: now.toISOString(),
+                        device: device.deviceType
+                    }));
                     
-                    // Крок 3: Розгортаємо WebApp
-                    log('📡 Крок 3: Виклик tg.expand()');
-                    tg.expand();
-                    log('✅ tg.expand() виконано', 'success');
-                    
-                    // Крок 4: Отримуємо платформу
-                    log('📡 Крок 4: Отримання платформи');
-                    const platform = tg.platform;
-                    log('✅ platform = ' + platform, 'success');
-                    
-                    // Крок 5: Визначаємо мобільний пристрій
-                    log('📡 Крок 5: Перевірка на мобільний пристрій');
-                    const isMobile = platform.includes('android') || platform.includes('ios');
-                    log('✅ isMobile = ' + isMobile, 'success');
-                    
-                    // Крок 6: Формуємо дані
-                    log('📡 Крок 6: Формування даних');
-                    const data = {
-                        platform: platform,
-                        isMobile: isMobile,
-                        timestamp: new Date().toISOString(),
-                        userAgent: navigator.userAgent
-                    };
-                    log('✅ Дані: ' + JSON.stringify(data), 'success');
-                    
-                    // Крок 7: Відправляємо дані
-                    log('📡 Крок 7: Відправка даних боту');
-                    log('📤 sendData(' + JSON.stringify(data) + ')');
-                    
-                    tg.sendData(JSON.stringify(data));
-                    
-                    log('✅ Дані відправлено!', 'success');
-                    updateStatus('✅ Дані успішно відправлено боту!');
-                    
-                    // Крок 8: Закриваємо WebApp
-                    log('📡 Крок 8: Закриття WebApp через 2 секунди');
+                    // Візуальний фідбек
+                    item.style.background = '#e0e0e0';
                     setTimeout(() => {
-                        log('🔚 Закриття WebApp');
-                        tg.close();
-                    }, 2000);
-                    
-                } else {
-                    log('❌ ПОМИЛКА: window.Telegram.WebApp не знайдено!', 'error');
-                    log('window.Telegram = ' + JSON.stringify(window.Telegram), 'error');
-                    updateStatus('❌ Telegram.WebApp API не доступний', true);
-                }
-            } else {
-                log('❌ ПОМИЛКА: window.Telegram не знайдено!', 'error');
-                log('Це означає, що WebApp відкрито не в Telegram', 'error');
-                log('window.Telegram = ' + window.Telegram, 'error');
-                updateStatus('❌ Запустіть WebApp в Telegram', true);
-            }
-        } catch (error) {
-            log('❌ КРИТИЧНА ПОМИЛКА: ' + error.message, 'error');
-            log('Stack: ' + error.stack, 'error');
-            updateStatus('❌ ' + error.message, true);
+                        item.style.background = 'white';
+                    }, 200);
+                });
+            });
         }
-        
-        log('🏁 Скрипт завершено');
     </script>
 </body>
 </html>
