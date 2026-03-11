@@ -231,66 +231,39 @@
     </div>
 
     <script>
-        // Функція для визначення пристрою
-        function getDeviceInfo() {
-            const ua = navigator.userAgent;
-            const platform = navigator.platform;
-            
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) 
-                || (platform && platform.includes('Mac') && navigator.maxTouchPoints > 1);
-                
-            const deviceType = isMobile ? 'mobile' : 'desktop';
-            let os = 'unknown';
-            
-            if (ua.includes('Windows')) os = 'Windows';
-            else if (ua.includes('Mac')) os = 'macOS';
-            else if (ua.includes('Linux')) os = 'Linux';
-            else if (ua.includes('Android')) os = 'Android';
-            else if (ua.includes('iPhone')) os = 'iOS';
-            else if (ua.includes('iPad')) os = 'iPadOS';
-            
-            return { isMobile, deviceType, os, ua };
-        }
+    function getDeviceInfo() {
+        const ua = navigator.userAgent;
+        const platform = navigator.platform;
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+        return { isMobile, deviceType: isMobile ? 'mobile' : 'desktop' };
+    }
 
-        // Перевіряємо пристрій при завантаженні
-        const device = getDeviceInfo();
-        console.log('Device info:', device);
+    const device = getDeviceInfo();
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.ready();
 
-        // Якщо мобільний пристрій - блокуємо
-        if (device.isMobile) {
-            document.getElementById('mainContainer').style.display = 'none';
-            document.getElementById('blockedScreen').style.display = 'block';
-            document.getElementById('platformInfo').textContent = 
-                `Виявлено: ${device.os}\nМобільні пристрої не підтримуються`;
-        } else {
-            // Якщо ПК - показуємо меню
-            const tg = window.Telegram.WebApp;
-            tg.expand();
-            tg.ready();
+    // Додаємо обробник на всі кнопки
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const action = this.dataset.action;
+            const data = {
+                action: action,
+                timestamp: new Date().toISOString(),
+                device: device.deviceType,
+                test: true
+            };
             
-            // ОБРОБКА КЛІКІВ ПО МЕНЮ
-            document.querySelectorAll('.menu-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const action = this.dataset.action;
-                    const now = new Date();
-                    
-                    console.log('Click:', action);
-                    
-                    // Відправляємо дію в бота
-                    tg.sendData(JSON.stringify({
-                        action: action,
-                        timestamp: now.toISOString(),
-                        device: device.deviceType
-                    }));
-                    
-                    // Візуальний фідбек
-                    this.style.background = '#e0e0e0';
-                    setTimeout(() => {
-                        this.style.background = 'white';
-                    }, 200);
-                });
-            });
-        }
-    </script>
+            console.log('Sending:', data);
+            
+            // Показуємо сповіщення що кнопка натиснута
+            alert(`Натиснуто: ${action}\nДані відправлено в бота`);
+            
+            // Відправляємо в бота
+            tg.sendData(JSON.stringify(data));
+        });
+    });
+</script>
 </body>
 </html>
+
