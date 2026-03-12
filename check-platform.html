@@ -1,5 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WorkBuddy</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto;
+            background: linear-gradient(180deg, #6a7cff, #7b61ff, #8c6cff);
+            color: white;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 18px;
+        }
+
+        /* HEADER */
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: white;
+            margin: auto;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            color: #333;
+        }
+
+        h2 {
+            font-size: 22px;
+            margin-top: 4px;
+        }
+
+        /* STATUS */
+        .status-box {
+            background: rgba(255, 255, 255, .2);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 10px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .status {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .last-action {
+            font-size: 12px;
+            opacity: .8;
+        }
+
+        /* MENU */
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, .92);
+            border-radius: 18px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: .15s;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
+        }
+
+        .card:active {
+            transform: scale(.96);
+        }
+
+        .icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: #f2f2f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .text {
+            flex: 1;
+        }
+
+        .title {
+            color: #1c1c1e;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .subtitle {
+            color: #6e6e73;
+            font-size: 11px;
+        }
+
+        /* SUCCESS */
+        .success {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: white;
+            color: #333;
+            padding: 20px 25px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, .3);
+            transition: .3s;
+        }
+
+        .success.show {
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div id="app">
+
+    <div class="container">
+
+        <div class="header">
+
+            <div class="avatar">🤖</div>
+
+            <h2 id="username">WorkBuddy</h2>
+
+        </div>
+
+        <div class="status-box">
+
+            <div class="status" id="statusText">
+                ⚪ Ви ще не на роботі
+            </div>
+
+            <div class="last-action" id="lastAction">
+                Остання дія: —
+            </div>
+
+        </div>
+
+        <div class="menu">
+
+            <div class="card" id="btn_work_start">
+                <div class="icon">🏢</div>
+                <div class="text">
+                    <div class="title">Прихід на роботу</div>
+                    <div class="subtitle">Початок робочого дня</div>
+                </div>
+            </div>
+
+            <div class="card" id="btn_coffee_start">
+                <div class="icon">☕</div>
+                <div class="text">
+                    <div class="title">Кава брейк</div>
+                    <div class="subtitle">Початок</div>
+                </div>
+            </div>
+
+            <div class="card" id="btn_coffee_end">
+                <div class="icon">✅</div>
+                <div class="text">
+                    <div class="title">Кінець кави</div>
+                    <div class="subtitle">Завершення</div>
+                </div>
+            </div>
+
+            <div class="card" id="btn_lunch_start">
+                <div class="icon">🍽</div>
+                <div class="text">
+                    <div class="title">Обід</div>
+                    <div class="subtitle">Початок</div>
+                </div>
+            </div>
+
+            <div class="card" id="btn_lunch_end">
+                <div class="icon">✅</div>
+                <div class="text">
+                    <div class="title">Кінець обіду</div>
+                    <div class="subtitle">Завершення</div>
+                </div>
+            </div>
+
+            <div class="card" id="btn_work_end">
+                <div class="icon">🏠</div>
+                <div class="text">
+                    <div class="title">Вихід з офісу</div>
+                    <div class="subtitle">Завершення робочого дня</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="success" id="successBox">
+    ✅ Збережено
+</div>
+
 <script>
+
     /* BLOCK MOBILE */
+
     if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
 
         document.body.innerHTML = `
@@ -14,9 +248,11 @@
         `;
 
         throw new Error("Mobile blocked")
+
     }
 
     /* TELEGRAM */
+
     const tg = window.Telegram.WebApp
     tg.ready()
     tg.expand()
@@ -28,6 +264,7 @@
     }
 
     /* BUTTON EVENTS */
+
     document.getElementById("btn_work_start").addEventListener("click", () => action("work_start"))
     document.getElementById("btn_coffee_start").addEventListener("click", () => action("coffee_start"))
     document.getElementById("btn_coffee_end").addEventListener("click", () => action("coffee_end"))
@@ -36,8 +273,9 @@
     document.getElementById("btn_work_end").addEventListener("click", () => action("work_end"))
 
     /* ACTION */
+
     function action(type) {
-        console.log("Action triggered:", type); // Логування виклику дії
+
         const now = new Date()
 
         const hour = now.getHours()
@@ -51,14 +289,13 @@
         const eveningStart = 17 * 60
         const eveningEnd = 19 * 60
 
-        console.log("Current time (minutes):", current); // Логування поточного часу
-
         if (type === "coffee_start" || type === "lunch_start") {
+
             if (
                 (current >= morningStart && current < morningEnd) ||
                 (current >= eveningStart && current < eveningEnd)
             ) {
-                console.log("Breaks are restricted in this time range."); // Логування заборони перерв
+
                 tg.showPopup({
                     title: "⛔ Перерва недоступна",
                     message: "З 10:00 до 11:00 та з 17:00 до 19:00 перерви заборонені.",
@@ -66,53 +303,70 @@
                 });
 
                 return
+
             }
+
         }
 
         const time = now.toLocaleTimeString()
 
         const actions = {
+
             work_start: "Прихід на роботу",
             coffee_start: "Початок кави",
             coffee_end: "Кінець кави",
             lunch_start: "Початок обіду",
             lunch_end: "Кінець обіду",
             work_end: "Вихід з офісу"
+
         }
 
         const statuses = {
+
             work_start: "🟢 Ви на роботі",
             coffee_start: "☕ Ви на каві",
             coffee_end: "🟢 Ви на роботі",
             lunch_start: "🍽 Ви на обіді",
             lunch_end: "🟢 Ви на роботі",
             work_end: "🔴 Робочий день завершено"
+
         }
 
         /* UPDATE STATUS */
+
         document.getElementById("statusText").textContent = statuses[type]
+
         document.getElementById("lastAction").textContent =
             "Остання дія: " + actions[type] + " (" + time + ")"
 
-        console.log("Status updated:", statuses[type]); // Логування оновлення статусу
-
         /* TELEGRAM */
+
         tg.HapticFeedback.impactOccurred("medium")
+
         tg.sendData(JSON.stringify({
             action: type,
             time: new Date().toISOString()
         }))
 
         showSuccess()
+
     }
 
     /* SUCCESS */
+
     function showSuccess() {
+
         const box = document.getElementById("successBox")
+
         box.classList.add("show")
+
         setTimeout(() => {
             box.classList.remove("show")
         }, 1200)
+
     }
 
 </script>
+
+</body>
+</html>
