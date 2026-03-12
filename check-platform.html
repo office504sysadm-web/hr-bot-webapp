@@ -181,7 +181,7 @@ transform:translate(-50%,-50%) scale(1);
 
 <div class="menu">
 
-<div class="card" onclick="action('work_start')">
+<div class="card" id="btn_work_start">
 <div class="icon">🏢</div>
 <div class="text">
 <div class="title">Прихід на роботу</div>
@@ -189,7 +189,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('coffee_start')">
+<div class="card" id="btn_coffee_start">
 <div class="icon">☕</div>
 <div class="text">
 <div class="title">Кава брейк</div>
@@ -197,7 +197,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('coffee_end')">
+<div class="card" id="btn_coffee_end">
 <div class="icon">✅</div>
 <div class="text">
 <div class="title">Кінець кави</div>
@@ -205,7 +205,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('lunch_start')">
+<div class="card" id="btn_lunch_start">
 <div class="icon">🍽</div>
 <div class="text">
 <div class="title">Обід</div>
@@ -213,7 +213,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('lunch_end')">
+<div class="card" id="btn_lunch_end">
 <div class="icon">✅</div>
 <div class="text">
 <div class="title">Кінець обіду</div>
@@ -221,7 +221,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('work_end')">
+<div class="card" id="btn_work_end">
 <div class="icon">🏠</div>
 <div class="text">
 <div class="title">Вихід з офісу</div>
@@ -272,27 +272,14 @@ if(user){
 document.getElementById("username").textContent = user.first_name
 }
 
-/* STATUS UPDATE FUNCTION */
+/* BUTTON EVENTS */
 
-function updateStatus(text){
-
-const el=document.getElementById("statusText")
-
-el.textContent=""
-
-setTimeout(()=>{
-el.textContent=text
-},10)
-
-/* force repaint */
-
-el.style.opacity="0.99"
-
-setTimeout(()=>{
-el.style.opacity="1"
-},50)
-
-}
+document.getElementById("btn_work_start").addEventListener("click", ()=>action("work_start"))
+document.getElementById("btn_coffee_start").addEventListener("click", ()=>action("coffee_start"))
+document.getElementById("btn_coffee_end").addEventListener("click", ()=>action("coffee_end"))
+document.getElementById("btn_lunch_start").addEventListener("click", ()=>action("lunch_start"))
+document.getElementById("btn_lunch_end").addEventListener("click", ()=>action("lunch_end"))
+document.getElementById("btn_work_end").addEventListener("click", ()=>action("work_end"))
 
 /* ACTION */
 
@@ -356,7 +343,7 @@ work_end:"🔴 Робочий день завершено"
 
 /* UPDATE STATUS */
 
-updateStatus(statuses[type])
+document.getElementById("statusText").textContent = statuses[type]
 
 document.getElementById("lastAction").textContent =
 "Остання дія: " + actions[type] + " (" + time + ")"
@@ -365,14 +352,10 @@ document.getElementById("lastAction").textContent =
 
 tg.HapticFeedback.impactOccurred("medium")
 
-setTimeout(()=>{
-
 tg.sendData(JSON.stringify({
 action:type,
 time:new Date().toISOString()
 }))
-
-},100)
 
 showSuccess()
 
