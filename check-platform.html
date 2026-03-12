@@ -308,7 +308,7 @@
 
         }
 
-        const time = now.toLocaleTimeString()
+        const time = hour + ":" + (minutes < 10 ? "0" + minutes : minutes);  // Форматуємо час як "години:хвилини"
 
         const actions = {
 
@@ -334,8 +334,7 @@
 
         /* UPDATE STATUS */
 
-        document.getElementById("statusText").textContent = statuses[type]
-
+        document.getElementById("statusText").textContent = statuses[type] + " (" + time + ")"
         document.getElementById("lastAction").textContent =
             "Остання дія: " + actions[type] + " (" + time + ")"
 
@@ -352,7 +351,7 @@
 
         // Зберігаємо статус в localStorage
         localStorage.setItem("userStatus", type)
-
+        localStorage.setItem("statusTime", time); // зберігаємо час
     }
 
     /* SUCCESS */
@@ -372,36 +371,38 @@
     // Відновлення статусу при відкритті меню
     window.onload = () => {
         const savedStatus = localStorage.getItem("userStatus");
+        const savedTime = localStorage.getItem("statusTime"); // додаємо час
+
         if (savedStatus) {
-            updateStatus(savedStatus);
+            updateStatus(savedStatus, savedTime);
         }
     };
 
-    function updateStatus(action) {
+    function updateStatus(action, time) {
         const statusText = document.getElementById("statusText");
 
         if (action === "work_start") {
-            statusText.innerText = "🟢 Ви на роботі";
+            statusText.innerText = "🟢 Ви на роботі (" + time + ")";
         }
 
         if (action === "coffee_start") {
-            statusText.innerText = "☕ Ви на каві";
+            statusText.innerText = "☕ Ви на каві (" + time + ")";
         }
 
         if (action === "coffee_end") {
-            statusText.innerText = "🟢 Ви на роботі";  // Повертаємось на роботу після кави
+            statusText.innerText = "🟢 Ви на роботі (" + time + ")";  // Повертаємось на роботу після кави
         }
 
         if (action === "lunch_start") {
-            statusText.innerText = "🍽 Ви на обіді";
+            statusText.innerText = "🍽 Ви на обіді (" + time + ")";
         }
 
         if (action === "lunch_end") {
-            statusText.innerText = "🟢 Ви на роботі";  // Повертаємось на роботу після обіду
+            statusText.innerText = "🟢 Ви на роботі (" + time + ")";  // Повертаємось на роботу після обіду
         }
 
         if (action === "work_end") {
-            statusText.innerText = "🔴 Ви не на роботі";
+            statusText.innerText = "🔴 Ви не на роботі (" + time + ")";
         }
     }
 
