@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -26,7 +26,6 @@
             padding: 18px;
         }
 
-        /* HEADER */
         .header {
             text-align: center;
             margin-bottom: 10px;
@@ -51,7 +50,6 @@
             margin-top: 4px;
         }
 
-        /* STATUS */
         .status-box {
             background: rgba(255, 255, 255, .2);
             backdrop-filter: blur(20px);
@@ -71,7 +69,6 @@
             opacity: .8;
         }
 
-        /* MENU */
         .menu {
             display: flex;
             flex-direction: column;
@@ -120,7 +117,6 @@
             font-size: 11px;
         }
 
-        /* SUCCESS */
         .success {
             position: fixed;
             top: 50%;
@@ -220,7 +216,7 @@
         </div>
         </div>
         `;
-        throw new Error("Mobile blocked")
+        throw new Error("Mobile blocked");
     }
 
     /* TELEGRAM */
@@ -246,15 +242,8 @@
         const now = new Date();
         const hour = now.getHours();
         const minutes = now.getMinutes();
-
-        const current = hour * 60 + minutes;
-        const morningStart = 10 * 60;
-        const morningEnd = 11 * 60;
-
-        const eveningStart = 17 * 60;
-        const eveningEnd = 19 * 60;
-
         const time = hour + ":" + (minutes < 10 ? "0" + minutes : minutes); // Форматуємо час як "години:хвилини"
+
         const actions = {
             work_start: "Прихід на роботу",
             coffee_start: "Початок кави",
@@ -274,11 +263,8 @@
         };
 
         const lastWorkStart = localStorage.getItem("lastWorkStart");
-        const lastWorkEnd = localStorage.getItem("lastWorkEnd");
-        const coffeeUsed = parseInt(localStorage.getItem("coffeeUsed") || "0");
-        const lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
 
-        // Перевірка для кнопки "Прихід на роботу" (можна натискати лише один раз на добу)
+        // Перевірка для кнопки "Прихід на роботу"
         if (type === "work_start") {
             if (lastWorkStart && (new Date() - new Date(lastWorkStart)) < 24 * 60 * 60 * 1000) {
                 tg.showPopup({
@@ -291,49 +277,13 @@
         }
 
         // Перевірка для кнопок "Кава" та "Обід" до натискання "Прихід на роботу"
-        if (!lastWorkStart || (new Date() - new Date(lastWorkStart)) < 24 * 60 * 60 * 1000) {
+        if (!lastWorkStart) {
             tg.showPopup({
                 title: "⛔ Помилка",
                 message: "Ви повинні спочатку прийти на роботу.",
                 buttons: [{ type: "ok" }]
             });
             return;
-        }
-
-        // Перевірка для кнопки "Вихід з офісу" (можна натискати лише один раз на добу)
-        if (type === "work_end") {
-            if (lastWorkEnd && (new Date() - new Date(lastWorkEnd)) < 24 * 60 * 60 * 1000) {
-                tg.showPopup({
-                    title: "⛔ Помилка",
-                    message: "Ви вже вийшли з офісу сьогодні.",
-                    buttons: [{ type: "ok" }]
-                });
-                return;
-            }
-        }
-
-        // Перевірка для кави
-        if (type === "coffee_start") {
-            if (coffeeUsed >= 45) {  // Якщо вже використано більше 45 хвилин на каву
-                tg.showPopup({
-                    title: "⛔ Час на каву використано",
-                    message: "Ви вже використали час на каву на сьогодні.",
-                    buttons: [{ type: "ok" }]
-                });
-                return;
-            }
-        }
-
-        // Перевірка для обіду
-        if (type === "lunch_start") {
-            if (lunchUsed >= 60) {  // Якщо вже використано більше 60 хвилин на обід
-                tg.showPopup({
-                    title: "⛔ Час на обід використано",
-                    message: "Ви вже використали час на обід на сьогодні.",
-                    buttons: [{ type: "ok" }]
-                });
-                return;
-            }
         }
 
         // Оновлення статусу
@@ -351,11 +301,9 @@
         // Зберігаємо статуси в localStorage
         if (type === "work_start") {
             localStorage.setItem("lastWorkStart", new Date().toISOString());
-            localStorage.setItem("coffeeUsed", 0);  // Скидаємо лічильник кави
-            localStorage.setItem("lunchUsed", 0);  // Скидаємо лічильник обіду
-            document.getElementById("btn_coffee_start").style.pointerEvents = "auto"; // Активуємо кнопки кави та обіду
+            document.getElementById("btn_coffee_start").style.pointerEvents = "auto"; // Активуємо кнопки кави
             document.getElementById("btn_coffee_start").style.opacity = 1;
-            document.getElementById("btn_lunch_start").style.pointerEvents = "auto";
+            document.getElementById("btn_lunch_start").style.pointerEvents = "auto"; // Активуємо кнопки обіду
             document.getElementById("btn_lunch_start").style.opacity = 1;
             document.getElementById("btn_work_start").style.pointerEvents = "none";  // Вимикаємо кнопку "Прихід"
             document.getElementById("btn_work_start").style.opacity = 0.5;
@@ -363,15 +311,6 @@
 
         if (type === "work_end") {
             localStorage.setItem("lastWorkEnd", new Date().toISOString());
-        }
-
-        // Оновлюємо лічильник кави та обіду
-        if (type === "coffee_start") {
-            localStorage.setItem("coffeeUsed", coffeeUsed + 15);  // додаємо 15 хвилин до кави
-        }
-
-        if (type === "lunch_start") {
-            localStorage.setItem("lunchUsed", lunchUsed + 60);  // додаємо 60 хвилин до обіду
         }
     }
 
