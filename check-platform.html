@@ -145,11 +145,26 @@ transition:.3s;
 transform:translate(-50%,-50%) scale(1);
 }
 
+/* BLOCKED PAGE */
+
+.blocked{
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+text-align:center;
+font-family:Arial;
+background:#f5f5f5;
+color:#333;
+}
+
 </style>
 
 </head>
 
 <body>
+
+<div id="app">
 
 <div class="container">
 
@@ -227,16 +242,39 @@ transform:translate(-50%,-50%) scale(1);
 
 </div>
 
+</div>
+
 <div class="success" id="successBox">
 ✅ Збережено
 </div>
 
 <script>
 
+/* БЛОКУВАННЯ МОБІЛЬНИХ */
+
+if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+
+document.body.innerHTML = `
+<div class="blocked">
+<div>
+<h2>❌ HR система доступна тільки з ПК</h2>
+<p>Будь ласка відкрийте бота через Telegram Desktop</p>
+</div>
+</div>
+`;
+
+throw new Error("Mobile device blocked")
+
+}
+
+/* TELEGRAM WEBAPP */
+
 const tg = window.Telegram.WebApp
 
 tg.ready()
 tg.expand()
+
+/* USER INFO */
 
 const user = tg.initDataUnsafe.user
 
@@ -253,6 +291,8 @@ document.getElementById("avatar").innerHTML =
 }
 
 }
+
+/* ACTION FUNCTION */
 
 function action(type){
 
@@ -328,6 +368,8 @@ time:new Date().toISOString()
 showSuccess()
 
 }
+
+/* SUCCESS */
 
 function showSuccess(){
 
