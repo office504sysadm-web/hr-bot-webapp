@@ -25,7 +25,7 @@ display:flex;
 justify-content:center;
 }
 
-/* MAIN CONTAINER */
+/* MAIN */
 
 .container{
 width:100%;
@@ -65,8 +65,8 @@ margin-top:4px;
 background:rgba(255,255,255,.2);
 backdrop-filter:blur(20px);
 border-radius:16px;
-padding:10px;
-margin-bottom:12px;
+padding:12px;
+margin-bottom:14px;
 text-align:center;
 }
 
@@ -77,7 +77,8 @@ font-weight:600;
 
 .last-action{
 font-size:12px;
-opacity:.8;
+opacity:.85;
+margin-top:2px;
 }
 
 /* MENU */
@@ -115,9 +116,7 @@ justify-content:center;
 font-size:18px;
 }
 
-.text{
-flex:1;
-}
+.text{flex:1;}
 
 .title{
 color:#1c1c1e;
@@ -139,9 +138,9 @@ left:50%;
 transform:translate(-50%,-50%) scale(0);
 background:white;
 color:#333;
-padding:20px 25px;
+padding:18px 24px;
 border-radius:16px;
-font-size:18px;
+font-size:17px;
 font-weight:600;
 box-shadow:0 20px 40px rgba(0,0,0,.3);
 transition:.3s;
@@ -157,8 +156,6 @@ transform:translate(-50%,-50%) scale(1);
 
 <body>
 
-<div id="app">
-
 <div class="container">
 
 <div class="header">
@@ -172,7 +169,7 @@ transform:translate(-50%,-50%) scale(1);
 <div class="status-box">
 
 <div class="status" id="statusText">
-⚪ Не на роботі
+⚪ Ви ще не на роботі
 </div>
 
 <div class="last-action" id="lastAction">
@@ -226,11 +223,9 @@ transform:translate(-50%,-50%) scale(1);
 <div class="card" onclick="action('work_end')">
 <div class="icon">🏠</div>
 <div class="text">
-<div class="title">Відхід з офісу</div>
+<div class="title">Вихід з офісу</div>
 <div class="subtitle">Завершення робочого дня</div>
 </div>
-</div>
-
 </div>
 
 </div>
@@ -243,12 +238,11 @@ transform:translate(-50%,-50%) scale(1);
 
 <script>
 
-/* BLOCK MOBILE DEVICES */
+/* BLOCK MOBILE */
 
 if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
 
 document.body.innerHTML = `
-
 <style>
 
 .mobile-block{
@@ -277,22 +271,10 @@ font-size:60px;
 margin-bottom:10px;
 }
 
-.block-title{
-font-size:22px;
-font-weight:600;
-margin-bottom:10px;
-}
-
 .block-text{
 font-size:15px;
 opacity:.9;
 line-height:1.5;
-}
-
-.block-tip{
-margin-top:18px;
-font-size:13px;
-opacity:.75;
 }
 
 </style>
@@ -301,12 +283,12 @@ opacity:.75;
 
 <div class="block-card">
 
-<div class="block-robot">❌</div>
+<div class="block-robot">🤖</div>
 
 <div class="block-text">
-А шлях би його трапив 🤖<br> 
-Схоже, моє меню на телефоні не працює.<br> 
-Краще відкрий мене з комп'ютера.💻
+А шлях би його трапив!<br>
+Схоже, моє меню на телефоні не працює.<br>
+Краще відкрий мене з комп'ютера 💻
 </div>
 
 </div>
@@ -318,24 +300,22 @@ throw new Error("Mobile blocked")
 
 }
 
-/* TELEGRAM WEBAPP */
+/* TELEGRAM */
 
 const tg = window.Telegram.WebApp
 
 tg.ready()
 tg.expand()
 
-/* USER INFO */
+/* USER */
 
 const user = tg.initDataUnsafe.user
 
 if(user){
-
-document.getElementById("username").innerText = user.first_name
-
+document.getElementById("username").innerHTML = user.first_name
 }
 
-/* ACTION FUNCTION */
+/* ACTION */
 
 function action(type){
 
@@ -344,19 +324,19 @@ const now = new Date()
 const hour = now.getHours()
 const minutes = now.getMinutes()
 
-const current = hour * 60 + minutes
+const current = hour*60 + minutes
 
-const morningStart = 10 * 60
-const morningEnd = 11 * 60
+const morningStart = 10*60
+const morningEnd = 11*60
 
-const eveningStart = 17 * 60
-const eveningEnd = 19 * 60
+const eveningStart = 17*60
+const eveningEnd = 19*60
 
-if(type === "coffee_start" || type === "lunch_start"){
+if(type==="coffee_start" || type==="lunch_start"){
 
 if(
-(current >= morningStart && current < morningEnd) ||
-(current >= eveningStart && current < eveningEnd)
+(current>=morningStart && current<morningEnd) ||
+(current>=eveningStart && current<eveningEnd)
 ){
 
 tg.showPopup({
@@ -386,19 +366,23 @@ work_end:"Вихід з офісу"
 
 const statuses = {
 
-work_start:"🟢 На роботі",
-coffee_start:"☕ Кава",
-coffee_end:"🟢 На роботі",
-lunch_start:"🍽 Обід",
-lunch_end:"🟢 На роботі",
+work_start:"🟢 Ви на роботі",
+coffee_start:"☕ Ви на каві",
+coffee_end:"🟢 Ви на роботі",
+lunch_start:"🍽 Ви на обіді",
+lunch_end:"🟢 Ви на роботі",
 work_end:"🔴 Робочий день завершено"
 
 }
 
-document.getElementById("statusText").innerText = statuses[type]
+/* UPDATE UI */
 
-document.getElementById("lastAction").innerText =
-"Остання дія: " + actions[type] + " (" + time + ")"
+document.getElementById("statusText").innerHTML = statuses[type]
+
+document.getElementById("lastAction").innerHTML =
+"Остання дія: "+actions[type]+" ("+time+")"
+
+/* TELEGRAM */
 
 tg.HapticFeedback.impactOccurred("medium")
 
@@ -429,5 +413,3 @@ box.classList.remove("show")
 
 </body>
 </html>
-
-
