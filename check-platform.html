@@ -11,17 +11,21 @@
 
 <style>
 
-*{box-sizing:border-box;}
-
-html,body{
+*{
+box-sizing:border-box;
 margin:0;
 padding:0;
+}
+
+body{
 font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto;
 background:linear-gradient(180deg,#6a7cff,#7b61ff,#8c6cff);
 color:white;
 display:flex;
 justify-content:center;
 }
+
+/* MAIN CONTAINER */
 
 .container{
 width:100%;
@@ -52,7 +56,7 @@ color:#333;
 
 h2{
 font-size:22px;
-margin:4px 0;
+margin-top:4px;
 }
 
 /* STATUS */
@@ -111,7 +115,9 @@ justify-content:center;
 font-size:18px;
 }
 
-.text{flex:1;}
+.text{
+flex:1;
+}
 
 .title{
 color:#1c1c1e;
@@ -143,19 +149,6 @@ transition:.3s;
 
 .success.show{
 transform:translate(-50%,-50%) scale(1);
-}
-
-/* BLOCKED PAGE */
-
-.blocked{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-text-align:center;
-font-family:Arial;
-background:#f5f5f5;
-color:#333;
 }
 
 </style>
@@ -233,7 +226,7 @@ color:#333;
 <div class="card" onclick="action('work_end')">
 <div class="icon">🏠</div>
 <div class="text">
-<div class="title">Вихід з офісу</div>
+<div class="title">Відхід з офісу</div>
 <div class="subtitle">Завершення робочого дня</div>
 </div>
 </div>
@@ -247,6 +240,10 @@ color:#333;
 <div class="success" id="successBox">
 ✅ Збережено
 </div>
+
+<script>
+
+/* BLOCK MOBILE DEVICES */
 
 if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
 
@@ -311,8 +308,9 @@ opacity:.75;
 </div>
 
 <div class="block-text">
-Я допомагаю відмічати робочий час.<br>
-Але меню працює тільки з комп'ютера.
+А шлях би його трапив 🤖<br>
+Схоже, моє меню не працює на телефоні.<br>
+Краще відкрий мене з комп'ютера.
 </div>
 
 <div class="block-tip">
@@ -323,7 +321,7 @@ opacity:.75;
 </div>
 
 </div>
-`;
+`
 
 throw new Error("Mobile blocked")
 
@@ -342,15 +340,7 @@ const user = tg.initDataUnsafe.user
 
 if(user){
 
-document.getElementById("username").innerText =
-user.first_name
-
-if(user.photo_url){
-
-document.getElementById("avatar").innerHTML =
-`<img src="${user.photo_url}" style="width:55px;height:55px;border-radius:50%">`
-
-}
+document.getElementById("username").innerText = user.first_name
 
 }
 
@@ -414,8 +404,7 @@ work_end:"🔴 Робочий день завершено"
 
 }
 
-document.getElementById("statusText").innerText =
-statuses[type]
+document.getElementById("statusText").innerText = statuses[type]
 
 document.getElementById("lastAction").innerText =
 "Остання дія: " + actions[type] + " (" + time + ")"
@@ -449,4 +438,3 @@ box.classList.remove("show")
 
 </body>
 </html>
-
