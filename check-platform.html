@@ -248,22 +248,84 @@ color:#333;
 ✅ Збережено
 </div>
 
-<script>
-
-/* БЛОКУВАННЯ МОБІЛЬНИХ */
-
 if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
 
 document.body.innerHTML = `
-<div class="blocked">
-<div>
-<h2>❌ HR система доступна тільки з ПК</h2>
-<p>Будь ласка відкрийте бота через Telegram Desktop</p>
+
+<style>
+
+.mobile-block{
+height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto;
+background:linear-gradient(180deg,#6a7cff,#7b61ff,#8c6cff);
+color:white;
+text-align:center;
+padding:30px;
+}
+
+.block-card{
+background:rgba(255,255,255,0.15);
+backdrop-filter:blur(20px);
+border-radius:24px;
+padding:40px 30px;
+max-width:320px;
+box-shadow:0 20px 40px rgba(0,0,0,0.25);
+}
+
+.block-robot{
+font-size:60px;
+margin-bottom:10px;
+}
+
+.block-title{
+font-size:22px;
+font-weight:600;
+margin-bottom:10px;
+}
+
+.block-text{
+font-size:15px;
+opacity:.9;
+line-height:1.5;
+}
+
+.block-tip{
+margin-top:18px;
+font-size:13px;
+opacity:.75;
+}
+
+</style>
+
+<div class="mobile-block">
+
+<div class="block-card">
+
+<div class="block-robot">🤖</div>
+
+<div class="block-title">
+Привіт! Я WorkBuddy
 </div>
+
+<div class="block-text">
+Я допомагаю відмічати робочий час.<br>
+Але меню працює тільки з комп'ютера.
+</div>
+
+<div class="block-tip">
+💻 Відкрий мене через<br>
+<b>Telegram Desktop</b>
+</div>
+
+</div>
+
 </div>
 `;
 
-throw new Error("Mobile device blocked")
+throw new Error("Mobile blocked")
 
 }
 
@@ -387,3 +449,4 @@ box.classList.remove("show")
 
 </body>
 </html>
+
