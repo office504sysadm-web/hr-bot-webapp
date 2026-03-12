@@ -3,7 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>WorkBuddy</title>
 
@@ -16,13 +16,8 @@
 html,body{
 margin:0;
 padding:0;
-height:100%;
-overflow:hidden;
-
 font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto;
-
 background:linear-gradient(180deg,#6a7cff,#7b61ff,#8c6cff);
-
 color:white;
 display:flex;
 justify-content:center;
@@ -33,6 +28,8 @@ width:100%;
 max-width:420px;
 padding:18px;
 }
+
+/* HEADER */
 
 .header{
 text-align:center;
@@ -58,6 +55,8 @@ font-size:22px;
 margin:4px 0;
 }
 
+/* STATUS */
+
 .status-box{
 background:rgba(255,255,255,.2);
 backdrop-filter:blur(20px);
@@ -76,6 +75,8 @@ font-weight:600;
 font-size:12px;
 opacity:.8;
 }
+
+/* MENU */
 
 .menu{
 display:flex;
@@ -123,6 +124,8 @@ color:#6e6e73;
 font-size:11px;
 }
 
+/* SUCCESS */
+
 .success{
 position:fixed;
 top:50%;
@@ -140,13 +143,6 @@ transition:.3s;
 
 .success.show{
 transform:translate(-50%,-50%) scale(1);
-}
-
-.footer{
-margin-top:4px;
-text-align:center;
-font-size:10px;
-opacity:.5;
 }
 
 </style>
@@ -237,75 +233,62 @@ opacity:.5;
 
 <script>
 
-const tg = window.Telegram.WebApp;
+const tg = window.Telegram.WebApp
 
-tg.ready();
-tg.expand();
-tg.disableVerticalSwipes();
+tg.ready()
+tg.expand()
 
-const user = tg.initDataUnsafe.user;
+const user = tg.initDataUnsafe.user
 
 if(user){
 
 document.getElementById("username").innerText =
-user.first_name;
+user.first_name
 
 if(user.photo_url){
 
 document.getElementById("avatar").innerHTML =
-`<img src="${user.photo_url}" style="width:55px;height:55px;border-radius:50%">`;
+`<img src="${user.photo_url}" style="width:55px;height:55px;border-radius:50%">`
 
 }
-
-}
-
-/* перевірка дозволу перерв */
-
-function isBreakAllowed(type){
-
-if(type !== "coffee_start" && type !== "lunch_start"){
-return true;
-}
-
-const now = new Date();
-
-const hour = now.getHours();
-const minutes = now.getMinutes();
-
-const current = hour * 60 + minutes;
-
-const morningStart = 10 * 60;
-const morningEnd = 11 * 60;
-
-const eveningStart = 17 * 60;
-const eveningEnd = 19 * 60;
-
-if(
-(current >= morningStart && current < morningEnd) ||
-(current >= eveningStart && current < eveningEnd)
-){
-return false;
-}
-
-return true;
 
 }
 
 function action(type){
 
-if(!isBreakAllowed(type)){
+const now = new Date()
+
+const hour = now.getHours()
+const minutes = now.getMinutes()
+
+const current = hour * 60 + minutes
+
+const morningStart = 10 * 60
+const morningEnd = 11 * 60
+
+const eveningStart = 17 * 60
+const eveningEnd = 19 * 60
+
+if(type === "coffee_start" || type === "lunch_start"){
+
+if(
+(current >= morningStart && current < morningEnd) ||
+(current >= eveningStart && current < eveningEnd)
+){
 
 tg.showPopup({
 title:"⛔ Перерва недоступна",
-message:"У першу та останню робочу годину не можна брати каву або обід.",
+message:"З 10:00 до 11:00 та з 17:00 до 19:00 перерви заборонені.",
 buttons:[{type:"ok"}]
-});
+})
 
-return;
+return
 
 }
 
-const time = new Date().toLocaleTimeString();
+}
+
+const time = now.toLocaleTimeString()
 
 const actions = {
 
@@ -316,7 +299,7 @@ lunch_start:"Початок обіду",
 lunch_end:"Кінець обіду",
 work_end:"Вихід з офісу"
 
-};
+}
 
 const statuses = {
 
@@ -327,34 +310,34 @@ lunch_start:"🍽 Обід",
 lunch_end:"🟢 На роботі",
 work_end:"🔴 Робочий день завершено"
 
-};
+}
 
 document.getElementById("statusText").innerText =
-statuses[type];
+statuses[type]
 
 document.getElementById("lastAction").innerText =
-"Остання дія: "+actions[type]+" ("+time+")";
+"Остання дія: " + actions[type] + " (" + time + ")"
 
-tg.HapticFeedback.impactOccurred("medium");
+tg.HapticFeedback.impactOccurred("medium")
 
 tg.sendData(JSON.stringify({
 action:type,
 time:new Date().toISOString()
-}));
+}))
 
-showSuccess();
+showSuccess()
 
 }
 
 function showSuccess(){
 
-const box=document.getElementById("successBox");
+const box=document.getElementById("successBox")
 
-box.classList.add("show");
+box.classList.add("show")
 
 setTimeout(()=>{
-box.classList.remove("show");
-},1200);
+box.classList.remove("show")
+},1200)
 
 }
 
@@ -362,4 +345,3 @@ box.classList.remove("show");
 
 </body>
 </html>
-
