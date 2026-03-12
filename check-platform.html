@@ -165,7 +165,7 @@
             </div>
 
             <div class="last-action" id="lastAction">
-                Остання дія: —
+                Остання дія: — 
             </div>
 
         </div>
@@ -379,26 +379,29 @@
 
     function updateStatus(action) {
         const statusText = document.getElementById("statusText");
-        const statusDot = document.getElementById("statusDot");
 
         if (action === "work_start") {
             statusText.innerText = "🟢 Ви на роботі";
-            statusDot.style.background = "#22c55e";
         }
 
         if (action === "coffee_start") {
             statusText.innerText = "☕ Ви на каві";
-            statusDot.style.background = "#f59e0b";
+        }
+
+        if (action === "coffee_end") {
+            statusText.innerText = "🟢 Ви на роботі";  // Повертаємось на роботу після кави
         }
 
         if (action === "lunch_start") {
             statusText.innerText = "🍽 Ви на обіді";
-            statusDot.style.background = "#f59e0b";
+        }
+
+        if (action === "lunch_end") {
+            statusText.innerText = "🟢 Ви на роботі";  // Повертаємось на роботу після обіду
         }
 
         if (action === "work_end") {
             statusText.innerText = "🔴 Ви не на роботі";
-            statusDot.style.background = "#9ca3af";
         }
     }
 
