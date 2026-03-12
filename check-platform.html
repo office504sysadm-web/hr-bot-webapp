@@ -401,6 +401,20 @@
             document.getElementById("btn_lunch_start").style.opacity = 0.5;
             document.getElementById("btn_work_end").style.pointerEvents = "none";
             document.getElementById("btn_work_end").style.opacity = 0.5;
+        } else if (workStatus === "lunch_start") {
+            // Коли натискається "Обід", тільки кнопка "Кінець обіду" активна
+            document.getElementById("btn_lunch_start").style.pointerEvents = "none";
+            document.getElementById("btn_lunch_start").style.opacity = 0.5;
+            document.getElementById("btn_lunch_end").style.pointerEvents = "auto";
+            document.getElementById("btn_lunch_end").style.opacity = 1;
+            document.getElementById("btn_work_start").style.pointerEvents = "none";
+            document.getElementById("btn_work_start").style.opacity = 0.5;
+            document.getElementById("btn_online_start").style.pointerEvents = "none";
+            document.getElementById("btn_online_start").style.opacity = 0.5;
+            document.getElementById("btn_coffee_start").style.pointerEvents = "none";
+            document.getElementById("btn_coffee_start").style.opacity = 0.5;
+            document.getElementById("btn_work_end").style.pointerEvents = "none";
+            document.getElementById("btn_work_end").style.opacity = 0.5;
         }
     }
 </script>
