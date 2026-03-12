@@ -160,7 +160,7 @@ transform:translate(-50%,-50%) scale(1);
 
 <div class="header">
 
-<div class="avatar" id="avatar">🤖</div>
+<div class="avatar">🤖</div>
 
 <h2 id="username">WorkBuddy</h2>
 
@@ -180,7 +180,7 @@ transform:translate(-50%,-50%) scale(1);
 
 <div class="menu">
 
-<div class="card" onclick="action('work_start')">
+<div class="card" id="btn_work_start">
 <div class="icon">🏢</div>
 <div class="text">
 <div class="title">Прихід на роботу</div>
@@ -188,7 +188,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('coffee_start')">
+<div class="card" id="btn_coffee_start">
 <div class="icon">☕</div>
 <div class="text">
 <div class="title">Кава брейк</div>
@@ -196,7 +196,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('coffee_end')">
+<div class="card" id="btn_coffee_end">
 <div class="icon">✅</div>
 <div class="text">
 <div class="title">Кінець кави</div>
@@ -204,7 +204,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('lunch_start')">
+<div class="card" id="btn_lunch_start">
 <div class="icon">🍽</div>
 <div class="text">
 <div class="title">Обід</div>
@@ -212,7 +212,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('lunch_end')">
+<div class="card" id="btn_lunch_end">
 <div class="icon">✅</div>
 <div class="text">
 <div class="title">Кінець обіду</div>
@@ -220,7 +220,7 @@ transform:translate(-50%,-50%) scale(1);
 </div>
 </div>
 
-<div class="card" onclick="action('work_end')">
+<div class="card" id="btn_work_end">
 <div class="icon">🏠</div>
 <div class="text">
 <div class="title">Вихід з офісу</div>
@@ -244,7 +244,6 @@ if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
 
 document.body.innerHTML = `
 <style>
-
 .mobile-block{
 height:100vh;
 display:flex;
@@ -256,7 +255,6 @@ color:white;
 text-align:center;
 padding:30px;
 }
-
 .block-card{
 background:rgba(255,255,255,0.15);
 backdrop-filter:blur(20px);
@@ -265,34 +263,26 @@ padding:40px 30px;
 max-width:320px;
 box-shadow:0 20px 40px rgba(0,0,0,0.25);
 }
-
 .block-robot{
 font-size:60px;
 margin-bottom:10px;
 }
-
 .block-text{
 font-size:15px;
 opacity:.9;
 line-height:1.5;
 }
-
 </style>
 
 <div class="mobile-block">
-
 <div class="block-card">
-
 <div class="block-robot">🤖</div>
-
 <div class="block-text">
 А шлях би його трапив!<br>
 Схоже, моє меню на телефоні не працює.<br>
 Краще відкрий мене з комп'ютера 💻
 </div>
-
 </div>
-
 </div>
 `
 
@@ -300,10 +290,9 @@ throw new Error("Mobile blocked")
 
 }
 
-/* TELEGRAM */
+/* TELEGRAM INIT */
 
 const tg = window.Telegram.WebApp
-
 tg.ready()
 tg.expand()
 
@@ -315,7 +304,27 @@ if(user){
 document.getElementById("username").innerHTML = user.first_name
 }
 
-/* ACTION */
+/* ACTION DATA */
+
+const actions = {
+work_start:"Прихід на роботу",
+coffee_start:"Початок кави",
+coffee_end:"Кінець кави",
+lunch_start:"Початок обіду",
+lunch_end:"Кінець обіду",
+work_end:"Вихід з офісу"
+}
+
+const statuses = {
+work_start:"🟢 Ви на роботі",
+coffee_start:"☕ Ви на каві",
+coffee_end:"🟢 Ви на роботі",
+lunch_start:"🍽 Ви на обіді",
+lunch_end:"🟢 Ви на роботі",
+work_end:"🔴 Робочий день завершено"
+}
+
+/* ACTION FUNCTION */
 
 function action(type){
 
@@ -353,36 +362,10 @@ return
 
 const time = now.toLocaleTimeString()
 
-const actions = {
-
-work_start:"Прихід на роботу",
-coffee_start:"Початок кави",
-coffee_end:"Кінець кави",
-lunch_start:"Початок обіду",
-lunch_end:"Кінець обіду",
-work_end:"Вихід з офісу"
-
-}
-
-const statuses = {
-
-work_start:"🟢 Ви на роботі",
-coffee_start:"☕ Ви на каві",
-coffee_end:"🟢 Ви на роботі",
-lunch_start:"🍽 Ви на обіді",
-lunch_end:"🟢 Ви на роботі",
-work_end:"🔴 Робочий день завершено"
-
-}
-
-/* UPDATE UI */
-
 document.getElementById("statusText").innerHTML = statuses[type]
 
 document.getElementById("lastAction").innerHTML =
 "Остання дія: "+actions[type]+" ("+time+")"
-
-/* TELEGRAM */
 
 tg.HapticFeedback.impactOccurred("medium")
 
@@ -408,6 +391,15 @@ box.classList.remove("show")
 },1200)
 
 }
+
+/* BUTTON LISTENERS */
+
+document.getElementById("btn_work_start").addEventListener("click",()=>action("work_start"))
+document.getElementById("btn_coffee_start").addEventListener("click",()=>action("coffee_start"))
+document.getElementById("btn_coffee_end").addEventListener("click",()=>action("coffee_end"))
+document.getElementById("btn_lunch_start").addEventListener("click",()=>action("lunch_start"))
+document.getElementById("btn_lunch_end").addEventListener("click",()=>action("lunch_end"))
+document.getElementById("btn_work_end").addEventListener("click",()=>action("work_end"))
 
 </script>
 
