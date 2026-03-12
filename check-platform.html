@@ -259,10 +259,11 @@
             coffee_end: "🟢 Ви на роботі", // Зміна статусу з кави на роботу
             lunch_start: "🍽 Ви на обіді",
             lunch_end: "🟢 Ви на роботі", // Зміна статусу з обіду на роботу
-            work_end: "🔴 Робочий день завершено"
+            work_end: "🔴 Робочий день завершено"  // Статус при виході з офісу
         };
 
         const lastWorkStart = localStorage.getItem("lastWorkStart");
+        console.log("lastWorkStart:", lastWorkStart);  // Лог для перевірки значення
 
         // Перевірка для кнопки "Прихід на роботу"
         if (type === "work_start") {
@@ -301,6 +302,8 @@
         // Зберігаємо статуси в localStorage
         if (type === "work_start") {
             localStorage.setItem("lastWorkStart", new Date().toISOString());
+            console.log("lastWorkStart saved:", new Date().toISOString());  // Лог для перевірки збереження
+
             document.getElementById("btn_coffee_start").style.pointerEvents = "auto"; // Активуємо кнопки кави
             document.getElementById("btn_coffee_start").style.opacity = 1;
             document.getElementById("btn_lunch_start").style.pointerEvents = "auto"; // Активуємо кнопки обіду
