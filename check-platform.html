@@ -141,37 +141,23 @@
         }
 
     </style>
-
 </head>
-
 <body>
-
 <div id="app">
-
     <div class="container">
-
         <div class="header">
-
             <div class="avatar">🤖</div>
-
             <h2 id="username">WorkBuddy</h2>
-
         </div>
-
         <div class="status-box">
-
             <div class="status" id="statusText">
                 ⚪ Ви ще не на роботі
             </div>
-
             <div class="last-action" id="lastAction">
-                Остання дія: — 
+                Остання дія: —
             </div>
-
         </div>
-
         <div class="menu">
-
             <div class="card" id="btn_work_start">
                 <div class="icon">🏢</div>
                 <div class="text">
@@ -179,7 +165,6 @@
                     <div class="subtitle">Початок робочого дня</div>
                 </div>
             </div>
-
             <div class="card" id="btn_coffee_start">
                 <div class="icon">☕</div>
                 <div class="text">
@@ -187,7 +172,6 @@
                     <div class="subtitle">Початок</div>
                 </div>
             </div>
-
             <div class="card" id="btn_coffee_end">
                 <div class="icon">✅</div>
                 <div class="text">
@@ -195,7 +179,6 @@
                     <div class="subtitle">Завершення</div>
                 </div>
             </div>
-
             <div class="card" id="btn_lunch_start">
                 <div class="icon">🍽</div>
                 <div class="text">
@@ -203,7 +186,6 @@
                     <div class="subtitle">Початок</div>
                 </div>
             </div>
-
             <div class="card" id="btn_lunch_end">
                 <div class="icon">✅</div>
                 <div class="text">
@@ -211,7 +193,6 @@
                     <div class="subtitle">Завершення</div>
                 </div>
             </div>
-
             <div class="card" id="btn_work_end">
                 <div class="icon">🏠</div>
                 <div class="text">
@@ -219,23 +200,16 @@
                     <div class="subtitle">Завершення робочого дня</div>
                 </div>
             </div>
-
         </div>
-
     </div>
-
 </div>
-
 <div class="success" id="successBox">
     ✅ Збережено
 </div>
 
 <script>
-
     /* BLOCK MOBILE */
-
     if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-
         document.body.innerHTML = `
         <div style="height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;color:white;font-family:sans-serif">
         <div>
@@ -246,25 +220,20 @@
         </div>
         </div>
         `;
-
         throw new Error("Mobile blocked")
-
     }
 
     /* TELEGRAM */
-
     const tg = window.Telegram.WebApp
     tg.ready()
     tg.expand()
 
     const user = tg.initDataUnsafe.user
-
     if (user) {
         document.getElementById("username").textContent = user.first_name
     }
 
     /* BUTTON EVENTS */
-
     document.getElementById("btn_work_start").addEventListener("click", () => action("work_start"))
     document.getElementById("btn_coffee_start").addEventListener("click", () => action("coffee_start"))
     document.getElementById("btn_coffee_end").addEventListener("click", () => action("coffee_end"))
@@ -273,16 +242,12 @@
     document.getElementById("btn_work_end").addEventListener("click", () => action("work_end"))
 
     /* ACTION */
-
     function action(type) {
-
         const now = new Date()
-
         const hour = now.getHours()
         const minutes = now.getMinutes()
 
         const current = hour * 60 + minutes
-
         const morningStart = 10 * 60
         const morningEnd = 11 * 60
 
@@ -290,12 +255,10 @@
         const eveningEnd = 19 * 60
 
         if (type === "coffee_start" || type === "lunch_start") {
-
             if (
                 (current >= morningStart && current < morningEnd) ||
                 (current >= eveningStart && current < eveningEnd)
             ) {
-
                 tg.showPopup({
                     title: "⛔ Перерва недоступна",
                     message: "З 10:00 до 11:00 та з 17:00 до 19:00 перерви заборонені.",
@@ -303,79 +266,67 @@
                 });
 
                 return
-
             }
-
         }
-
         const time = hour + ":" + (minutes < 10 ? "0" + minutes : minutes);  // Форматуємо час як "години:хвилини"
-
         const actions = {
-
             work_start: "Прихід на роботу",
             coffee_start: "Початок кави",
             coffee_end: "Кінець кави",
             lunch_start: "Початок обіду",
             lunch_end: "Кінець обіду",
             work_end: "Вихід з офісу"
-
         }
 
         const statuses = {
-
             work_start: "🟢 Ви на роботі",
             coffee_start: "☕ Ви на каві",
             coffee_end: "🟢 Ви на роботі", // Зміна статусу з кави на роботу
             lunch_start: "🍽 Ви на обіді",
             lunch_end: "🟢 Ви на роботі", // Зміна статусу з обіду на роботу
             work_end: "🔴 Робочий день завершено"
-
         }
 
         /* UPDATE STATUS */
-
         document.getElementById("statusText").textContent = statuses[type]
-
         document.getElementById("lastAction").textContent =
             "Остання дія: " + actions[type] + " " + time + "" // Час тільки в останній дії
 
         /* TELEGRAM */
-
         tg.HapticFeedback.impactOccurred("medium")
-
         tg.sendData(JSON.stringify({
             action: type,
             time: new Date().toISOString()
         }))
 
         showSuccess()
-
         // Зберігаємо статус в localStorage
         localStorage.setItem("userStatus", type)
         localStorage.setItem("statusTime", time); // зберігаємо час
+        localStorage.setItem("lastAction", actions[type]); // зберігаємо останню дію
     }
 
     /* SUCCESS */
-
     function showSuccess() {
-
         const box = document.getElementById("successBox")
-
         box.classList.add("show")
-
         setTimeout(() => {
             box.classList.remove("show")
         }, 1200)
-
     }
 
     // Відновлення статусу при відкритті меню
     window.onload = () => {
         const savedStatus = localStorage.getItem("userStatus");
         const savedTime = localStorage.getItem("statusTime"); // додаємо час
+        const lastAction = localStorage.getItem("lastAction"); // відновлюємо останню дію
 
         if (savedStatus) {
             updateStatus(savedStatus, savedTime);
+        }
+
+        if (lastAction) {
+            document.getElementById("lastAction").textContent = "Остання дія: " + lastAction;
         }
     };
 
@@ -406,8 +357,6 @@
             statusText.innerText = "🔴 Ви не на роботі";
         }
     }
-
 </script>
-
 </body>
 </html>
