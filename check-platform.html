@@ -294,40 +294,6 @@
         const lastWorkStart = localStorage.getItem("lastWorkStart");
         const lastOnlineStart = localStorage.getItem("lastOnlineStart");
 
-        // Перевірка для кнопки "Прихід на роботу"
-        if (type === "work_start") {
-            if (lastWorkStart && (new Date() - new Date(lastWorkStart)) < 24 * 60 * 60 * 1000) {
-                tg.showPopup({
-                    title: "⛔ Помилка",
-                    message: "Ви вже прийшли на роботу сьогодні.",
-                    buttons: [{ type: "ok" }]
-                });
-                return;
-            }
-        }
-
-        // Перевірка для кнопки "Працюю онлайн"
-        if (type === "online_start") {
-            if (lastOnlineStart && (new Date() - new Date(lastOnlineStart)) < 24 * 60 * 60 * 1000) {
-                tg.showPopup({
-                    title: "⛔ Помилка",
-                    message: "Ви вже працюєте онлайн сьогодні.",
-                    buttons: [{ type: "ok" }]
-                });
-                return;
-            }
-        }
-
-        // Перевірка для кнопок "Кава" та "Обід" до натискання "Прихід на роботу" або "Працюю онлайн"
-        if (!lastWorkStart && !lastOnlineStart) {
-            tg.showPopup({
-                title: "⛔ Помилка",
-                message: "Ви повинні спочатку прийти на роботу або працювати онлайн.",
-                buttons: [{ type: "ok" }]
-            });
-            return;
-        }
-
         // Оновлення статусу
         document.getElementById("statusText").textContent = statuses[type];
         document.getElementById("lastAction").textContent = "Остання дія: " + actions[type] + " " + time;
