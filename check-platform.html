@@ -350,6 +350,9 @@
 
         showSuccess()
 
+        // Зберігаємо статус в localStorage
+        localStorage.setItem("userStatus", type)
+
     }
 
     /* SUCCESS */
@@ -364,6 +367,39 @@
             box.classList.remove("show")
         }, 1200)
 
+    }
+
+    // Відновлення статусу при відкритті меню
+    window.onload = () => {
+        const savedStatus = localStorage.getItem("userStatus");
+        if (savedStatus) {
+            updateStatus(savedStatus);
+        }
+    };
+
+    function updateStatus(action) {
+        const statusText = document.getElementById("statusText");
+        const statusDot = document.getElementById("statusDot");
+
+        if (action === "work_start") {
+            statusText.innerText = "🟢 Ви на роботі";
+            statusDot.style.background = "#22c55e";
+        }
+
+        if (action === "coffee_start") {
+            statusText.innerText = "☕ Ви на каві";
+            statusDot.style.background = "#f59e0b";
+        }
+
+        if (action === "lunch_start") {
+            statusText.innerText = "🍽 Ви на обіді";
+            statusDot.style.background = "#f59e0b";
+        }
+
+        if (action === "work_end") {
+            statusText.innerText = "🔴 Ви не на роботі";
+            statusDot.style.background = "#9ca3af";
+        }
     }
 
 </script>
