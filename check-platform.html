@@ -1,329 +1,307 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>HR Bot Menu</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .container {
-            max-width: 400px;
-            width: 100%;
-        }
-        
-        h1 {
-            font-size: 32px;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .subtitle {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 30px;
-        }
-        
-        .menu-btn {
-            width: 100%;
-            padding: 18px 20px;
-            margin: 10px 0;
-            font-size: 18px;
-            font-weight: 500;
-            border: none;
-            border-radius: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            color: #333;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-        
-        .menu-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            background: white;
-        }
-        
-        .menu-btn:active {
-            transform: translateY(0);
-        }
-        
-        .btn-icon {
-            font-size: 24px;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-        }
-        
-        .btn-text {
-            flex: 1;
-            text-align: left;
-        }
-        
-        .btn-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .btn-subtitle {
-            font-size: 13px;
-            color: #666;
-        }
-        
-        /* Блоковане повідомлення */
-        .blocked-container {
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 40px 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        
-        .blocked-emoji {
-            font-size: 64px;
-            margin-bottom: 20px;
-        }
-        
-        .blocked-title {
-            font-size: 28px;
-            font-weight: 700;
-            color: #ff6b6b;
-            margin-bottom: 15px;
-        }
-        
-        .blocked-text {
-            font-size: 18px;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-        
-        .blocked-small {
-            font-size: 14px;
-            opacity: 0.7;
-            margin-top: 20px;
-        }
-        
-        .loader {
-            display: none;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Додаткова перевірка */
-        .error-box {
-            background: rgba(255,0,0,0.2);
-            border: 1px solid rgba(255,0,0,0.5);
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>WorkBuddy</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+body{
+font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto;
+margin:0;
+background:linear-gradient(180deg,#6a7cff,#7b61ff,#8c6cff);
+color:white;
+display:flex;
+justify-content:center;
+}
+
+.container{
+width:100%;
+max-width:420px;
+padding:25px;
+}
+
+.header{
+text-align:center;
+margin-bottom:20px;
+}
+
+.avatar{
+width:70px;
+height:70px;
+border-radius:50%;
+background:white;
+margin:auto;
+margin-bottom:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:32px;
+color:#333;
+}
+
+.status-box{
+background:rgba(255,255,255,.2);
+backdrop-filter:blur(20px);
+border-radius:18px;
+padding:14px;
+margin-bottom:20px;
+text-align:center;
+}
+
+.status{
+font-size:18px;
+font-weight:600;
+}
+
+.last-action{
+font-size:13px;
+opacity:.8;
+margin-top:4px;
+}
+
+.menu{
+display:flex;
+flex-direction:column;
+gap:12px;
+}
+
+.card{
+
+background:rgba(255,255,255,.92);
+border-radius:20px;
+padding:16px;
+
+display:flex;
+align-items:center;
+gap:14px;
+
+cursor:pointer;
+transition:.18s;
+
+box-shadow:
+0 10px 25px rgba(0,0,0,.2);
+
+}
+
+.card:active{
+transform:scale(.95);
+}
+
+.icon{
+width:42px;
+height:42px;
+border-radius:12px;
+background:#f2f2f7;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:20px;
+}
+
+.text{
+flex:1;
+}
+
+.title{
+color:#1c1c1e;
+font-weight:600;
+}
+
+.subtitle{
+color:#6e6e73;
+font-size:13px;
+}
+
+.success{
+
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%) scale(0);
+
+background:white;
+color:#333;
+
+padding:25px 30px;
+border-radius:20px;
+
+font-size:22px;
+font-weight:600;
+
+box-shadow:0 20px 40px rgba(0,0,0,.3);
+
+transition:.3s;
+
+}
+
+.success.show{
+transform:translate(-50%,-50%) scale(1);
+}
+
+.footer{
+margin-top:25px;
+text-align:center;
+font-size:13px;
+opacity:.7;
+}
+
+</style>
 </head>
+
 <body>
-    <div class="container" id="mainMenu">
-        <h1>☕ HR Bot</h1>
-        <div class="subtitle">Відмітки робочого часу</div>
-        
-        <button class="menu-btn" onclick="sendAction('work_start')">
-            <span class="btn-icon" style="background: #e3f2fd; color: #1976d2;">🏢</span>
-            <span class="btn-text">
-                <span class="btn-title">Прихід на роботу</span><br>
-                <span class="btn-subtitle">Початок робочого дня</span>
-            </span>
-        </button>
-        
-        <button class="menu-btn" onclick="sendAction('coffee_start')">
-            <span class="btn-icon" style="background: #fff3e0; color: #f57c00;">☕</span>
-            <span class="btn-text">
-                <span class="btn-title">Кава брейк</span><br>
-                <span class="btn-subtitle">Початок</span>
-            </span>
-        </button>
-        
-        <button class="menu-btn" onclick="sendAction('coffee_end')">
-            <span class="btn-icon" style="background: #fce4ec; color: #c2185b;">✅</span>
-            <span class="btn-text">
-                <span class="btn-title">Кінець кави</span><br>
-                <span class="btn-subtitle">Завершення</span>
-            </span>
-        </button>
-        
-        <button class="menu-btn" onclick="sendAction('lunch_start')">
-            <span class="btn-icon" style="background: #e8f5e8; color: #388e3c;">🍽</span>
-            <span class="btn-text">
-                <span class="btn-title">Обід</span><br>
-                <span class="btn-subtitle">Початок</span>
-            </span>
-        </button>
-        
-        <button class="menu-btn" onclick="sendAction('lunch_end')">
-            <span class="btn-icon" style="background: #fce4ec; color: #c2185b;">✅</span>
-            <span class="btn-text">
-                <span class="btn-title">Кінець обіду</span><br>
-                <span class="btn-subtitle">Завершення</span>
-            </span>
-        </button>
-        
-        <button class="menu-btn" onclick="sendAction('work_end')">
-            <span class="btn-icon" style="background: #e3f2fd; color: #1976d2;">🏠</span>
-            <span class="btn-text">
-                <span class="btn-title">Відхід з офісу</span><br>
-                <span class="btn-subtitle">Завершення робочого дня</span>
-            </span>
-        </button>
-        
-        <div class="loader" id="loader"></div>
-    </div>
-    
-    <div class="container" id="blockedMessage" style="display: none;">
-        <div class="blocked-container">
-            <div class="blocked-emoji">⛔</div>
-            <div class="blocked-title">ДОСТУП ЗАБОРОНЕНО</div>
-            <div class="blocked-text">HR система доступна тільки з ПК</div>
-            <div class="blocked-text">📱 Мобільні пристрої не підтримуються</div>
-            <div class="blocked-small" id="deviceInfo"></div>
-        </div>
-    </div>
-    
-    <div class="container" id="errorMessage" style="display: none;">
-        <div class="error-box" id="errorText"></div>
-    </div>
 
-    <script>
-        // Глобальні змінні
-        let tg = null;
-        
-        try {
-            // Отримуємо Telegram WebApp об'єкт
-            if (!window.Telegram || !window.Telegram.WebApp) {
-                throw new Error("Telegram WebApp не доступний. Відкрийте через Telegram!");
-            }
-            
-            tg = window.Telegram.WebApp;
-            
-            // Важливо: викликаємо ready() перед читанням platform
-            tg.ready();
-            
-            // Отримуємо платформу від Telegram
-            const platform = tg.platform;
-            
-            console.log("=== ІНФОРМАЦІЯ ПРО ПЛАТФОРМУ ===");
-            console.log("Telegram platform:", platform);
-            console.log("Init data:", tg.initData ? "є" : "немає");
-            console.log("Version:", tg.version);
-            
-            // ПЕРЕВІРКА НА МОБІЛЬНІ ПЛАТФОРМИ
-            const isMobile = platform === "android" || platform === "ios";
-            
-            if (isMobile) {
-                // Мобільний пристрій - блокуємо
-                console.log("🚫 Мобільний пристрій виявлено:", platform);
-                
-                document.getElementById('mainMenu').style.display = 'none';
-                document.getElementById('blockedMessage').style.display = 'block';
-                document.getElementById('deviceInfo').innerHTML = 
-                    `Виявлено: ${platform}<br>Доступ дозволено тільки з ПК`;
-            } else {
-                // ПК - показуємо меню
-                console.log("✅ ПК виявлено:", platform);
-                
-                // Розгортаємо WebApp
-                tg.expand();
-                
-                // Приховуємо loader
-                document.getElementById('loader').style.display = 'none';
-            }
-            
-        } catch (error) {
-            // Помилка - показуємо повідомлення
-            console.error("❌ Помилка:", error);
-            
-            document.getElementById('mainMenu').style.display = 'none';
-            document.getElementById('errorMessage').style.display = 'block';
-            document.getElementById('errorText').innerHTML = 
-                `Помилка: ${error.message}<br><br>Будь ласка, відкрийте через Telegram Desktop`;
-        }
+<div class="container">
 
-        // Функція відправки дії
-        function sendAction(action) {
-            if (!tg) {
-                alert("Помилка: Telegram WebApp не ініціалізовано");
-                return;
-            }
-            
-            // Показуємо loader
-            document.getElementById('loader').style.display = 'block';
-            
-            // Формуємо дані
-            const data = {
-                action: action,
-                time: new Date().toISOString(),
-                platform: tg.platform
-            };
-            
-            console.log("📤 Відправляємо дані:", data);
-            
-            // Відправляємо в бота
-            tg.sendData(JSON.stringify(data));
-            
-            // Ховаємо loader через 500ms
-            setTimeout(() => {
-                document.getElementById('loader').style.display = 'none';
-            }, 500);
-            
-            // Показуємо popup підтвердження
-            const actionNames = {
-                'work_start': 'Прихід на роботу',
-                'coffee_start': 'Початок кави',
-                'coffee_end': 'Кінець кави',
-                'lunch_start': 'Початок обіду',
-                'lunch_end': 'Кінець обіду',
-                'work_end': 'Вихід з офісу'
-            };
-            
-            tg.showPopup({
-                title: '✅ Відправлено',
-                message: `Дія "${actionNames[action]}" відправлена в бота`,
-                buttons: [{type: 'ok'}]
-            });
-        }
+<div class="header">
 
-        // Додаткова перевірка при закритті
-        window.onunload = function() {
-            if (tg) {
-                tg.close();
-            }
-        };
-    </script>
+<div class="avatar" id="avatar">🤖</div>
+
+<h2 id="username">WorkBuddy</h2>
+
+</div>
+
+<div class="status-box">
+
+<div class="status" id="statusText">
+Не на роботі
+</div>
+
+<div class="last-action" id="lastAction">
+Остання дія: —
+</div>
+
+</div>
+
+<div class="menu">
+
+<div class="card" onclick="action('work_start')">
+<div class="icon">🏢</div>
+<div class="text">
+<div class="title">Прихід на роботу</div>
+<div class="subtitle">Початок робочого дня</div>
+</div>
+</div>
+
+<div class="card" onclick="action('coffee_start')">
+<div class="icon">☕</div>
+<div class="text">
+<div class="title">Кава брейк</div>
+<div class="subtitle">Початок</div>
+</div>
+</div>
+
+<div class="card" onclick="action('coffee_end')">
+<div class="icon">✅</div>
+<div class="text">
+<div class="title">Кінець кави</div>
+<div class="subtitle">Завершення</div>
+</div>
+</div>
+
+<div class="card" onclick="action('lunch_start')">
+<div class="icon">🍽</div>
+<div class="text">
+<div class="title">Обід</div>
+<div class="subtitle">Початок</div>
+</div>
+</div>
+
+<div class="card" onclick="action('lunch_end')">
+<div class="icon">✅</div>
+<div class="text">
+<div class="title">Кінець обіду</div>
+<div class="subtitle">Завершення</div>
+</div>
+</div>
+
+<div class="card" onclick="action('work_end')">
+<div class="icon">🏠</div>
+<div class="text">
+<div class="title">Вихід з офісу</div>
+<div class="subtitle">Завершення робочого дня</div>
+</div>
+</div>
+
+</div>
+
+<div class="footer">
+@friendly_company_hr_bot
+</div>
+
+</div>
+
+<div class="success" id="successBox">
+✅ Збережено
+</div>
+
+<script>
+
+const tg = window.Telegram.WebApp;
+
+tg.ready();
+tg.expand();
+
+const user = tg.initDataUnsafe.user;
+
+if(user){
+
+document.getElementById("username").innerText =
+user.first_name;
+
+if(user.photo_url){
+
+document.getElementById("avatar").innerHTML =
+`<img src="${user.photo_url}" style="width:70px;height:70px;border-radius:50%">`;
+
+}
+
+}
+
+function action(type){
+
+const time=new Date().toLocaleTimeString();
+
+let status="";
+
+if(type==="work_start") status="Ви на роботі";
+if(type==="coffee_start") status="Кава брейк";
+if(type==="coffee_end") status="Ви на роботі";
+if(type==="lunch_start") status="Обід";
+if(type==="lunch_end") status="Ви на роботі";
+if(type==="work_end") status="Робочий день завершено";
+
+document.getElementById("statusText").innerText=status;
+
+document.getElementById("lastAction").innerText=
+"Остання дія: "+time;
+
+tg.HapticFeedback.impactOccurred("medium");
+
+tg.sendData(JSON.stringify({
+action:type,
+time:new Date().toISOString()
+}));
+
+showSuccess();
+
+}
+
+function showSuccess(){
+
+const box=document.getElementById("successBox");
+
+box.classList.add("show");
+
+setTimeout(()=>{
+box.classList.remove("show");
+},1200);
+
+}
+
+</script>
+
 </body>
 </html>
