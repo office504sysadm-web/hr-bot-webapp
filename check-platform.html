@@ -315,7 +315,7 @@
         }, 1200)
     }
 
-    // Відновлення статусу та кнопок при завантаженні сторінки
+    // Відновлення статусу при відкритті меню
     window.onload = () => {
         const savedStatus = localStorage.getItem("userStatus");
         const savedTime = localStorage.getItem("statusTime"); // додаємо час
@@ -376,6 +376,8 @@
             document.getElementById("btn_coffee_start").style.opacity = 1;
             document.getElementById("btn_lunch_start").style.pointerEvents = "auto";
             document.getElementById("btn_lunch_start").style.opacity = 1;
+            document.getElementById("btn_work_end").style.pointerEvents = "auto";
+            document.getElementById("btn_work_end").style.opacity = 1;
         } else if (workStatus === "online_start") {
             document.getElementById("btn_work_start").style.pointerEvents = "none";
             document.getElementById("btn_work_start").style.opacity = 0.5;
