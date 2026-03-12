@@ -246,57 +246,13 @@ transform:translate(-50%,-50%) scale(1);
 if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
 
 document.body.innerHTML = `
-
-<style>
-
-.mobile-block{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto;
-background:linear-gradient(180deg,#6a7cff,#7b61ff,#8c6cff);
-color:white;
-text-align:center;
-padding:30px;
-}
-
-.block-card{
-background:rgba(255,255,255,0.15);
-backdrop-filter:blur(20px);
-border-radius:24px;
-padding:40px 30px;
-max-width:320px;
-box-shadow:0 20px 40px rgba(0,0,0,0.25);
-}
-
-.block-robot{
-font-size:60px;
-margin-bottom:10px;
-}
-
-.block-text{
-font-size:15px;
-opacity:.9;
-line-height:1.5;
-}
-
-</style>
-
-<div class="mobile-block">
-
-<div class="block-card">
-
-<div class="block-robot">🤖</div>
-
-<div class="block-text">
+<div style="height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;color:white;font-family:sans-serif">
+<div>
+🤖<br><br>
 А шлях би його трапив!<br>
 Схоже, моє меню на телефоні не працює.<br>
 Краще відкрий мене з комп'ютера 💻
 </div>
-
-</div>
-
 </div>
 `
 
@@ -313,7 +269,29 @@ tg.expand()
 const user = tg.initDataUnsafe.user
 
 if(user){
-document.getElementById("username").innerText = user.first_name
+document.getElementById("username").textContent = user.first_name
+}
+
+/* STATUS UPDATE FUNCTION */
+
+function updateStatus(text){
+
+const el=document.getElementById("statusText")
+
+el.textContent=""
+
+setTimeout(()=>{
+el.textContent=text
+},10)
+
+/* force repaint */
+
+el.style.opacity="0.99"
+
+setTimeout(()=>{
+el.style.opacity="1"
+},50)
+
 }
 
 /* ACTION */
@@ -378,28 +356,23 @@ work_end:"🔴 Робочий день завершено"
 
 /* UPDATE STATUS */
 
-const statusEl = document.getElementById("statusText")
-const actionEl = document.getElementById("lastAction")
+updateStatus(statuses[type])
 
-statusEl.innerHTML = statuses[type]
-
-actionEl.innerHTML =
+document.getElementById("lastAction").textContent =
 "Остання дія: " + actions[type] + " (" + time + ")"
-
-/* FORCE UPDATE */
-
-statusEl.style.display="none"
-statusEl.offsetHeight
-statusEl.style.display="block"
 
 /* TELEGRAM */
 
 tg.HapticFeedback.impactOccurred("medium")
 
+setTimeout(()=>{
+
 tg.sendData(JSON.stringify({
 action:type,
 time:new Date().toISOString()
 }))
+
+},100)
 
 showSuccess()
 
