@@ -263,7 +263,6 @@
         };
 
         const lastWorkStart = localStorage.getItem("lastWorkStart");
-        console.log("lastWorkStart:", lastWorkStart);  // Лог для перевірки значення
 
         // Перевірка для кнопки "Прихід на роботу"
         if (type === "work_start") {
@@ -302,7 +301,6 @@
         // Зберігаємо статуси в localStorage
         if (type === "work_start") {
             localStorage.setItem("lastWorkStart", new Date().toISOString());
-            console.log("lastWorkStart saved:", new Date().toISOString());  // Лог для перевірки збереження
 
             document.getElementById("btn_coffee_start").style.pointerEvents = "auto"; // Активуємо кнопки кави
             document.getElementById("btn_coffee_start").style.opacity = 1;
