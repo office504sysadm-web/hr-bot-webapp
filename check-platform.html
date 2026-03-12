@@ -3,9 +3,7 @@
 <head>
 
 <meta charset="UTF-8">
-
-<meta name="viewport"
-content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <title>WorkBuddy</title>
 
@@ -13,9 +11,7 @@ content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
 
 <style>
 
-*{
-box-sizing:border-box;
-}
+*{box-sizing:border-box;}
 
 html,body{
 margin:0;
@@ -28,21 +24,15 @@ font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto;
 background:linear-gradient(180deg,#6a7cff,#7b61ff,#8c6cff);
 
 color:white;
-
 display:flex;
 justify-content:center;
 }
 
 .container{
-
 width:100%;
 max-width:420px;
-
 padding:18px;
-
 }
-
-/* HEADER */
 
 .header{
 text-align:center;
@@ -50,24 +40,17 @@ margin-bottom:10px;
 }
 
 .avatar{
-
 width:55px;
 height:55px;
-
 border-radius:50%;
-
 background:white;
-
 margin:auto;
 margin-bottom:6px;
-
 display:flex;
 align-items:center;
 justify-content:center;
-
 font-size:26px;
 color:#333;
-
 }
 
 h2{
@@ -75,22 +58,13 @@ font-size:22px;
 margin:4px 0;
 }
 
-/* STATUS */
-
 .status-box{
-
 background:rgba(255,255,255,.2);
-
 backdrop-filter:blur(20px);
-
 border-radius:16px;
-
 padding:10px;
-
 margin-bottom:12px;
-
 text-align:center;
-
 }
 
 .status{
@@ -103,37 +77,22 @@ font-size:12px;
 opacity:.8;
 }
 
-/* MENU */
-
 .menu{
-
 display:flex;
 flex-direction:column;
-
 gap:8px;
-
 }
 
 .card{
-
 background:rgba(255,255,255,.92);
-
 border-radius:18px;
-
 padding:10px 14px;
-
 display:flex;
 align-items:center;
-
 gap:12px;
-
 cursor:pointer;
-
 transition:.15s;
-
-box-shadow:
-0 8px 20px rgba(0,0,0,.2);
-
+box-shadow:0 8px 20px rgba(0,0,0,.2);
 }
 
 .card:active{
@@ -141,88 +100,53 @@ transform:scale(.96);
 }
 
 .icon{
-
 width:34px;
 height:34px;
-
 border-radius:10px;
-
 background:#f2f2f7;
-
 display:flex;
 align-items:center;
 justify-content:center;
-
 font-size:18px;
-
 }
 
-.text{
-flex:1;
-}
+.text{flex:1;}
 
 .title{
-
 color:#1c1c1e;
-
 font-weight:600;
-
 font-size:14px;
-
 }
 
 .subtitle{
-
 color:#6e6e73;
-
 font-size:11px;
-
 }
 
-/* SUCCESS */
-
 .success{
-
 position:fixed;
-
 top:50%;
 left:50%;
-
 transform:translate(-50%,-50%) scale(0);
-
 background:white;
-
 color:#333;
-
 padding:20px 25px;
-
 border-radius:16px;
-
 font-size:18px;
 font-weight:600;
-
 box-shadow:0 20px 40px rgba(0,0,0,.3);
-
 transition:.3s;
-
 }
 
 .success.show{
 transform:translate(-50%,-50%) scale(1);
 }
 
-/* FOOTER */
-
 .footer{
-
-margin-top:10px;
-
+margin-top:4px;
 text-align:center;
-
-font-size:12px;
-
-opacity:.7;
-
+font-size:10px;
+opacity:.5;
 }
 
 </style>
@@ -244,7 +168,7 @@ opacity:.7;
 <div class="status-box">
 
 <div class="status" id="statusText">
-Не на роботі
+⚪ Не на роботі
 </div>
 
 <div class="last-action" id="lastAction">
@@ -304,6 +228,11 @@ opacity:.7;
 </div>
 
 </div>
+
+<div class="footer">
+@friendly_company_hr_bot
+</div>
+
 </div>
 
 <div class="success" id="successBox">
@@ -334,23 +263,81 @@ document.getElementById("avatar").innerHTML =
 
 }
 
+/* перевірка дозволу перерв */
+
+function isBreakAllowed(type){
+
+if(type !== "coffee_start" && type !== "lunch_start"){
+return true;
+}
+
+const now = new Date();
+
+const hour = now.getHours();
+const minutes = now.getMinutes();
+
+const current = hour * 60 + minutes;
+
+const morningStart = 10 * 60;
+const morningEnd = 11 * 60;
+
+const eveningStart = 17 * 60;
+const eveningEnd = 19 * 60;
+
+if(
+(current >= morningStart && current < morningEnd) ||
+(current >= eveningStart && current < eveningEnd)
+){
+return false;
+}
+
+return true;
+
+}
+
 function action(type){
 
-const time=new Date().toLocaleTimeString();
+if(!isBreakAllowed(type)){
 
-let status="";
+tg.showPopup({
+title:"⛔ Перерва недоступна",
+message:"У першу та останню робочу годину не можна брати каву або обід.",
+buttons:[{type:"ok"}]
+});
 
-if(type==="work_start") status="Ви на роботі";
-if(type==="coffee_start") status="Кава брейк";
-if(type==="coffee_end") status="Ви на роботі";
-if(type==="lunch_start") status="Обід";
-if(type==="lunch_end") status="Ви на роботі";
-if(type==="work_end") status="Робочий день завершено";
+return;
 
-document.getElementById("statusText").innerText=status;
+}
 
-document.getElementById("lastAction").innerText=
-"Остання дія: "+time;
+const time = new Date().toLocaleTimeString();
+
+const actions = {
+
+work_start:"Прихід на роботу",
+coffee_start:"Початок кави",
+coffee_end:"Кінець кави",
+lunch_start:"Початок обіду",
+lunch_end:"Кінець обіду",
+work_end:"Вихід з офісу"
+
+};
+
+const statuses = {
+
+work_start:"🟢 На роботі",
+coffee_start:"☕ Кава",
+coffee_end:"🟢 На роботі",
+lunch_start:"🍽 Обід",
+lunch_end:"🟢 На роботі",
+work_end:"🔴 Робочий день завершено"
+
+};
+
+document.getElementById("statusText").innerText =
+statuses[type];
+
+document.getElementById("lastAction").innerText =
+"Остання дія: "+actions[type]+" ("+time+")";
 
 tg.HapticFeedback.impactOccurred("medium");
 
@@ -379,4 +366,3 @@ box.classList.remove("show");
 
 </body>
 </html>
-
