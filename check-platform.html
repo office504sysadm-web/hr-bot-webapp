@@ -154,6 +154,7 @@
             </div>
         </div>
         <div class="menu">
+            <!-- Кнопка для приходу на роботу -->
             <div class="card" id="btn_work_start">
                 <div class="icon">🏢</div>
                 <div class="text">
@@ -161,6 +162,16 @@
                     <div class="subtitle">Початок робочого дня</div>
                 </div>
             </div>
+            <!-- Кнопка для "Працюю онлайн" -->
+            <div class="card" id="btn_online_start">
+                <div class="icon">💻</div>
+                <div class="text">
+                    <div class="title">Працюю онлайн</div>
+                    <div class="subtitle">Початок робочого дня онлайн</div>
+                </div>
+            </div>
+
+            <!-- Кнопки для кави та обіду, які блокуються до "Приходу на роботу" -->
             <div class="card" id="btn_coffee_start" style="pointer-events: none; opacity: 0.5;">
                 <div class="icon">☕</div>
                 <div class="text">
@@ -189,6 +200,8 @@
                     <div class="subtitle">Завершення</div>
                 </div>
             </div>
+
+            <!-- Кнопка для "Вихід з офісу" -->
             <div class="card" id="btn_work_end" style="pointer-events: none; opacity: 0.5;">
                 <div class="icon">🏠</div>
                 <div class="text">
@@ -196,9 +209,19 @@
                     <div class="subtitle">Завершення робочого дня</div>
                 </div>
             </div>
+
+            <!-- Кнопка для "Завершив роботу онлайн" -->
+            <div class="card" id="btn_online_end" style="pointer-events: none; opacity: 0.5;">
+                <div class="icon">✅</div>
+                <div class="text">
+                    <div class="title">Завершив роботу онлайн</div>
+                    <div class="subtitle">Завершення робочого дня онлайн</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 <div class="success" id="successBox">
     ✅ Збережено
 </div>
@@ -231,11 +254,13 @@
 
     /* BUTTON EVENTS */
     document.getElementById("btn_work_start").addEventListener("click", () => action("work_start"));
+    document.getElementById("btn_online_start").addEventListener("click", () => action("online_start"));
     document.getElementById("btn_coffee_start").addEventListener("click", () => action("coffee_start"));
     document.getElementById("btn_coffee_end").addEventListener("click", () => action("coffee_end"));
     document.getElementById("btn_lunch_start").addEventListener("click", () => action("lunch_start"));
     document.getElementById("btn_lunch_end").addEventListener("click", () => action("lunch_end"));
     document.getElementById("btn_work_end").addEventListener("click", () => action("work_end"));
+    document.getElementById("btn_online_end").addEventListener("click", () => action("online_end"));
 
     /* ACTION */
     function action(type) {
@@ -246,23 +271,28 @@
 
         const actions = {
             work_start: "Прихід на роботу",
+            online_start: "Працюю онлайн",
             coffee_start: "Початок кави",
             coffee_end: "Кінець кави",
             lunch_start: "Початок обіду",
             lunch_end: "Кінець обіду",
-            work_end: "Вихід з офісу"
+            work_end: "Вихід з офісу",
+            online_end: "Завершив роботу онлайн"
         };
 
         const statuses = {
             work_start: "🟢 Ви на роботі",
+            online_start: "💻 Працюєте онлайн",
             coffee_start: "☕ Ви на каві",
-            coffee_end: "🟢 Ви на роботі", // Зміна статусу з кави на роботу
+            coffee_end: "🟢 Ви на роботі",
             lunch_start: "🍽 Ви на обіді",
-            lunch_end: "🟢 Ви на роботі", // Зміна статусу з обіду на роботу
-            work_end: "🔴 Робочий день завершено"  // Статус при виході з офісу
+            lunch_end: "🟢 Ви на роботі",
+            work_end: "🔴 Робочий день завершено",
+            online_end: "💻 Робочий день онлайн завершено"
         };
 
         const lastWorkStart = localStorage.getItem("lastWorkStart");
+        const lastOnlineStart = localStorage.getItem("lastOnlineStart");
 
         // Перевірка для кнопки "Прихід на роботу"
         if (type === "work_start") {
@@ -276,11 +306,23 @@
             }
         }
 
+        // Перевірка для кнопки "Працюю онлайн"
+        if (type === "online_start") {
+            if (lastOnlineStart && (new Date() - new Date(lastOnlineStart)) < 24 * 60 * 60 * 1000) {
+                tg.showPopup({
+                    title: "⛔ Помилка",
+                    message: "Ви вже працюєте онлайн сьогодні.",
+                    buttons: [{ type: "ok" }]
+                });
+                return;
+            }
+        }
+
         // Перевірка для кнопок "Кава" та "Обід" до натискання "Прихід на роботу"
-        if (!lastWorkStart) {
+        if (!lastWorkStart && !lastOnlineStart) {
             tg.showPopup({
                 title: "⛔ Помилка",
-                message: "Ви повинні спочатку прийти на роботу.",
+                message: "Ви повинні спочатку прийти на роботу або працювати онлайн.",
                 buttons: [{ type: "ok" }]
             });
             return;
@@ -301,21 +343,31 @@
         // Зберігаємо статуси в localStorage
         if (type === "work_start") {
             localStorage.setItem("lastWorkStart", new Date().toISOString());
-
-            document.getElementById("btn_coffee_start").style.pointerEvents = "auto"; // Активуємо кнопки кави
+            document.getElementById("btn_coffee_start").style.pointerEvents = "auto";
             document.getElementById("btn_coffee_start").style.opacity = 1;
-            document.getElementById("btn_lunch_start").style.pointerEvents = "auto"; // Активуємо кнопки обіду
+            document.getElementById("btn_lunch_start").style.pointerEvents = "auto";
             document.getElementById("btn_lunch_start").style.opacity = 1;
-            document.getElementById("btn_work_start").style.pointerEvents = "none";  // Вимикаємо кнопку "Прихід"
+            document.getElementById("btn_work_start").style.pointerEvents = "none";
             document.getElementById("btn_work_start").style.opacity = 0.5;
+            document.getElementById("btn_online_start").style.pointerEvents = "none";
+            document.getElementById("btn_online_start").style.opacity = 0.5;
+        }
+
+        if (type === "online_start") {
+            localStorage.setItem("lastOnlineStart", new Date().toISOString());
+            document.getElementById("btn_online_end").style.pointerEvents = "auto";
+            document.getElementById("btn_online_end").style.opacity = 1;
         }
 
         if (type === "work_end") {
             localStorage.setItem("lastWorkEnd", new Date().toISOString());
         }
+
+        if (type === "online_end") {
+            localStorage.setItem("lastOnlineEnd", new Date().toISOString());
+        }
     }
 
-    /* SUCCESS */
     function showSuccess() {
         const box = document.getElementById("successBox");
         box.classList.add("show");
