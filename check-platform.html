@@ -11,33 +11,23 @@
 
 <style>
 
-*{
-box-sizing:border-box;
-margin:0;
-padding:0;
-}
-
 body{
-font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto;
+font-family:-apple-system,BlinkMacSystemFont,Roboto;
 background:linear-gradient(180deg,#6a7cff,#7b61ff,#8c6cff);
 color:white;
 display:flex;
 justify-content:center;
+margin:0;
 }
 
-/* MAIN */
-
 .container{
-width:100%;
 max-width:420px;
+width:100%;
 padding:18px;
 }
 
-/* HEADER */
-
 .header{
 text-align:center;
-margin-bottom:10px;
 }
 
 .avatar{
@@ -46,7 +36,6 @@ height:55px;
 border-radius:50%;
 background:white;
 margin:auto;
-margin-bottom:6px;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -54,34 +43,13 @@ font-size:26px;
 color:#333;
 }
 
-h2{
-font-size:22px;
-margin-top:4px;
-}
-
-/* STATUS */
-
 .status-box{
 background:rgba(255,255,255,.2);
-backdrop-filter:blur(20px);
 border-radius:16px;
 padding:12px;
-margin-bottom:14px;
+margin:12px 0;
 text-align:center;
 }
-
-.status{
-font-size:16px;
-font-weight:600;
-}
-
-.last-action{
-font-size:12px;
-opacity:.85;
-margin-top:2px;
-}
-
-/* MENU */
 
 .menu{
 display:flex;
@@ -90,46 +58,28 @@ gap:8px;
 }
 
 .card{
-background:rgba(255,255,255,.92);
+background:white;
 border-radius:18px;
 padding:10px 14px;
 display:flex;
 align-items:center;
 gap:12px;
 cursor:pointer;
-transition:.15s;
-box-shadow:0 8px 20px rgba(0,0,0,.2);
 }
-
-.card:active{
-transform:scale(.96);
-}
-
-.icon{
-width:34px;
-height:34px;
-border-radius:10px;
-background:#f2f2f7;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:18px;
-}
-
-.text{flex:1;}
 
 .title{
-color:#1c1c1e;
+color:black;
 font-weight:600;
-font-size:14px;
 }
 
 .subtitle{
-color:#6e6e73;
-font-size:11px;
+color:#666;
+font-size:12px;
 }
 
-/* SUCCESS */
+.icon{
+font-size:20px;
+}
 
 .success{
 position:fixed;
@@ -137,12 +87,9 @@ top:50%;
 left:50%;
 transform:translate(-50%,-50%) scale(0);
 background:white;
-color:#333;
-padding:18px 24px;
-border-radius:16px;
-font-size:17px;
-font-weight:600;
-box-shadow:0 20px 40px rgba(0,0,0,.3);
+color:black;
+padding:18px;
+border-radius:14px;
 transition:.3s;
 }
 
@@ -168,11 +115,11 @@ transform:translate(-50%,-50%) scale(1);
 
 <div class="status-box">
 
-<div class="status" id="statusText">
+<div id="statusText">
 ⚪ Ви ще не на роботі
 </div>
 
-<div class="last-action" id="lastAction">
+<div id="lastAction">
 Остання дія: —
 </div>
 
@@ -180,51 +127,51 @@ transform:translate(-50%,-50%) scale(1);
 
 <div class="menu">
 
-<div class="card" id="btn_work_start">
+<div class="card" id="work_start">
 <div class="icon">🏢</div>
-<div class="text">
+<div>
 <div class="title">Прихід на роботу</div>
 <div class="subtitle">Початок робочого дня</div>
 </div>
 </div>
 
-<div class="card" id="btn_coffee_start">
+<div class="card" id="coffee_start">
 <div class="icon">☕</div>
-<div class="text">
+<div>
 <div class="title">Кава брейк</div>
 <div class="subtitle">Початок</div>
 </div>
 </div>
 
-<div class="card" id="btn_coffee_end">
+<div class="card" id="coffee_end">
 <div class="icon">✅</div>
-<div class="text">
+<div>
 <div class="title">Кінець кави</div>
 <div class="subtitle">Завершення</div>
 </div>
 </div>
 
-<div class="card" id="btn_lunch_start">
+<div class="card" id="lunch_start">
 <div class="icon">🍽</div>
-<div class="text">
+<div>
 <div class="title">Обід</div>
 <div class="subtitle">Початок</div>
 </div>
 </div>
 
-<div class="card" id="btn_lunch_end">
+<div class="card" id="lunch_end">
 <div class="icon">✅</div>
-<div class="text">
+<div>
 <div class="title">Кінець обіду</div>
 <div class="subtitle">Завершення</div>
 </div>
 </div>
 
-<div class="card" id="btn_work_end">
+<div class="card" id="work_end">
 <div class="icon">🏠</div>
-<div class="text">
+<div>
 <div class="title">Вихід з офісу</div>
-<div class="subtitle">Завершення робочого дня</div>
+<div class="subtitle">Завершення дня</div>
 </div>
 </div>
 
@@ -238,75 +185,18 @@ transform:translate(-50%,-50%) scale(1);
 
 <script>
 
-/* BLOCK MOBILE */
-
-if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-
-document.body.innerHTML = `
-<style>
-.mobile-block{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto;
-background:linear-gradient(180deg,#6a7cff,#7b61ff,#8c6cff);
-color:white;
-text-align:center;
-padding:30px;
-}
-.block-card{
-background:rgba(255,255,255,0.15);
-backdrop-filter:blur(20px);
-border-radius:24px;
-padding:40px 30px;
-max-width:320px;
-box-shadow:0 20px 40px rgba(0,0,0,0.25);
-}
-.block-robot{
-font-size:60px;
-margin-bottom:10px;
-}
-.block-text{
-font-size:15px;
-opacity:.9;
-line-height:1.5;
-}
-</style>
-
-<div class="mobile-block">
-<div class="block-card">
-<div class="block-robot">🤖</div>
-<div class="block-text">
-А шлях би його трапив!<br>
-Схоже, моє меню на телефоні не працює.<br>
-Краще відкрий мене з комп'ютера 💻
-</div>
-</div>
-</div>
-`
-
-throw new Error("Mobile blocked")
-
-}
-
-/* TELEGRAM INIT */
-
 const tg = window.Telegram.WebApp
+
 tg.ready()
 tg.expand()
-
-/* USER */
 
 const user = tg.initDataUnsafe.user
 
 if(user){
-document.getElementById("username").innerHTML = user.first_name
+document.getElementById("username").innerHTML=user.first_name
 }
 
-/* ACTION DATA */
-
-const actions = {
+const actions={
 work_start:"Прихід на роботу",
 coffee_start:"Початок кави",
 coffee_end:"Кінець кави",
@@ -315,7 +205,7 @@ lunch_end:"Кінець обіду",
 work_end:"Вихід з офісу"
 }
 
-const statuses = {
+const statuses={
 work_start:"🟢 Ви на роботі",
 coffee_start:"☕ Ви на каві",
 coffee_end:"🟢 Ви на роботі",
@@ -324,28 +214,20 @@ lunch_end:"🟢 Ви на роботі",
 work_end:"🔴 Робочий день завершено"
 }
 
-/* ACTION FUNCTION */
-
 function action(type){
 
-const now = new Date()
+const now=new Date()
 
-const hour = now.getHours()
-const minutes = now.getMinutes()
+const hour=now.getHours()
+const minutes=now.getMinutes()
 
-const current = hour*60 + minutes
+const current=hour*60+minutes
 
-const morningStart = 10*60
-const morningEnd = 11*60
-
-const eveningStart = 17*60
-const eveningEnd = 19*60
-
-if(type==="coffee_start" || type==="lunch_start"){
+if(type==="coffee_start"||type==="lunch_start"){
 
 if(
-(current>=morningStart && current<morningEnd) ||
-(current>=eveningStart && current<eveningEnd)
+(current>=600&&current<660)||
+(current>=1020&&current<1140)
 ){
 
 tg.showPopup({
@@ -360,14 +242,12 @@ return
 
 }
 
-const time = now.toLocaleTimeString()
+const time=now.toLocaleTimeString()
 
-document.getElementById("statusText").innerHTML = statuses[type]
+document.getElementById("statusText").innerHTML=statuses[type]
 
-document.getElementById("lastAction").innerHTML =
+document.getElementById("lastAction").innerHTML=
 "Остання дія: "+actions[type]+" ("+time+")"
-
-tg.HapticFeedback.impactOccurred("medium")
 
 tg.sendData(JSON.stringify({
 action:type,
@@ -377,8 +257,6 @@ time:new Date().toISOString()
 showSuccess()
 
 }
-
-/* SUCCESS */
 
 function showSuccess(){
 
@@ -392,14 +270,14 @@ box.classList.remove("show")
 
 }
 
-/* BUTTON LISTENERS */
+/* BUTTON EVENTS */
 
-document.getElementById("btn_work_start").addEventListener("click",()=>action("work_start"))
-document.getElementById("btn_coffee_start").addEventListener("click",()=>action("coffee_start"))
-document.getElementById("btn_coffee_end").addEventListener("click",()=>action("coffee_end"))
-document.getElementById("btn_lunch_start").addEventListener("click",()=>action("lunch_start"))
-document.getElementById("btn_lunch_end").addEventListener("click",()=>action("lunch_end"))
-document.getElementById("btn_work_end").addEventListener("click",()=>action("work_end"))
+document.getElementById("work_start").onclick=()=>action("work_start")
+document.getElementById("coffee_start").onclick=()=>action("coffee_start")
+document.getElementById("coffee_end").onclick=()=>action("coffee_end")
+document.getElementById("lunch_start").onclick=()=>action("lunch_start")
+document.getElementById("lunch_end").onclick=()=>action("lunch_end")
+document.getElementById("work_end").onclick=()=>action("work_end")
 
 </script>
 
