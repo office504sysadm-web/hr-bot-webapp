@@ -172,7 +172,7 @@
                     <div class="subtitle">Початок</div>
                 </div>
             </div>
-            <div class="card" id="btn_coffee_end">
+            <div class="card" id="btn_coffee_end" style="pointer-events: none; opacity: 0.5;">
                 <div class="icon">✅</div>
                 <div class="text">
                     <div class="title">Кінець кави</div>
@@ -186,14 +186,14 @@
                     <div class="subtitle">Початок</div>
                 </div>
             </div>
-            <div class="card" id="btn_lunch_end">
+            <div class="card" id="btn_lunch_end" style="pointer-events: none; opacity: 0.5;">
                 <div class="icon">✅</div>
                 <div class="text">
                     <div class="title">Кінець обіду</div>
                     <div class="subtitle">Завершення</div>
                 </div>
             </div>
-            <div class="card" id="btn_work_end">
+            <div class="card" id="btn_work_end" style="pointer-events: none; opacity: 0.5;">
                 <div class="icon">🏠</div>
                 <div class="text">
                     <div class="title">Вихід з офісу</div>
@@ -351,10 +351,14 @@
         // Зберігаємо статуси в localStorage
         if (type === "work_start") {
             localStorage.setItem("lastWorkStart", new Date().toISOString());
+            localStorage.setItem("coffeeUsed", 0);  // Скидаємо лічильник кави
+            localStorage.setItem("lunchUsed", 0);  // Скидаємо лічильник обіду
             document.getElementById("btn_coffee_start").style.pointerEvents = "auto"; // Активуємо кнопки кави та обіду
             document.getElementById("btn_coffee_start").style.opacity = 1;
             document.getElementById("btn_lunch_start").style.pointerEvents = "auto";
             document.getElementById("btn_lunch_start").style.opacity = 1;
+            document.getElementById("btn_work_start").style.pointerEvents = "none";  // Вимикаємо кнопку "Прихід"
+            document.getElementById("btn_work_start").style.opacity = 0.5;
         }
 
         if (type === "work_end") {
