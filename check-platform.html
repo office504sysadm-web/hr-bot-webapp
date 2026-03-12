@@ -304,6 +304,7 @@
         localStorage.setItem("userStatus", type)
         localStorage.setItem("statusTime", time); // зберігаємо час
         localStorage.setItem("lastAction", actions[type]); // зберігаємо останню дію
+        localStorage.setItem("lastActionTime", time); // зберігаємо час останньої дії
     }
 
     /* SUCCESS */
@@ -320,13 +321,14 @@
         const savedStatus = localStorage.getItem("userStatus");
         const savedTime = localStorage.getItem("statusTime"); // додаємо час
         const lastAction = localStorage.getItem("lastAction"); // відновлюємо останню дію
+        const lastActionTime = localStorage.getItem("lastActionTime"); // відновлюємо час останньої дії
 
         if (savedStatus) {
             updateStatus(savedStatus, savedTime);
         }
 
         if (lastAction) {
-            document.getElementById("lastAction").textContent = "Остання дія: " + lastAction;
+            document.getElementById("lastAction").textContent = "Остання дія: " + lastAction + " о " + lastActionTime;
         }
     };
 
