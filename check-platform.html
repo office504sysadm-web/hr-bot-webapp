@@ -296,7 +296,7 @@
 
         // Оновлення статусу
         document.getElementById("statusText").textContent = statuses[type];
-        document.getElementById("lastAction").textContent = "Остання дія: " + actions[type] + " " + time;
+        document.getElementById("lastAction").textContent = `Остання дія: ${actions[type]} - ${user.first_name}`;
 
         tg.HapticFeedback.impactOccurred("medium");
         tg.sendData(JSON.stringify({
