@@ -198,6 +198,14 @@
         document.getElementById("username").textContent = user.first_name;
     }
 
+    // ІНІЦІАЛІЗАЦІЯ: Якщо localStorage порожній, встановлюємо статус not_work
+    if (!localStorage.getItem("userStatus")) {
+        console.log("Перше відкриття: встановлюємо статус not_work");
+        localStorage.setItem("userStatus", "not_work");
+        localStorage.setItem("coffeeUsed", "0");
+        localStorage.setItem("lunchUsed", "0");
+    }
+
     // Ініціалізація змінних з localStorage
     let userStatus = localStorage.getItem("userStatus") || "not_work";
     let statusTime = localStorage.getItem("statusTime") ? parseInt(localStorage.getItem("statusTime")) : null;
@@ -255,15 +263,14 @@
         if (userStatus === "not_work" || userStatus === "work_end") {
             // Початковий статус або після виходу - показуємо тільки кнопки початку роботи
             if (userStatus === "work_end" && !canStart) {
-                // Якщо не пройшло 22 години - не показуємо кнопок
-                // Можна показати повідомлення про очікування
+                // Якщо не пройшло 22 години - показуємо інформаційне повідомлення
                 const messageCard = document.createElement('div');
                 messageCard.className = 'card disabled';
                 messageCard.innerHTML = `
                     <div class="icon">⏳</div>
                     <div class="text">
-                        <div class="title">Очікування</div>
-                        <div class="subtitle">Кнопки стануть активними через 22 години</div>
+                        <div class="title">Очікування 22 години</div>
+                        <div class="subtitle">Кнопки стануть активними після завершення періоду очікування</div>
                     </div>
                 `;
                 menuContainer.appendChild(messageCard);
@@ -477,6 +484,7 @@
 
     // Ініціалізація при завантаженні
     window.onload = () => {
+        console.log("WebApp завантажено, статус:", userStatus);
         updateMenu();
     };
 
