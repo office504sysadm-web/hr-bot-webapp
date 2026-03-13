@@ -153,52 +153,6 @@ h2 {
 .success.show {
   transform: translate(-50%, -50%) scale(1);
 }
-/* REMINDER POPUP */
-.reminder {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(-100px);
-  background: rgba(255, 255, 255, 0.95);
-  color: #333;
-  padding: 16px 22px;
-  border-radius: 20px;
-  font-size: 15px;
-  font-weight: 500;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  z-index: 2000;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  max-width: 350px;
-  text-align: center;
-  backdrop-filter: blur(5px);
-}
-.reminder.show {
-  transform: translateX(-50%) translateY(0);
-}
-.reminder-icon {
-  font-size: 24px;
-  margin-bottom: 8px;
-}
-.reminder-text {
-  margin-bottom: 12px;
-  line-height: 1.4;
-}
-.reminder-button {
-  background: #5f6cff;
-  color: white;
-  border: none;
-  padding: 8px 20px;
-  border-radius: 30px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 10px rgba(95, 108, 255, 0.3);
-}
-.reminder-button:hover {
-  background: #7b61ff;
-}
 </style>
 </head>
 <body>
@@ -219,11 +173,6 @@ h2 {
   </div>
 </div>
 <div class="success" id="successBox">✅ Збережено</div>
-<div class="reminder" id="reminderBox">
-  <div class="reminder-icon">⏰</div>
-  <div class="reminder-text" id="reminderText"></div>
-  <button class="reminder-button" id="reminderButton">Ок, дякую</button>
-</div>
 
 <script>
 /* BLOCK MOBILE */
@@ -284,67 +233,6 @@ let coffeeUsed = parseInt(localStorage.getItem("coffeeUsed") || "0");
 let lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
 let workStartTime = localStorage.getItem("workStartTime") ? parseInt(localStorage.getItem("workStartTime")) : null;
 
-// Змінні для відстеження нагадувань
-let loginReminderShown = localStorage.getItem("loginReminderShown") === "true";
-let logoutReminderShown = localStorage.getItem("logoutReminderShown") === "true";
-
-// Функція показу нагадування
-function showReminder(text) {
-  const reminderBox = document.getElementById("reminderBox");
-  const reminderText = document.getElementById("reminderText");
-  reminderText.textContent = text;
-  reminderBox.classList.add("show");
-  
-  // Автоматично приховуємо через 10 секунд
-  setTimeout(() => {
-    reminderBox.classList.remove("show");
-  }, 10000);
-}
-
-// Функція перевірки нагадувань
-function checkReminders() {
-  const kyivTime = getKyivTime();
-  const hour = kyivTime.getHours();
-  const minutes = kyivTime.getMinutes();
-  const currentMinutes = hour * 60 + minutes;
-  
-  // Нагадування про логін о 10:05
-  const loginReminderTime = 10 * 60 + 5; // 10:05
-  const workStartReminderTime = 10 * 60; // 10:00
-  
-  // Якщо зараз 10:05 або пізніше, але нагадування ще не показували
-  if (currentMinutes >= loginReminderTime && !loginReminderShown) {
-    // Перевіряємо, чи користувач не на роботі
-    if (userStatus === STATUS.NOT_WORK || userStatus === STATUS.WORK_END) {
-      showReminder("👋 Доброго ранку! Не забудь залогінитися — натисни 'Прихід на роботу' або 'Працюю онлайн'");
-      loginReminderShown = true;
-      localStorage.setItem("loginReminderShown", "true");
-    }
-  }
-  
-  // Нагадування про логаут о 19:05
-  const logoutReminderTime = 19 * 60 + 5; // 19:05
-  
-  // Якщо зараз 19:05 або пізніше, але нагадування ще не показували
-  if (currentMinutes >= logoutReminderTime && !logoutReminderShown) {
-    // Перевіряємо, чи користувач все ще на роботі (не натиснув Вихід)
-    if (userStatus === STATUS.WORK_START || userStatus === STATUS.ONLINE_START || 
-        userStatus === STATUS.COFFEE_START || userStatus === STATUS.LUNCH_START) {
-      showReminder("🏠 Робочий день закінчився! Не забудь натиснути 'Вихід з офісу'");
-      logoutReminderShown = true;
-      localStorage.setItem("logoutReminderShown", "true");
-    }
-  }
-  
-  // Скидаємо нагадування опівночі (для нового дня)
-  if (hour === 0 && minutes === 0) {
-    loginReminderShown = false;
-    logoutReminderShown = false;
-    localStorage.setItem("loginReminderShown", "false");
-    localStorage.setItem("logoutReminderShown", "false");
-  }
-}
-
 // Функція перевірки чи минуло 22 години
 function canStartWork() {
   if (!workStartTime) return true;
@@ -372,7 +260,7 @@ function isWorkingHours() {
   return currentMinutes >= workStart && currentMinutes < workEnd;
 }
 
-// Функція перевірки доступності перерв (оновлено до 18:00)
+// Функція перевірки доступності перерв
 function isBreakAllowed() {
   const kyivTime = getKyivTime();
   const hour = kyivTime.getHours();
@@ -380,7 +268,7 @@ function isBreakAllowed() {
   const currentMinutes = hour * 60 + minutes;
   
   const breakStart = 11 * 60; // 11:00
-  const breakEnd = 18 * 60; // 18:00 (було 17:00)
+  const breakEnd = 17 * 60; // 17:00
   
   return currentMinutes >= breakStart && currentMinutes < breakEnd;
 }
@@ -474,8 +362,6 @@ function saveToStorage() {
   localStorage.setItem("coffeeUsed", coffeeUsed);
   localStorage.setItem("lunchUsed", lunchUsed);
   localStorage.setItem("workStartTime", workStartTime);
-  localStorage.setItem("loginReminderShown", loginReminderShown);
-  localStorage.setItem("logoutReminderShown", logoutReminderShown);
 }
 
 // Показ повідомлення
@@ -533,10 +419,6 @@ function action(type) {
     workStartTime = Date.now();
     userStatus = type;
     statusTime = Date.now();
-    
-    // Якщо користувач залогінився, скидаємо нагадування про логін
-    loginReminderShown = true;
-    localStorage.setItem("loginReminderShown", "true");
   }
   
   // Перевірки для перерв
@@ -547,7 +429,7 @@ function action(type) {
       return;
     }
     
-    // Перевірка доступності перерв за часом (оновлено до 18:00)
+    // Перевірка доступності перерв за часом
     if (!isBreakAllowed()) {
       showMessage("⛔ Перерва недоступна", "Перерва недоступна в цей час.");
       return;
@@ -569,12 +451,6 @@ function action(type) {
       }
       lunchUsed += 60;
     }
-  }
-  
-  // Якщо користувач вийшов з офісу, скидаємо нагадування про вихід
-  if (type === STATUS.WORK_END) {
-    logoutReminderShown = true;
-    localStorage.setItem("logoutReminderShown", "true");
   }
   
   // Зміна статусу
@@ -622,11 +498,6 @@ function showSuccess() {
   }, 1200);
 }
 
-// Закриття нагадування по кнопці
-document.getElementById("reminderButton").addEventListener("click", () => {
-  document.getElementById("reminderBox").classList.remove("show");
-});
-
 // Ініціалізація при завантаженні
 window.onload = () => {
   // Відновлення значень з localStorage
@@ -637,23 +508,15 @@ window.onload = () => {
   coffeeUsed = parseInt(localStorage.getItem("coffeeUsed") || "0");
   lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
   workStartTime = localStorage.getItem("workStartTime") ? parseInt(localStorage.getItem("workStartTime")) : null;
-  loginReminderShown = localStorage.getItem("loginReminderShown") === "true";
-  logoutReminderShown = localStorage.getItem("logoutReminderShown") === "true";
   
   // Оновлення відображення
   updateStatusDisplay();
   updateMenu();
   
-  // Перевіряємо нагадування кожну хвилину
+  // Перевіряємо кожну хвилину чи не змінився час (для блокування перерв)
   setInterval(() => {
-    checkReminders();
     updateMenu();
   }, 60000);
-  
-  // Відразу перевіряємо нагадування при завантаженні
-  setTimeout(() => {
-    checkReminders();
-  }, 5000);
   
   // Повідомляємо Telegram що бот готовий
   tg.ready();
