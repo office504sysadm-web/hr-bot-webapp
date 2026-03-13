@@ -198,20 +198,13 @@
         document.getElementById("username").textContent = user.first_name;
     }
 
-    // ІНІЦІАЛІЗАЦІЯ: Примусово встановлюємо статус not_work при кожному відкритті, якщо його немає
-    console.log("Поточний localStorage:", localStorage.getItem("userStatus"));
-    
-    if (!localStorage.getItem("userStatus")) {
-        console.log("Перше відкриття: встановлюємо статус not_work");
-        localStorage.setItem("userStatus", "not_work");
-        localStorage.setItem("coffeeUsed", "0");
-        localStorage.setItem("lunchUsed", "0");
-        localStorage.setItem("lastAction", "");
-        localStorage.setItem("lastActionTime", "");
+    // Функція для перевірки чи є статус в localStorage
+    function hasStatus() {
+        return localStorage.getItem("userStatus") !== null;
     }
 
-    // Ініціалізація змінних з localStorage
-    let userStatus = localStorage.getItem("userStatus") || "not_work";
+    // Отримуємо статус з localStorage, якщо він є
+    let userStatus = hasStatus() ? localStorage.getItem("userStatus") : null;
     let statusTime = localStorage.getItem("statusTime") ? parseInt(localStorage.getItem("statusTime")) : null;
     let lastAction = localStorage.getItem("lastAction") || "";
     let lastActionTime = localStorage.getItem("lastActionTime") || "";
@@ -219,7 +212,8 @@
     let lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
     let workStartTime = localStorage.getItem("workStartTime") ? parseInt(localStorage.getItem("workStartTime")) : null;
 
-    console.log("Поточний статус:", userStatus);
+    console.log("Статус з localStorage:", userStatus);
+    console.log("Чи є статус:", hasStatus());
 
     // Функція для перевірки чи активні кнопки початку роботи (пройшло 22 години)
     function canStartWork() {
@@ -261,17 +255,27 @@
 
     // Функція для оновлення меню
     function updateMenu() {
-        console.log("Оновлення меню для статусу:", userStatus);
+        console.log("Оновлення меню. Поточний userStatus:", userStatus);
+        console.log("Чи є статус в localStorage:", hasStatus());
         
         const menuContainer = document.getElementById("menuContainer");
         menuContainer.innerHTML = ''; // Очищаємо меню
 
+        // Якщо статусу немає в localStorage - показуємо кнопки початку роботи
+        if (!hasStatus()) {
+            console.log("Статус відсутній - показуємо кнопки початку роботи");
+            menuContainer.appendChild(createButton('btn_work_start', '🏢', 'Прихід на роботу', 'Початок робочого дня в офісі'));
+            menuContainer.appendChild(createButton('btn_online_start', '💻', 'Працюю онлайн', 'Початок віддаленої роботи'));
+            updateStatusTextForNoStatus();
+            addEventListeners();
+            return;
+        }
+
         const canStart = canStartWork();
 
         if (userStatus === "not_work" || userStatus === "work_end") {
-            console.log("Показуємо кнопки початку роботи");
+            console.log("Статус not_work або work_end - показуємо кнопки початку роботи");
             
-            // Початковий статус або після виходу - показуємо тільки кнопки початку роботи
             if (userStatus === "work_end" && !canStart) {
                 // Якщо не пройшло 22 години - показуємо інформаційне повідомлення
                 const messageCard = document.createElement('div');
@@ -290,24 +294,29 @@
                 menuContainer.appendChild(createButton('btn_online_start', '💻', 'Працюю онлайн', 'Початок віддаленої роботи'));
             }
         } else if (userStatus === "work_start" || userStatus === "online_start") {
-            console.log("Показуємо кнопки перерв та виходу");
-            // Статус роботи - показуємо кнопки для перерв та виходу
+            console.log("Статус роботи - показуємо кнопки перерв та виходу");
             menuContainer.appendChild(createButton('btn_coffee_start', '☕', 'Кава брейк', 'Початок (15 хв)', coffeeUsed >= 45));
             menuContainer.appendChild(createButton('btn_lunch_start', '🍽', 'Обід', 'Початок (60 хв)', lunchUsed >= 60));
             menuContainer.appendChild(createButton('btn_work_end', '🏠', 'Вихід з офісу', 'Завершення робочого дня'));
         } else if (userStatus === "coffee_start") {
-            console.log("Показуємо кнопку завершення кави");
-            // Статус кави - показуємо тільки кнопку завершення кави
+            console.log("Статус кави - показуємо кнопку завершення кави");
             menuContainer.appendChild(createButton('btn_coffee_end', '✅', 'Кінець кави', 'Завершення перерви'));
         } else if (userStatus === "lunch_start") {
-            console.log("Показуємо кнопку завершення обіду");
-            // Статус обіду - показуємо тільки кнопку завершення обіду
+            console.log("Статус обіду - показуємо кнопку завершення обіду");
             menuContainer.appendChild(createButton('btn_lunch_end', '✅', 'Кінець обіду', 'Завершення перерви'));
         }
 
-        // Додаємо обробники подій для нових кнопок
         addEventListeners();
         updateStatusText();
+    }
+
+    // Функція для оновлення тексту статусу коли немає статусу
+    function updateStatusTextForNoStatus() {
+        const statusText = document.getElementById("statusText");
+        const lastActionEl = document.getElementById("lastAction");
+        
+        statusText.textContent = "⚪ Ви ще не на роботі";
+        lastActionEl.textContent = "Остання дія: —";
     }
 
     // Функція для додавання обробників подій
@@ -354,7 +363,7 @@
         localStorage.setItem("lunchUsed", lunchUsed);
         if (workStartTime) localStorage.setItem("workStartTime", workStartTime);
         
-        console.log("Стан збережено:", userStatus);
+        console.log("Стан збережено. Новий статус:", userStatus);
     }
 
     // Функція для показу успішного повідомлення
@@ -369,6 +378,7 @@
     // Основна функція обробки дій
     function action(type) {
         console.log("Дія:", type);
+        console.log("Поточний статус до дії:", userStatus);
         
         const now = new Date();
         const kyivTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Kiev"}));
@@ -501,8 +511,8 @@
 
     // Ініціалізація при завантаженні
     window.onload = () => {
-        console.log("WebApp завантажено, статус з localStorage:", localStorage.getItem("userStatus"));
-        console.log("Поточний userStatus:", userStatus);
+        console.log("WebApp завантажено");
+        console.log("Перевіряємо наявність статусу в localStorage:", localStorage.getItem("userStatus"));
         updateMenu();
     };
 
