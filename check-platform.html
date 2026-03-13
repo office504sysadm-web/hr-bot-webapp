@@ -198,13 +198,8 @@
         document.getElementById("username").textContent = user.first_name;
     }
 
-    // Функція для перевірки чи є статус в localStorage
-    function hasStatus() {
-        return localStorage.getItem("userStatus") !== null;
-    }
-
-    // Отримуємо статус з localStorage, якщо він є
-    let userStatus = hasStatus() ? localStorage.getItem("userStatus") : null;
+    // Ініціалізація змінних з localStorage (якщо є)
+    let userStatus = localStorage.getItem("userStatus") || null;
     let statusTime = localStorage.getItem("statusTime") ? parseInt(localStorage.getItem("statusTime")) : null;
     let lastAction = localStorage.getItem("lastAction") || "";
     let lastActionTime = localStorage.getItem("lastActionTime") || "";
@@ -212,8 +207,7 @@
     let lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
     let workStartTime = localStorage.getItem("workStartTime") ? parseInt(localStorage.getItem("workStartTime")) : null;
 
-    console.log("Статус з localStorage:", userStatus);
-    console.log("Чи є статус:", hasStatus());
+    console.log("Поточний статус з localStorage:", userStatus);
 
     // Функція для перевірки чи активні кнопки початку роботи (пройшло 22 години)
     function canStartWork() {
@@ -256,13 +250,12 @@
     // Функція для оновлення меню
     function updateMenu() {
         console.log("Оновлення меню. Поточний userStatus:", userStatus);
-        console.log("Чи є статус в localStorage:", hasStatus());
         
         const menuContainer = document.getElementById("menuContainer");
         menuContainer.innerHTML = ''; // Очищаємо меню
 
-        // Якщо статусу немає в localStorage - показуємо кнопки початку роботи
-        if (!hasStatus()) {
+        // ЗАВЖДИ показуємо кнопки початку роботи, якщо немає активного статусу
+        if (!userStatus) {
             console.log("Статус відсутній - показуємо кнопки початку роботи");
             menuContainer.appendChild(createButton('btn_work_start', '🏢', 'Прихід на роботу', 'Початок робочого дня в офісі'));
             menuContainer.appendChild(createButton('btn_online_start', '💻', 'Працюю онлайн', 'Початок віддаленої роботи'));
@@ -271,12 +264,11 @@
             return;
         }
 
-        const canStart = canStartWork();
-
+        // Якщо статус є, використовуємо логіку з ТЗ
         if (userStatus === "not_work" || userStatus === "work_end") {
             console.log("Статус not_work або work_end - показуємо кнопки початку роботи");
             
-            if (userStatus === "work_end" && !canStart) {
+            if (userStatus === "work_end" && !canStartWork()) {
                 // Якщо не пройшло 22 години - показуємо інформаційне повідомлення
                 const messageCard = document.createElement('div');
                 messageCard.className = 'card disabled';
@@ -355,10 +347,12 @@
 
     // Функція для збереження стану
     function saveState() {
-        localStorage.setItem("userStatus", userStatus);
+        if (userStatus) {
+            localStorage.setItem("userStatus", userStatus);
+        }
         if (statusTime) localStorage.setItem("statusTime", statusTime);
-        localStorage.setItem("lastAction", lastAction);
-        localStorage.setItem("lastActionTime", lastActionTime);
+        if (lastAction) localStorage.setItem("lastAction", lastAction);
+        if (lastActionTime) localStorage.setItem("lastActionTime", lastActionTime);
         localStorage.setItem("coffeeUsed", coffeeUsed);
         localStorage.setItem("lunchUsed", lunchUsed);
         if (workStartTime) localStorage.setItem("workStartTime", workStartTime);
@@ -407,6 +401,7 @@
                 return;
             }
             
+            // Присвоюємо статус в localStorage
             userStatus = type === "work_start" ? "work_start" : "online_start";
             statusTime = Date.now();
             workStartTime = Date.now();
@@ -420,7 +415,16 @@
             return;
         }
 
-        // Перевірки для перерв
+        // Перевірки для перерв (тільки якщо є статус)
+        if (!userStatus) {
+            tg.showPopup({
+                title: "⛔ Помилка",
+                message: "Спочатку почніть робочий день",
+                buttons: [{ type: "ok" }]
+            });
+            return;
+        }
+
         if (type === "coffee_start" || type === "lunch_start") {
             // Перевірка часу
             if (!isBreakTimeAllowed()) {
@@ -512,7 +516,7 @@
     // Ініціалізація при завантаженні
     window.onload = () => {
         console.log("WebApp завантажено");
-        console.log("Перевіряємо наявність статусу в localStorage:", localStorage.getItem("userStatus"));
+        console.log("Статус з localStorage:", localStorage.getItem("userStatus"));
         updateMenu();
     };
 
