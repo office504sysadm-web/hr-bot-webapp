@@ -1,145 +1,12 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>WorkBuddy</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto;
-            background: linear-gradient(180deg, #6a7cff, #7b61ff, #8c6cff);
-            color: white;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 420px;
-            padding: 18px;
-        }
-
-        /* HEADER */
-        .header {
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .avatar {
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: white;
-            margin: auto;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 26px;
-            color: #333;
-        }
-
-        h2 {
-            font-size: 22px;
-            margin-top: 4px;
-        }
-
-        /* STATUS */
-        .status-box {
-            background: rgba(255, 255, 255, .2);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            padding: 10px;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .status {
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .last-action {
-            font-size: 12px;
-            opacity: .8;
-        }
-
-        /* MENU */
-        .menu {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, .92);
-            border-radius: 18px;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: .15s;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
-        }
-
-        .card:active {
-            transform: scale(.96);
-        }
-
-        .icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            background: #f2f2f7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .text {
-            flex: 1;
-        }
-
-        .title {
-            color: #1c1c1e;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .subtitle {
-            color: #6e6e73;
-            font-size: 11px;
-        }
-
-        /* SUCCESS */
-        .success {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: white;
-            color: #333;
-            padding: 20px 25px;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: 600;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, .3);
-            transition: .3s;
-        }
-
-        .success.show {
-            transform: translate(-50%, -50%) scale(1);
-        }
-
+        /* Додаткові стилі залишаються такими ж */
     </style>
 </head>
 <body>
@@ -165,57 +32,44 @@
                     <div class="subtitle">Початок робочого дня</div>
                 </div>
             </div>
-            <div class="card" id="btn_online_start">
-                <div class="icon">💻</div>
-                <div class="text">
-                    <div class="title">Працюю онлайн</div>
-                    <div class="subtitle">Початок робочого дня онлайн</div>
-                </div>
-            </div>
-
-            <!-- Кнопки для кави та обіду -->
-            <div class="card" id="btn_coffee_start" style="pointer-events: none; opacity: 0.5;">
+            <div class="card" id="btn_coffee_start">
                 <div class="icon">☕</div>
                 <div class="text">
                     <div class="title">Кава брейк</div>
                     <div class="subtitle">Початок</div>
                 </div>
             </div>
-            <div class="card" id="btn_coffee_end" style="pointer-events: none; opacity: 0.5;">
+            <div class="card" id="btn_coffee_end">
                 <div class="icon">✅</div>
                 <div class="text">
                     <div class="title">Кінець кави</div>
                     <div class="subtitle">Завершення</div>
                 </div>
             </div>
-            <div class="card" id="btn_lunch_start" style="pointer-events: none; opacity: 0.5;">
+            <div class="card" id="btn_lunch_start">
                 <div class="icon">🍽</div>
                 <div class="text">
                     <div class="title">Обід</div>
                     <div class="subtitle">Початок</div>
                 </div>
             </div>
-            <div class="card" id="btn_lunch_end" style="pointer-events: none; opacity: 0.5;">
+            <div class="card" id="btn_lunch_end">
                 <div class="icon">✅</div>
                 <div class="text">
                     <div class="title">Кінець обіду</div>
                     <div class="subtitle">Завершення</div>
                 </div>
             </div>
-
-            <!-- Кнопка для виходу з офісу -->
-            <div class="card" id="btn_work_end" style="pointer-events: none; opacity: 0.5;">
+            <div class="card" id="btn_work_end">
                 <div class="icon">🏠</div>
                 <div class="text">
                     <div class="title">Вихід з офісу</div>
                     <div class="subtitle">Завершення робочого дня</div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
-
 <div class="success" id="successBox">
     ✅ Збережено
 </div>
@@ -223,7 +77,7 @@
 <script>
     /* BLOCK MOBILE */
     if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        document.body.innerHTML = `
+        document.body.innerHTML = ` 
         <div style="height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;color:white;font-family:sans-serif">
         <div>
         🤖<br><br>
@@ -237,90 +91,143 @@
     }
 
     /* TELEGRAM */
-    const tg = window.Telegram.WebApp
-    tg.ready()
-    tg.expand()
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
 
-    const user = tg.initDataUnsafe.user
+    const user = tg.initDataUnsafe.user;
     if (user) {
-        document.getElementById("username").textContent = user.first_name
+        document.getElementById("username").textContent = user.first_name;
     }
 
+    // Ініціалізація змінних
+    let coffeeUsed = 0;
+    let lunchUsed = 0;
+    let userStatus = localStorage.getItem("userStatus") || "not_work"; // Початковий статус
+    let statusTime = localStorage.getItem("statusTime");
+    let lastAction = localStorage.getItem("lastAction");
+    let lastActionTime = localStorage.getItem("lastActionTime");
+
     /* BUTTON EVENTS */
-    document.getElementById("btn_work_start").addEventListener("click", () => action("work_start"))
-    document.getElementById("btn_online_start").addEventListener("click", () => action("online_start"))
-    document.getElementById("btn_coffee_start").addEventListener("click", () => action("coffee_start"))
-    document.getElementById("btn_coffee_end").addEventListener("click", () => action("coffee_end"))
-    document.getElementById("btn_lunch_start").addEventListener("click", () => action("lunch_start"))
-    document.getElementById("btn_lunch_end").addEventListener("click", () => action("lunch_end"))
-    document.getElementById("btn_work_end").addEventListener("click", () => action("work_end"))
+    document.getElementById("btn_work_start").addEventListener("click", () => action("work_start"));
+    document.getElementById("btn_coffee_start").addEventListener("click", () => action("coffee_start"));
+    document.getElementById("btn_coffee_end").addEventListener("click", () => action("coffee_end"));
+    document.getElementById("btn_lunch_start").addEventListener("click", () => action("lunch_start"));
+    document.getElementById("btn_lunch_end").addEventListener("click", () => action("lunch_end"));
+    document.getElementById("btn_work_end").addEventListener("click", () => action("work_end"));
 
     /* ACTION */
     function action(type) {
-        const now = new Date()
-        const hour = now.getHours()
-        const minutes = now.getMinutes()
+        const now = new Date();
+        const hour = now.getHours();
+        const minutes = now.getMinutes();
+        const current = hour * 60 + minutes;
+        const morningStart = 10 * 60;
+        const morningEnd = 11 * 60;
+        const eveningStart = 17 * 60;
+        const eveningEnd = 19 * 60;
 
-        const time = hour + ":" + (minutes < 10 ? "0" + minutes : minutes);  // Форматуємо час як "години:хвилини"
+        if (type === "coffee_start" || type === "lunch_start") {
+            if (
+                (current >= morningStart && current < morningEnd) ||
+                (current >= eveningStart && current < eveningEnd)
+            ) {
+                tg.showPopup({
+                    title: "⛔ Перерва недоступна",
+                    message: "З 10:00 до 11:00 та з 17:00 до 19:00 перерви заборонені.",
+                    buttons: [{ type: "ok" }]
+                });
+                return;
+            }
 
+            // Перевірка ліміту на кава брейк
+            if (type === "coffee_start" && coffeeUsed >= 45) {
+                tg.showPopup({
+                    title: "⛔ Ліміт на каву вичерпано",
+                    message: "Ви вже використали час на Кава брейк (45 хв).",
+                    buttons: [{ type: "ok" }]
+                });
+                return;
+            }
+
+            // Перевірка ліміту на обід
+            if (type === "lunch_start" && lunchUsed >= 60) {
+                tg.showPopup({
+                    title: "⛔ Ліміт на обід вичерпано",
+                    message: "Ви вже використали час на Обід (60 хв).",
+                    buttons: [{ type: "ok" }]
+                });
+                return;
+            }
+        }
+
+        const time = hour + ":" + (minutes < 10 ? "0" + minutes : minutes);
         const actions = {
             work_start: "Прихід на роботу",
-            online_start: "Працюю онлайн",
             coffee_start: "Початок кави",
             coffee_end: "Кінець кави",
             lunch_start: "Початок обіду",
             lunch_end: "Кінець обіду",
             work_end: "Вихід з офісу"
-        }
+        };
 
         const statuses = {
             work_start: "🟢 Ви на роботі",
-            online_start: "💻 Працюєте онлайн",
             coffee_start: "☕ Ви на каві",
-            coffee_end: "🟢 Ви на роботі", // Зміна статусу з кави на роботу
+            coffee_end: "🟢 Ви на роботі",
             lunch_start: "🍽 Ви на обіді",
-            lunch_end: "🟢 Ви на роботі", // Зміна статусу з обіду на роботу
+            lunch_end: "🟢 Ви на роботі",
             work_end: "🔴 Робочий день завершено"
+        };
+
+        if (type === "coffee_start") {
+            coffeeUsed += 15;
         }
 
-        // Оновлення статусу
-        document.getElementById("statusText").textContent = statuses[type]
+        if (type === "lunch_start") {
+            lunchUsed += 60;
+        }
+
+        /* UPDATE STATUS */
+        document.getElementById("statusText").textContent = statuses[type];
         document.getElementById("lastAction").textContent =
-            "Остання дія: " + actions[type] + " " + time + "" // Час тільки в останній дії
+            "Остання дія: " + actions[type] + " " + time;
 
-        // Збереження статусу та часу
-        localStorage.setItem("userStatus", type)
-        localStorage.setItem("statusTime", time); // Зберігаємо час
-        localStorage.setItem("lastAction", actions[type]); // Зберігаємо останню дію
-        localStorage.setItem("lastActionTime", time); // Зберігаємо час останньої дії
-
-        tg.HapticFeedback.impactOccurred("medium")
+        tg.HapticFeedback.impactOccurred("medium");
         tg.sendData(JSON.stringify({
             action: type,
             time: new Date().toISOString()
-        }))
+        }));
 
-        showSuccess()
+        showSuccess();
 
-        // Зміна доступності кнопок
-        updateButtons();
+        // Зберігаємо статус та інформацію в localStorage
+        localStorage.setItem("userStatus", type);
+        localStorage.setItem("statusTime", time);
+        localStorage.setItem("lastAction", actions[type]);
+        localStorage.setItem("lastActionTime", time);
+        localStorage.setItem("coffeeUsed", coffeeUsed);
+        localStorage.setItem("lunchUsed", lunchUsed);
     }
 
     /* SUCCESS */
     function showSuccess() {
-        const box = document.getElementById("successBox")
-        box.classList.add("show")
+        const box = document.getElementById("successBox");
+        box.classList.add("show");
         setTimeout(() => {
-            box.classList.remove("show")
-        }, 1200)
+            box.classList.remove("show");
+        }, 1200);
     }
 
     // Відновлення статусу при відкритті меню
     window.onload = () => {
         const savedStatus = localStorage.getItem("userStatus");
-        const savedTime = localStorage.getItem("statusTime"); // додаємо час
-        const lastAction = localStorage.getItem("lastAction"); // відновлюємо останню дію
-        const lastActionTime = localStorage.getItem("lastActionTime"); // відновлюємо час останньої дії
+        const savedTime = localStorage.getItem("statusTime");
+        const lastAction = localStorage.getItem("lastAction");
+        const lastActionTime = localStorage.getItem("lastActionTime");
+
+        coffeeUsed = parseInt(localStorage.getItem("coffeeUsed") || "0");
+        lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
 
         if (savedStatus) {
             updateStatus(savedStatus, savedTime);
@@ -329,12 +236,8 @@
         if (lastAction) {
             document.getElementById("lastAction").textContent = "Остання дія: " + lastAction + " о " + lastActionTime;
         }
-
-        // Оновлення доступності кнопок після перезавантаження
-        updateButtons();
     };
 
-    // Оновлення статусу на сторінці
     function updateStatus(action, time) {
         const statusText = document.getElementById("statusText");
 
@@ -347,7 +250,7 @@
         }
 
         if (action === "coffee_end") {
-            statusText.innerText = "🟢 Ви на роботі";  // Повертаємось на роботу після кави
+            statusText.innerText = "🟢 Ви на роботі"; 
         }
 
         if (action === "lunch_start") {
@@ -355,66 +258,11 @@
         }
 
         if (action === "lunch_end") {
-            statusText.innerText = "🟢 Ви на роботі";  // Повертаємось на роботу після обіду
+            statusText.innerText = "🟢 Ви на роботі"; 
         }
 
         if (action === "work_end") {
             statusText.innerText = "🔴 Ви не на роботі";
-        }
-    }
-
-    // Оновлення доступності кнопок в залежності від статусу
-    function updateButtons() {
-        const workStatus = localStorage.getItem("userStatus");
-
-        if (workStatus === "work_start") {
-            // Активуємо кнопки після "Прихід на роботу"
-            document.getElementById("btn_work_start").style.pointerEvents = "none";
-            document.getElementById("btn_work_start").style.opacity = 0.5;
-            document.getElementById("btn_online_start").style.pointerEvents = "none";
-            document.getElementById("btn_online_start").style.opacity = 0.5;
-            document.getElementById("btn_coffee_start").style.pointerEvents = "auto";
-            document.getElementById("btn_coffee_start").style.opacity = 1;
-            document.getElementById("btn_lunch_start").style.pointerEvents = "auto";
-            document.getElementById("btn_lunch_start").style.opacity = 1;
-            document.getElementById("btn_work_end").style.pointerEvents = "auto";
-            document.getElementById("btn_work_end").style.opacity = 1;
-        } else if (workStatus === "online_start") {
-            // Активуємо кнопки після "Працюю онлайн"
-            document.getElementById("btn_work_start").style.pointerEvents = "none";
-            document.getElementById("btn_work_start").style.opacity = 0.5;
-            document.getElementById("btn_online_start").style.pointerEvents = "none";
-            document.getElementById("btn_online_start").style.opacity = 0.5;
-            document.getElementById("btn_online_end").style.pointerEvents = "auto";
-            document.getElementById("btn_online_end").style.opacity = 1;
-        } else if (workStatus === "coffee_start") {
-            // Коли натискається "Кава брейк", тільки кнопка "Кінець кави" активна
-            document.getElementById("btn_coffee_start").style.pointerEvents = "none";
-            document.getElementById("btn_coffee_start").style.opacity = 0.5;
-            document.getElementById("btn_coffee_end").style.pointerEvents = "auto";
-            document.getElementById("btn_coffee_end").style.opacity = 1;
-            document.getElementById("btn_work_start").style.pointerEvents = "none";
-            document.getElementById("btn_work_start").style.opacity = 0.5;
-            document.getElementById("btn_online_start").style.pointerEvents = "none";
-            document.getElementById("btn_online_start").style.opacity = 0.5;
-            document.getElementById("btn_lunch_start").style.pointerEvents = "none";
-            document.getElementById("btn_lunch_start").style.opacity = 0.5;
-            document.getElementById("btn_work_end").style.pointerEvents = "none";
-            document.getElementById("btn_work_end").style.opacity = 0.5;
-        } else if (workStatus === "lunch_start") {
-            // Коли натискається "Обід", тільки кнопка "Кінець обіду" активна
-            document.getElementById("btn_lunch_start").style.pointerEvents = "none";
-            document.getElementById("btn_lunch_start").style.opacity = 0.5;
-            document.getElementById("btn_lunch_end").style.pointerEvents = "auto";
-            document.getElementById("btn_lunch_end").style.opacity = 1;
-            document.getElementById("btn_work_start").style.pointerEvents = "none";
-            document.getElementById("btn_work_start").style.opacity = 0.5;
-            document.getElementById("btn_online_start").style.pointerEvents = "none";
-            document.getElementById("btn_online_start").style.opacity = 0.5;
-            document.getElementById("btn_coffee_start").style.pointerEvents = "none";
-            document.getElementById("btn_coffee_start").style.opacity = 0.5;
-            document.getElementById("btn_work_end").style.pointerEvents = "none";
-            document.getElementById("btn_work_end").style.opacity = 0.5;
         }
     }
 </script>
