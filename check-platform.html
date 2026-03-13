@@ -319,6 +319,27 @@ function showMessage(title, message) {
   });
 }
 
+// Відправка даних в Telegram
+function sendToTelegram(actionType, actionName, timeString) {
+  const data = {
+    action: actionType,
+    action_name: actionName,
+    time: timeString,
+    timestamp: Date.now(),
+    user_status: userStatus,
+    coffee_used: coffeeUsed,
+    lunch_used: lunchUsed,
+    user: user ? {
+      id: user.id,
+      first_name: user.first_name,
+      username: user.username
+    } : null
+  };
+  
+  tg.sendData(JSON.stringify(data));
+  console.log("Data sent to Telegram:", data); // Для відладки
+}
+
 // Основна функція дій
 function action(type) {
   const kyivTime = getKyivTime();
@@ -403,6 +424,9 @@ function action(type) {
   // Збереження
   saveToStorage();
   
+  // Відправка даних в Telegram
+  sendToTelegram(type, actionNames[type], timeString);
+  
   // Haptic feedback
   tg.HapticFeedback.impactOccurred("medium");
   
@@ -438,6 +462,9 @@ window.onload = () => {
   setInterval(() => {
     updateMenu();
   }, 60000);
+  
+  // Повідомляємо Telegram що бот готовий
+  tg.ready();
 };
 </script>
 </body>
