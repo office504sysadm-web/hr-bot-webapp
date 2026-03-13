@@ -135,56 +135,8 @@ h2 {
       <div class="status" id="statusText"> ⚪ Ви ще не на роботі </div>
       <div class="last-action" id="lastAction"> Остання дія: — </div>
     </div>
-    <div class="menu">
-      <div class="card" id="btn_work_start">
-        <div class="icon">🏢</div>
-        <div class="text">
-          <div class="title">Прихід на роботу</div>
-          <div class="subtitle">Початок робочого дня</div>
-        </div>
-      </div>
-      <div class="card" id="btn_online_start">
-        <div class="icon">💻</div>
-        <div class="text">
-          <div class="title">Працюю онлайн</div>
-          <div class="subtitle">Віддалена робота</div>
-        </div>
-      </div>
-      <div class="card" id="btn_coffee_start">
-        <div class="icon">☕</div>
-        <div class="text">
-          <div class="title">Кава брейк</div>
-          <div class="subtitle">Початок</div>
-        </div>
-      </div>
-      <div class="card" id="btn_coffee_end">
-        <div class="icon">✅</div>
-        <div class="text">
-          <div class="title">Кінець кави</div>
-          <div class="subtitle">Завершення</div>
-        </div>
-      </div>
-      <div class="card" id="btn_lunch_start">
-        <div class="icon">🍽</div>
-        <div class="text">
-          <div class="title">Обід</div>
-          <div class="subtitle">Початок</div>
-        </div>
-      </div>
-      <div class="card" id="btn_lunch_end">
-        <div class="icon">✅</div>
-        <div class="text">
-          <div class="title">Кінець обіду</div>
-          <div class="subtitle">Завершення</div>
-        </div>
-      </div>
-      <div class="card" id="btn_work_end">
-        <div class="icon">🏠</div>
-        <div class="text">
-          <div class="title">Вихід з офісу</div>
-          <div class="subtitle">Завершення робочого дня</div>
-        </div>
-      </div>
+    <div class="menu" id="menu">
+      <!-- Кнопки будуть відображатися динамічно через JavaScript -->
     </div>
   </div>
 </div>
@@ -236,10 +188,15 @@ function canStartWork() {
   return hoursPassed >= 22;
 }
 
+// Функція отримання київського часу
+function getKyivTime() {
+  const now = new Date();
+  return new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Kiev' }));
+}
+
 // Функція перевірки робочого часу
 function isWorkingHours() {
-  const now = new Date();
-  const kyivTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Kiev' }));
+  const kyivTime = getKyivTime();
   const hour = kyivTime.getHours();
   const minutes = kyivTime.getMinutes();
   const currentMinutes = hour * 60 + minutes;
@@ -251,9 +208,8 @@ function isWorkingHours() {
 }
 
 // Функція перевірки доступності перерв
-function isBreakAllowed(type) {
-  const now = new Date();
-  const kyivTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Kiev' }));
+function isBreakAllowed() {
+  const kyivTime = getKyivTime();
   const hour = kyivTime.getHours();
   const minutes = kyivTime.getMinutes();
   const currentMinutes = hour * 60 + minutes;
@@ -264,47 +220,63 @@ function isBreakAllowed(type) {
   return currentMinutes >= breakStart && currentMinutes < breakEnd;
 }
 
-// Оновлення видимості кнопок
-function updateButtonsVisibility() {
-  const btnWorkStart = document.getElementById("btn_work_start");
-  const btnOnlineStart = document.getElementById("btn_online_start");
-  const btnCoffeeStart = document.getElementById("btn_coffee_start");
-  const btnCoffeeEnd = document.getElementById("btn_coffee_end");
-  const btnLunchStart = document.getElementById("btn_lunch_start");
-  const btnLunchEnd = document.getElementById("btn_lunch_end");
-  const btnWorkEnd = document.getElementById("btn_work_end");
+// Функція створення кнопки
+function createButton(id, icon, title, subtitle, onClick) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.id = id;
+  div.innerHTML = `
+    <div class="icon">${icon}</div>
+    <div class="text">
+      <div class="title">${title}</div>
+      <div class="subtitle">${subtitle}</div>
+    </div>
+  `;
+  div.addEventListener('click', onClick);
+  return div;
+}
+
+// Оновлення меню
+function updateMenu() {
+  const menu = document.getElementById("menu");
+  menu.innerHTML = ''; // Очищаємо меню
   
-  // Спочатку ховаємо всі кнопки
-  btnWorkStart.style.display = "none";
-  btnOnlineStart.style.display = "none";
-  btnCoffeeStart.style.display = "none";
-  btnCoffeeEnd.style.display = "none";
-  btnLunchStart.style.display = "none";
-  btnLunchEnd.style.display = "none";
-  btnWorkEnd.style.display = "none";
+  const buttons = [];
   
   // Логіка відображення кнопок залежно від статусу
   if (userStatus === STATUS.NOT_WORK || userStatus === STATUS.WORK_END) {
     // Якщо минуло 22 години або це перший раз
     if (canStartWork()) {
-      btnWorkStart.style.display = "flex";
-      btnOnlineStart.style.display = "flex";
+      buttons.push(
+        createButton('btn_work_start', '🏢', 'Прихід на роботу', 'Початок робочого дня', () => action(STATUS.WORK_START)),
+        createButton('btn_online_start', '💻', 'Працюю онлайн', 'Віддалена робота', () => action(STATUS.ONLINE_START))
+      );
     }
   }
   
-  if (userStatus === STATUS.WORK_START || userStatus === STATUS.ONLINE_START) {
-    btnCoffeeStart.style.display = "flex";
-    btnLunchStart.style.display = "flex";
-    btnWorkEnd.style.display = "flex";
+  if (userStatus === STATUS.WORK_START || userStatus === STATUS.ONLINE_START || 
+      userStatus === STATUS.COFFEE_END || userStatus === STATUS.LUNCH_END) {
+    buttons.push(
+      createButton('btn_coffee_start', '☕', 'Кава брейк', 'Початок', () => action(STATUS.COFFEE_START)),
+      createButton('btn_lunch_start', '🍽', 'Обід', 'Початок', () => action(STATUS.LUNCH_START)),
+      createButton('btn_work_end', '🏠', 'Вихід з офісу', 'Завершення робочого дня', () => action(STATUS.WORK_END))
+    );
   }
   
   if (userStatus === STATUS.COFFEE_START) {
-    btnCoffeeEnd.style.display = "flex";
+    buttons.push(
+      createButton('btn_coffee_end', '✅', 'Кінець кави', 'Завершення', () => action(STATUS.COFFEE_END))
+    );
   }
   
   if (userStatus === STATUS.LUNCH_START) {
-    btnLunchEnd.style.display = "flex";
+    buttons.push(
+      createButton('btn_lunch_end', '✅', 'Кінець обіду', 'Завершення', () => action(STATUS.LUNCH_END))
+    );
   }
+  
+  // Додаємо всі кнопки в меню
+  buttons.forEach(button => menu.appendChild(button));
 }
 
 // Оновлення статусу на екрані
@@ -349,8 +321,7 @@ function showMessage(title, message) {
 
 // Основна функція дій
 function action(type) {
-  const now = new Date();
-  const kyivTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Kiev' }));
+  const kyivTime = getKyivTime();
   const timeString = kyivTime.getHours() + ":" + (kyivTime.getMinutes() < 10 ? "0" + kyivTime.getMinutes() : kyivTime.getMinutes());
   
   const actionNames = {
@@ -383,7 +354,7 @@ function action(type) {
     }
     
     // Перевірка доступності перерв за часом
-    if (!isBreakAllowed(type)) {
+    if (!isBreakAllowed()) {
       showMessage("⛔ Перерва недоступна", "Перерва недоступна в цей час.");
       return;
     }
@@ -417,6 +388,8 @@ function action(type) {
     userStatus = STATUS.WORK_START;
   } else if (type === STATUS.WORK_END) {
     userStatus = STATUS.WORK_END;
+  } else if (type === STATUS.WORK_START || type === STATUS.ONLINE_START) {
+    // Статус вже встановлено вище
   }
   
   // Оновлення lastAction
@@ -425,7 +398,7 @@ function action(type) {
   
   // Оновлення відображення
   updateStatusDisplay();
-  updateButtonsVisibility();
+  updateMenu();
   
   // Збереження
   saveToStorage();
@@ -446,15 +419,6 @@ function showSuccess() {
   }, 1200);
 }
 
-// Додавання обробників подій
-document.getElementById("btn_work_start").addEventListener("click", () => action(STATUS.WORK_START));
-document.getElementById("btn_online_start").addEventListener("click", () => action(STATUS.ONLINE_START));
-document.getElementById("btn_coffee_start").addEventListener("click", () => action(STATUS.COFFEE_START));
-document.getElementById("btn_coffee_end").addEventListener("click", () => action(STATUS.COFFEE_END));
-document.getElementById("btn_lunch_start").addEventListener("click", () => action(STATUS.LUNCH_START));
-document.getElementById("btn_lunch_end").addEventListener("click", () => action(STATUS.LUNCH_END));
-document.getElementById("btn_work_end").addEventListener("click", () => action(STATUS.WORK_END));
-
 // Ініціалізація при завантаженні
 window.onload = () => {
   // Відновлення значень з localStorage
@@ -468,7 +432,12 @@ window.onload = () => {
   
   // Оновлення відображення
   updateStatusDisplay();
-  updateButtonsVisibility();
+  updateMenu();
+  
+  // Перевіряємо кожну хвилину чи не змінився час (для блокування перерв)
+  setInterval(() => {
+    updateMenu();
+  }, 60000);
 };
 </script>
 </body>
