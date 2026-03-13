@@ -198,12 +198,16 @@
         document.getElementById("username").textContent = user.first_name;
     }
 
-    // ІНІЦІАЛІЗАЦІЯ: Якщо localStorage порожній, встановлюємо статус not_work
+    // ІНІЦІАЛІЗАЦІЯ: Примусово встановлюємо статус not_work при кожному відкритті, якщо його немає
+    console.log("Поточний localStorage:", localStorage.getItem("userStatus"));
+    
     if (!localStorage.getItem("userStatus")) {
         console.log("Перше відкриття: встановлюємо статус not_work");
         localStorage.setItem("userStatus", "not_work");
         localStorage.setItem("coffeeUsed", "0");
         localStorage.setItem("lunchUsed", "0");
+        localStorage.setItem("lastAction", "");
+        localStorage.setItem("lastActionTime", "");
     }
 
     // Ініціалізація змінних з localStorage
@@ -214,6 +218,8 @@
     let coffeeUsed = parseInt(localStorage.getItem("coffeeUsed") || "0");
     let lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
     let workStartTime = localStorage.getItem("workStartTime") ? parseInt(localStorage.getItem("workStartTime")) : null;
+
+    console.log("Поточний статус:", userStatus);
 
     // Функція для перевірки чи активні кнопки початку роботи (пройшло 22 години)
     function canStartWork() {
@@ -255,12 +261,16 @@
 
     // Функція для оновлення меню
     function updateMenu() {
+        console.log("Оновлення меню для статусу:", userStatus);
+        
         const menuContainer = document.getElementById("menuContainer");
         menuContainer.innerHTML = ''; // Очищаємо меню
 
         const canStart = canStartWork();
 
         if (userStatus === "not_work" || userStatus === "work_end") {
+            console.log("Показуємо кнопки початку роботи");
+            
             // Початковий статус або після виходу - показуємо тільки кнопки початку роботи
             if (userStatus === "work_end" && !canStart) {
                 // Якщо не пройшло 22 години - показуємо інформаційне повідомлення
@@ -280,14 +290,17 @@
                 menuContainer.appendChild(createButton('btn_online_start', '💻', 'Працюю онлайн', 'Початок віддаленої роботи'));
             }
         } else if (userStatus === "work_start" || userStatus === "online_start") {
+            console.log("Показуємо кнопки перерв та виходу");
             // Статус роботи - показуємо кнопки для перерв та виходу
             menuContainer.appendChild(createButton('btn_coffee_start', '☕', 'Кава брейк', 'Початок (15 хв)', coffeeUsed >= 45));
             menuContainer.appendChild(createButton('btn_lunch_start', '🍽', 'Обід', 'Початок (60 хв)', lunchUsed >= 60));
             menuContainer.appendChild(createButton('btn_work_end', '🏠', 'Вихід з офісу', 'Завершення робочого дня'));
         } else if (userStatus === "coffee_start") {
+            console.log("Показуємо кнопку завершення кави");
             // Статус кави - показуємо тільки кнопку завершення кави
             menuContainer.appendChild(createButton('btn_coffee_end', '✅', 'Кінець кави', 'Завершення перерви'));
         } else if (userStatus === "lunch_start") {
+            console.log("Показуємо кнопку завершення обіду");
             // Статус обіду - показуємо тільки кнопку завершення обіду
             menuContainer.appendChild(createButton('btn_lunch_end', '✅', 'Кінець обіду', 'Завершення перерви'));
         }
@@ -340,6 +353,8 @@
         localStorage.setItem("coffeeUsed", coffeeUsed);
         localStorage.setItem("lunchUsed", lunchUsed);
         if (workStartTime) localStorage.setItem("workStartTime", workStartTime);
+        
+        console.log("Стан збережено:", userStatus);
     }
 
     // Функція для показу успішного повідомлення
@@ -353,6 +368,8 @@
 
     // Основна функція обробки дій
     function action(type) {
+        console.log("Дія:", type);
+        
         const now = new Date();
         const kyivTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Kiev"}));
         const hour = kyivTime.getHours();
@@ -484,7 +501,8 @@
 
     // Ініціалізація при завантаженні
     window.onload = () => {
-        console.log("WebApp завантажено, статус:", userStatus);
+        console.log("WebApp завантажено, статус з localStorage:", localStorage.getItem("userStatus"));
+        console.log("Поточний userStatus:", userStatus);
         updateMenu();
     };
 
