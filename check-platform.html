@@ -165,6 +165,13 @@
                     <div class="subtitle">Початок робочого дня</div>
                 </div>
             </div>
+            <div class="card" id="btn_online_start">
+                <div class="icon">💻</div>
+                <div class="text">
+                    <div class="title">Працюю онлайн</div>
+                    <div class="subtitle">Початок робочого дня</div>
+                </div>
+            </div>
             <div class="card" id="btn_coffee_start">
                 <div class="icon">☕</div>
                 <div class="text">
@@ -172,25 +179,11 @@
                     <div class="subtitle">Початок</div>
                 </div>
             </div>
-            <div class="card" id="btn_coffee_end">
-                <div class="icon">✅</div>
-                <div class="text">
-                    <div class="title">Кінець кави</div>
-                    <div class="subtitle">Завершення</div>
-                </div>
-            </div>
             <div class="card" id="btn_lunch_start">
                 <div class="icon">🍽</div>
                 <div class="text">
                     <div class="title">Обід</div>
                     <div class="subtitle">Початок</div>
-                </div>
-            </div>
-            <div class="card" id="btn_lunch_end">
-                <div class="icon">✅</div>
-                <div class="text">
-                    <div class="title">Кінець обіду</div>
-                    <div class="subtitle">Завершення</div>
                 </div>
             </div>
             <div class="card" id="btn_work_end">
@@ -234,8 +227,8 @@
     }
 
     // Ініціалізація змінних
-    let coffeeUsed = 0;
-    let lunchUsed = 0;
+    let coffeeUsed = parseInt(localStorage.getItem("coffeeUsed") || "0");
+    let lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
     let userStatus = localStorage.getItem("userStatus") || "not_work"; // Початковий статус
     let statusTime = localStorage.getItem("statusTime");
     let lastAction = localStorage.getItem("lastAction");
@@ -243,10 +236,9 @@
 
     /* BUTTON EVENTS */
     document.getElementById("btn_work_start").addEventListener("click", () => action("work_start"));
+    document.getElementById("btn_online_start").addEventListener("click", () => action("online_start"));
     document.getElementById("btn_coffee_start").addEventListener("click", () => action("coffee_start"));
-    document.getElementById("btn_coffee_end").addEventListener("click", () => action("coffee_end"));
     document.getElementById("btn_lunch_start").addEventListener("click", () => action("lunch_start"));
-    document.getElementById("btn_lunch_end").addEventListener("click", () => action("lunch_end"));
     document.getElementById("btn_work_end").addEventListener("click", () => action("work_end"));
 
     /* ACTION */
@@ -259,6 +251,18 @@
         const morningEnd = 11 * 60;
         const eveningStart = 17 * 60;
         const eveningEnd = 19 * 60;
+
+        // Прихід на роботу / Працюю онлайн
+        if (type === "work_start" || type === "online_start") {
+            if (userStatus !== "not_work" && current - statusTime < 1320) {
+                tg.showPopup({
+                    title: "⛔ Не можна повторно вийти на роботу",
+                    message: "Ви можете натискати кнопку лише через 22 години після попереднього використання.",
+                    buttons: [{ type: "ok" }]
+                });
+                return;
+            }
+        }
 
         if (type === "coffee_start" || type === "lunch_start") {
             if (
@@ -273,7 +277,6 @@
                 return;
             }
 
-            // Перевірка ліміту на кава брейк
             if (type === "coffee_start" && coffeeUsed >= 45) {
                 tg.showPopup({
                     title: "⛔ Ліміт на каву вичерпано",
@@ -283,7 +286,6 @@
                 return;
             }
 
-            // Перевірка ліміту на обід
             if (type === "lunch_start" && lunchUsed >= 60) {
                 tg.showPopup({
                     title: "⛔ Ліміт на обід вичерпано",
@@ -297,19 +299,17 @@
         const time = hour + ":" + (minutes < 10 ? "0" + minutes : minutes);
         const actions = {
             work_start: "Прихід на роботу",
+            online_start: "Працюю онлайн",
             coffee_start: "Початок кави",
-            coffee_end: "Кінець кави",
             lunch_start: "Початок обіду",
-            lunch_end: "Кінець обіду",
             work_end: "Вихід з офісу"
         };
 
         const statuses = {
             work_start: "🟢 Ви на роботі",
+            online_start: "🟢 Ви працюєте онлайн",
             coffee_start: "☕ Ви на каві",
-            coffee_end: "🟢 Ви на роботі",
             lunch_start: "🍽 Ви на обіді",
-            lunch_end: "🟢 Ви на роботі",
             work_end: "🔴 Робочий день завершено"
         };
 
@@ -336,7 +336,7 @@
 
         // Зберігаємо статус та інформацію в localStorage
         localStorage.setItem("userStatus", type);
-        localStorage.setItem("statusTime", time);
+        localStorage.setItem("statusTime", current);
         localStorage.setItem("lastAction", actions[type]);
         localStorage.setItem("lastActionTime", time);
         localStorage.setItem("coffeeUsed", coffeeUsed);
@@ -378,20 +378,16 @@
             statusText.innerText = "🟢 Ви на роботі";
         }
 
+        if (action === "online_start") {
+            statusText.innerText = "🟢 Ви працюєте онлайн"; 
+        }
+
         if (action === "coffee_start") {
             statusText.innerText = "☕ Ви на каві";
         }
 
-        if (action === "coffee_end") {
-            statusText.innerText = "🟢 Ви на роботі"; 
-        }
-
         if (action === "lunch_start") {
             statusText.innerText = "🍽 Ви на обіді";
-        }
-
-        if (action === "lunch_end") {
-            statusText.innerText = "🟢 Ви на роботі"; 
         }
 
         if (action === "work_end") {
