@@ -44,6 +44,13 @@ body {
 h2 {
   font-size: 22px;
   margin-top: 4px;
+  margin-bottom: 2px;
+}
+.user-name {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-top: 0;
+  margin-bottom: 4px;
 }
 /* STATUS */
 .status-box {
@@ -130,6 +137,8 @@ h2 {
     <div class="header">
       <div class="avatar">🤖</div>
       <h2 id="username">WorkBuddy</h2>
+      <!-- Додано рядок для відображення імені користувача -->
+      <div id="userNameDisplay" class="user-name"></div>
     </div>
     <div class="status-box">
       <div class="status" id="statusText"> ⚪ Ви ще не на роботі </div>
@@ -157,6 +166,13 @@ tg.expand();
 const user = tg.initDataUnsafe.user;
 if (user) {
   document.getElementById("username").textContent = user.first_name;
+  // Додано відображення повного імені
+  const userNameDisplay = document.getElementById("userNameDisplay");
+  if (user.last_name) {
+    userNameDisplay.textContent = `${user.first_name} ${user.last_name}`;
+  } else {
+    userNameDisplay.textContent = user.first_name;
+  }
 }
 
 // Статуси
@@ -332,6 +348,7 @@ function sendToTelegram(actionType, actionName, timeString) {
     user: user ? {
       id: user.id,
       first_name: user.first_name,
+      last_name: user.last_name,
       username: user.username
     } : null
   };
