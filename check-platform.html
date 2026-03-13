@@ -139,6 +139,7 @@
             font-weight: 600;
             box-shadow: 0 20px 40px rgba(0, 0, 0, .3);
             transition: .3s;
+            z-index: 1000;
         }
 
         .success.show {
@@ -162,56 +163,8 @@
                 Остання дія: —
             </div>
         </div>
-        <div class="menu">
-            <div class="card" id="btn_work_start">
-                <div class="icon">🏢</div>
-                <div class="text">
-                    <div class="title">Прихід на роботу</div>
-                    <div class="subtitle">Початок робочого дня</div>
-                </div>
-            </div>
-            <div class="card" id="btn_online_start">
-                <div class="icon">💻</div>
-                <div class="text">
-                    <div class="title">Працюю онлайн</div>
-                    <div class="subtitle">Віддалена робота</div>
-                </div>
-            </div>
-            <div class="card" id="btn_coffee_start">
-                <div class="icon">☕</div>
-                <div class="text">
-                    <div class="title">Кава брейк</div>
-                    <div class="subtitle">Початок</div>
-                </div>
-            </div>
-            <div class="card" id="btn_coffee_end">
-                <div class="icon">✅</div>
-                <div class="text">
-                    <div class="title">Кінець кави</div>
-                    <div class="subtitle">Завершення</div>
-                </div>
-            </div>
-            <div class="card" id="btn_lunch_start">
-                <div class="icon">🍽</div>
-                <div class="text">
-                    <div class="title">Обід</div>
-                    <div class="subtitle">Початок</div>
-                </div>
-            </div>
-            <div class="card" id="btn_lunch_end">
-                <div class="icon">✅</div>
-                <div class="text">
-                    <div class="title">Кінець обіду</div>
-                    <div class="subtitle">Завершення</div>
-                </div>
-            </div>
-            <div class="card" id="btn_work_end">
-                <div class="icon">🏠</div>
-                <div class="text">
-                    <div class="title">Вихід з офісу</div>
-                    <div class="subtitle">Завершення робочого дня</div>
-                </div>
-            </div>
+        <div class="menu" id="menuContainer">
+            <!-- Кнопки будуть додаватися динамічно через JavaScript -->
         </div>
     </div>
 </div>
@@ -262,7 +215,7 @@
         return hoursPassed >= 22;
     }
 
-    // Функція для перевірки чи можна робити перерву за часом
+    // Функція для перевірки чи можна робити перерву за часом (київський час)
     function isBreakTimeAllowed() {
         const now = new Date();
         const kyivTime = new Date(now.toLocaleString("en-US", {timeZone: "Europe/Kiev"}));
@@ -270,82 +223,82 @@
         const minutes = kyivTime.getMinutes();
         const currentMinutes = hour * 60 + minutes;
         
-        const workStart = 10 * 60; // 10:00
         const breakStart = 11 * 60; // 11:00
         const breakEnd = 17 * 60; // 17:00
-        const workEnd = 19 * 60; // 19:00
         
         // Перерви дозволені тільки з 11:00 до 17:00
         return currentMinutes >= breakStart && currentMinutes < breakEnd;
     }
 
-    // Функція для оновлення видимості кнопок
-    function updateButtons() {
-        const btnWorkStart = document.getElementById("btn_work_start");
-        const btnOnlineStart = document.getElementById("btn_online_start");
-        const btnCoffeeStart = document.getElementById("btn_coffee_start");
-        const btnCoffeeEnd = document.getElementById("btn_coffee_end");
-        const btnLunchStart = document.getElementById("btn_lunch_start");
-        const btnLunchEnd = document.getElementById("btn_lunch_end");
-        const btnWorkEnd = document.getElementById("btn_work_end");
+    // Функція для створення HTML кнопки
+    function createButton(id, icon, title, subtitle, disabled = false) {
+        const card = document.createElement('div');
+        card.className = `card ${disabled ? 'disabled' : ''}`;
+        card.id = id;
+        card.innerHTML = `
+            <div class="icon">${icon}</div>
+            <div class="text">
+                <div class="title">${title}</div>
+                <div class="subtitle">${subtitle}</div>
+            </div>
+        `;
+        return card;
+    }
 
-        // Спочатку приховуємо всі кнопки
-        btnWorkStart.style.display = "none";
-        btnOnlineStart.style.display = "none";
-        btnCoffeeStart.style.display = "none";
-        btnCoffeeEnd.style.display = "none";
-        btnLunchStart.style.display = "none";
-        btnLunchEnd.style.display = "none";
-        btnWorkEnd.style.display = "none";
+    // Функція для оновлення меню
+    function updateMenu() {
+        const menuContainer = document.getElementById("menuContainer");
+        menuContainer.innerHTML = ''; // Очищаємо меню
 
-        if (userStatus === "not_work") {
-            // Початковий статус - показуємо тільки кнопки початку роботи
-            btnWorkStart.style.display = "flex";
-            btnOnlineStart.style.display = "flex";
-            
-            // Деактивуємо кнопки якщо не пройшло 22 години
-            if (!canStartWork()) {
-                btnWorkStart.classList.add("disabled");
-                btnOnlineStart.classList.add("disabled");
+        const canStart = canStartWork();
+
+        if (userStatus === "not_work" || userStatus === "work_end") {
+            // Початковий статус або після виходу - показуємо тільки кнопки початку роботи
+            if (userStatus === "work_end" && !canStart) {
+                // Якщо не пройшло 22 години - не показуємо кнопок
+                // Можна показати повідомлення про очікування
+                const messageCard = document.createElement('div');
+                messageCard.className = 'card disabled';
+                messageCard.innerHTML = `
+                    <div class="icon">⏳</div>
+                    <div class="text">
+                        <div class="title">Очікування</div>
+                        <div class="subtitle">Кнопки стануть активними через 22 години</div>
+                    </div>
+                `;
+                menuContainer.appendChild(messageCard);
             } else {
-                btnWorkStart.classList.remove("disabled");
-                btnOnlineStart.classList.remove("disabled");
+                // Показуємо обидві кнопки початку роботи
+                menuContainer.appendChild(createButton('btn_work_start', '🏢', 'Прихід на роботу', 'Початок робочого дня в офісі'));
+                menuContainer.appendChild(createButton('btn_online_start', '💻', 'Працюю онлайн', 'Початок віддаленої роботи'));
             }
         } else if (userStatus === "work_start" || userStatus === "online_start") {
             // Статус роботи - показуємо кнопки для перерв та виходу
-            btnCoffeeStart.style.display = "flex";
-            btnLunchStart.style.display = "flex";
-            btnWorkEnd.style.display = "flex";
-            
-            // Деактивуємо кнопки перерв якщо ліміти вичерпано
-            if (coffeeUsed >= 45) {
-                btnCoffeeStart.classList.add("disabled");
-            } else {
-                btnCoffeeStart.classList.remove("disabled");
-            }
-            
-            if (lunchUsed >= 60) {
-                btnLunchStart.classList.add("disabled");
-            } else {
-                btnLunchStart.classList.remove("disabled");
-            }
+            menuContainer.appendChild(createButton('btn_coffee_start', '☕', 'Кава брейк', 'Початок (15 хв)', coffeeUsed >= 45));
+            menuContainer.appendChild(createButton('btn_lunch_start', '🍽', 'Обід', 'Початок (60 хв)', lunchUsed >= 60));
+            menuContainer.appendChild(createButton('btn_work_end', '🏠', 'Вихід з офісу', 'Завершення робочого дня'));
         } else if (userStatus === "coffee_start") {
             // Статус кави - показуємо тільки кнопку завершення кави
-            btnCoffeeEnd.style.display = "flex";
+            menuContainer.appendChild(createButton('btn_coffee_end', '✅', 'Кінець кави', 'Завершення перерви'));
         } else if (userStatus === "lunch_start") {
             // Статус обіду - показуємо тільки кнопку завершення обіду
-            btnLunchEnd.style.display = "flex";
-        } else if (userStatus === "work_end") {
-            // Статус завершення роботи - не показуємо жодних кнопок
-            // Кнопки початку роботи з'являться тільки після 22 годин
-            if (canStartWork()) {
-                btnWorkStart.style.display = "flex";
-                btnOnlineStart.style.display = "flex";
-            }
+            menuContainer.appendChild(createButton('btn_lunch_end', '✅', 'Кінець обіду', 'Завершення перерви'));
         }
 
-        // Оновлюємо статус текст
+        // Додаємо обробники подій для нових кнопок
+        addEventListeners();
         updateStatusText();
+    }
+
+    // Функція для додавання обробників подій
+    function addEventListeners() {
+        document.getElementById("btn_work_start")?.addEventListener("click", () => action("work_start"));
+        document.getElementById("btn_online_start")?.addEventListener("click", () => action("online_start"));
+        document.getElementById("btn_coffee_start")?.addEventListener("click", () => action("coffee_start"));
+        document.getElementById("btn_coffee_end")?.addEventListener("click", () => action("coffee_end"));
+        document.getElementById("btn_lunch_start")?.addEventListener("click", () => action("lunch_start"));
+        document.getElementById("btn_lunch_end")?.addEventListener("click", () => action("lunch_end"));
+        document.getElementById("btn_work_end")?.addEventListener("click", () => action("work_end"));
     }
 
     // Функція для оновлення тексту статусу
@@ -374,12 +327,12 @@
     // Функція для збереження стану
     function saveState() {
         localStorage.setItem("userStatus", userStatus);
-        localStorage.setItem("statusTime", statusTime);
+        if (statusTime) localStorage.setItem("statusTime", statusTime);
         localStorage.setItem("lastAction", lastAction);
         localStorage.setItem("lastActionTime", lastActionTime);
         localStorage.setItem("coffeeUsed", coffeeUsed);
         localStorage.setItem("lunchUsed", lunchUsed);
-        localStorage.setItem("workStartTime", workStartTime);
+        if (workStartTime) localStorage.setItem("workStartTime", workStartTime);
     }
 
     // Функція для показу успішного повідомлення
@@ -400,7 +353,7 @@
         const timeString = hour + ":" + (minutes < 10 ? "0" + minutes : minutes);
         
         const actions = {
-            work_start: "Прихід на роботу (офіс)",
+            work_start: "Прихід на роботу",
             online_start: "Працюю онлайн",
             coffee_start: "Початок кави",
             coffee_end: "Кінець кави",
@@ -414,7 +367,7 @@
             if (!canStartWork()) {
                 tg.showPopup({
                     title: "⛔ Зачекайте",
-                    message: "Кнопки стануть активними через 22 години після останнього виходу з офісу.",
+                    message: "Кнопки стануть активними через 22 години після останнього виходу.",
                     buttons: [{ type: "ok" }]
                 });
                 return;
@@ -429,7 +382,7 @@
             tg.HapticFeedback.impactOccurred("medium");
             showSuccess();
             saveState();
-            updateButtons();
+            updateMenu();
             return;
         }
 
@@ -476,7 +429,7 @@
             tg.HapticFeedback.impactOccurred("medium");
             showSuccess();
             saveState();
-            updateButtons();
+            updateMenu();
             return;
         }
 
@@ -490,7 +443,7 @@
             tg.HapticFeedback.impactOccurred("medium");
             showSuccess();
             saveState();
-            updateButtons();
+            updateMenu();
             return;
         }
 
@@ -503,7 +456,7 @@
             tg.HapticFeedback.impactOccurred("medium");
             showSuccess();
             saveState();
-            updateButtons();
+            updateMenu();
             return;
         }
 
@@ -517,27 +470,18 @@
             tg.HapticFeedback.impactOccurred("medium");
             showSuccess();
             saveState();
-            updateButtons();
+            updateMenu();
             return;
         }
     }
 
-    // Додаємо обробники подій для всіх кнопок
-    document.getElementById("btn_work_start").addEventListener("click", () => action("work_start"));
-    document.getElementById("btn_online_start").addEventListener("click", () => action("online_start"));
-    document.getElementById("btn_coffee_start").addEventListener("click", () => action("coffee_start"));
-    document.getElementById("btn_coffee_end").addEventListener("click", () => action("coffee_end"));
-    document.getElementById("btn_lunch_start").addEventListener("click", () => action("lunch_start"));
-    document.getElementById("btn_lunch_end").addEventListener("click", () => action("lunch_end"));
-    document.getElementById("btn_work_end").addEventListener("click", () => action("work_end"));
-
     // Ініціалізація при завантаженні
     window.onload = () => {
-        updateButtons();
+        updateMenu();
     };
 
-    // Періодична перевірка для оновлення кнопок (наприклад, коли проходить 22 години)
-    setInterval(updateButtons, 60000); // Перевіряємо кожну хвилину
+    // Періодична перевірка для оновлення кнопок
+    setInterval(updateMenu, 60000); // Перевіряємо кожну хвилину
 
 </script>
 </body>
