@@ -51,6 +51,7 @@ h2 {
   opacity: 0.9;
   margin-top: 0;
   margin-bottom: 4px;
+  font-weight: 400;
 }
 /* STATUS */
 .status-box {
@@ -163,15 +164,29 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+// Отримуємо дані користувача
 const user = tg.initDataUnsafe.user;
+
+// Виводимо всі дані користувача в консоль для відладки
+console.log("User data from Telegram:", user);
+
 if (user) {
+  // Встановлюємо ім'я в заголовок
   document.getElementById("username").textContent = user.first_name;
-  // Додано відображення повного імені
+  
+  // Відображення повного імені користувача
   const userNameDisplay = document.getElementById("userNameDisplay");
+  
+  // Формуємо повне ім'я: якщо є last_name - додаємо, якщо ні - тільки first_name
   if (user.last_name) {
     userNameDisplay.textContent = `${user.first_name} ${user.last_name}`;
   } else {
     userNameDisplay.textContent = user.first_name;
+  }
+  
+  // Якщо є username - можемо додатково показати в консолі
+  if (user.username) {
+    console.log(`Username: @${user.username}`);
   }
 }
 
@@ -347,9 +362,9 @@ function sendToTelegram(actionType, actionName, timeString) {
     lunch_used: lunchUsed,
     user: user ? {
       id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      username: user.username
+      first_name: user.first_name,  // ім'я
+      last_name: user.last_name,     // прізвище (якщо є)
+      username: user.username        // нікнейм (якщо є)
     } : null
   };
   
