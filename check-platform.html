@@ -517,70 +517,89 @@
     }
 
     async function apiPost(path, payload) {
-      const res = await fetch(`${API_URL}${path}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        },
-        body: JSON.stringify(payload)
-      });
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: JSON.stringify(payload)
+  });
 
-      const data = await res.json();
-      return { res, data };
-    }
+  const text = await res.text();
+  let data = {};
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    data = { ok: false, message: text || "Некоректна відповідь сервера" };
+  }
+
+  return { res, data };
+}
 
     async function apiGet(path) {
   const res = await fetch(`${API_URL}${path}?telegram_id=${currentUser.id}`, {
     method: "GET",
+    mode: "cors",
     headers: {
       "Content-Type": "application/json",
       "ngrok-skip-browser-warning": "true"
     }
   });
 
-  const data = await res.json();
+  const text = await res.text();
+  let data = {};
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    data = { ok: false, message: text || "Некоректна відповідь сервера" };
+  }
+
   return { res, data };
 }
     async function checkAccess() {
-      if (!currentUser?.id) {
-        setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
-        showMessage("Не вдалося отримати дані користувача з Telegram.");
-        return false;
-      }
+  console.log("AUTH CHECK START", currentUser?.id, API_URL);
 
-      showLoader("Перевіряю доступ до системи…");
+  if (!currentUser?.id) {
+    setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
+    showMessage("Не вдалося отримати дані користувача з Telegram.");
+    return false;
+  }
 
-      try {
-        const { data } = await apiPost("/auth/check", {
-          telegram_id: currentUser.id
-        });
+  showLoader("Перевіряю доступ до системи…");
 
-        if (!data.ok) {
-          setStatus("⛔ Доступ заблоковано", data.message || "Немає доступу до системи.");
-          el.roleValue.textContent = "—";
-          el.ipValue.textContent = data.ip || "—";
-          showMessage(data.message || "Доступ заборонено.");
-          hideLoader();
-          return false;
-        }
+  try {
+    const { data } = await apiPost("/auth/check", {
+      telegram_id: currentUser.id
+    });
 
-        accessInfo = data;
-        el.roleValue.textContent = mapRole(data.role);
-        el.ipValue.textContent = data.ip || "—";
+    console.log("AUTH CHECK RESPONSE", data);
 
-        setStatus("✅ Доступ підтверджено", "Можна завантажувати робоче меню.");
-        hideLoader();
-        return true;
-      } catch (err) {
-        console.error(err);
-        setStatus("⚠️ Помилка з’єднання", "Не вдалося підключитися до API.");
-        showMessage("Помилка з’єднання з сервером. Перевір API або тунель ngrok.");
-        hideLoader();
-        return false;
-      }
+    if (!data.ok) {
+      setStatus("⛔ Доступ заблоковано", data.message || "Немає доступу до системи.");
+      el.roleValue.textContent = "—";
+      el.ipValue.textContent = data.ip || "—";
+      showMessage(data.message || "Доступ заборонено.");
+      hideLoader();
+      return false;
     }
 
+    accessInfo = data;
+    el.roleValue.textContent = mapRole(data.role);
+    el.ipValue.textContent = data.ip || "—";
+
+    setStatus("✅ Доступ підтверджено", "Можна завантажувати робоче меню.");
+    hideLoader();
+    return true;
+  } catch (err) {
+    console.error("AUTH CHECK ERROR", err);
+    setStatus("⚠️ Помилка з’єднання", "Не вдалося підключитися до API.");
+    showMessage("Помилка з’єднання з сервером. Перевір API або тунель ngrok.");
+    hideLoader();
+    return false;
+  }
+}
     async function loadMenu() {
       showLoader("Завантажую робоче меню…");
 
@@ -654,4 +673,5 @@
   </script>
 </body>
 </html>
+
 
