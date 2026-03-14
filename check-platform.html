@@ -518,26 +518,26 @@
     }
 
     async function apiPost(path, payload) {
-      const res = await fetch(`${API_URL}${path}`, {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        },
-        body: JSON.stringify(payload)
-      });
+  const res = await fetch(`${API_URL}${path}`, {
+    method: "POST",
+    mode: "cors",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
+    },
+    body: JSON.stringify(payload)
+  });
 
-      const text = await res.text();
-      let data = {};
-      try {
-        data = JSON.parse(text);
-      } catch (e) {
-        data = { ok: false, message: text || "Некоректна відповідь сервера" };
-      }
+  const text = await res.text();
+  let data = {};
+  try {
+    data = JSON.parse(text);
+  } catch (e) {
+    data = { ok: false, message: text || "Некоректна відповідь сервера" };
+  }
 
-      return { res, data };
-    }
+  return { res, data };
+}
 
     async function apiGet(path) {
       const res = await fetch(`${API_URL}${path}?telegram_id=${currentUser.id}`, {
