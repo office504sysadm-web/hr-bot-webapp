@@ -326,6 +326,8 @@
 
   <script>
     const API_URL = "https://reptilelike-elnora-nonabjuratory.ngrok-free.dev";
+    console.log("WEBAPP VERSION 20260314-1805");
+    alert("WEBAPP VERSION 20260314-1805");
 
     const tg = window.Telegram.WebApp;
     tg.ready();
@@ -517,98 +519,108 @@
     }
 
     async function apiPost(path, payload) {
-  const res = await fetch(`${API_URL}${path}`, {
-    method: "POST",
-    mode: "cors",
-    headers: {
-      "Content-Type": "application/json",
-      "ngrok-skip-browser-warning": "true"
-    },
-    body: JSON.stringify(payload)
-  });
+      const res = await fetch(`${API_URL}${path}`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify(payload)
+      });
 
-  const text = await res.text();
-  let data = {};
-  try {
-    data = JSON.parse(text);
-  } catch (e) {
-    data = { ok: false, message: text || "Некоректна відповідь сервера" };
-  }
+      const text = await res.text();
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = { ok: false, message: text || "Некоректна відповідь сервера" };
+      }
 
-  return { res, data };
-}
+      return { res, data };
+    }
 
     async function apiGet(path) {
-  const res = await fetch(`${API_URL}${path}?telegram_id=${currentUser.id}`, {
-    method: "GET",
-    mode: "cors",
-    headers: {
-      "Content-Type": "application/json",
-      "ngrok-skip-browser-warning": "true"
+      const res = await fetch(`${API_URL}${path}?telegram_id=${currentUser.id}`, {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        }
+      });
+
+      const text = await res.text();
+      let data = {};
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = { ok: false, message: text || "Некоректна відповідь сервера" };
+      }
+
+      return { res, data };
     }
-  });
 
-  const text = await res.text();
-  let data = {};
-  try {
-    data = JSON.parse(text);
-  } catch (e) {
-    data = { ok: false, message: text || "Некоректна відповідь сервера" };
-  }
-
-  return { res, data };
-}
     async function checkAccess() {
-  console.log("AUTH CHECK START", currentUser?.id, API_URL);
+      console.log("AUTH CHECK START", currentUser?.id, API_URL);
 
-  if (!currentUser?.id) {
-    setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
-    showMessage("Не вдалося отримати дані користувача з Telegram.");
-    return false;
-  }
+      if (!currentUser?.id) {
+        setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
+        showMessage("Не вдалося отримати дані користувача з Telegram.");
+        return false;
+      }
 
-  showLoader("Перевіряю доступ до системи…");
+      showLoader("Перевіряю доступ до системи…");
 
-  try {
-    const { data } = await apiPost("/auth/check", {
-      telegram_id: currentUser.id
-    });
+      try {
+        const { data } = await apiPost("/auth/check", {
+          telegram_id: currentUser.id
+        });
 
-    console.log("AUTH CHECK RESPONSE", data);
+        console.log("AUTH CHECK RESPONSE", data);
 
-    if (!data.ok) {
-      setStatus("⛔ Доступ заблоковано", data.message || "Немає доступу до системи.");
-      el.roleValue.textContent = "—";
-      el.ipValue.textContent = data.ip || "—";
-      showMessage(data.message || "Доступ заборонено.");
-      hideLoader();
-      return false;
+        if (!data.ok) {
+          setStatus("⛔ Доступ заблоковано", data.message || "Немає доступу до системи.");
+          el.roleValue.textContent = "—";
+          el.ipValue.textContent = data.ip || "—";
+          showMessage(data.message || "Доступ заборонено.");
+          hideLoader();
+          return false;
+        }
+
+        accessInfo = data;
+        el.roleValue.textContent = mapRole(data.role);
+        el.ipValue.textContent = data.ip || "—";
+
+        setStatus("✅ Доступ підтверджено", "Можна завантажувати робоче меню.");
+        hideLoader();
+        return true;
+      } catch (err) {
+        console.error("AUTH CHECK ERROR", err);
+        setStatus("⚠️ Помилка з’єднання", "Не вдалося підключитися до API.");
+        showMessage("Помилка з’єднання з сервером. Перевір API або тунель ngrok.");
+        hideLoader();
+        return false;
+      }
     }
 
-    accessInfo = data;
-    el.roleValue.textContent = mapRole(data.role);
-    el.ipValue.textContent = data.ip || "—";
-
-    setStatus("✅ Доступ підтверджено", "Можна завантажувати робоче меню.");
-    hideLoader();
-    return true;
-  } catch (err) {
-    console.error("AUTH CHECK ERROR", err);
-    setStatus("⚠️ Помилка з’єднання", "Не вдалося підключитися до API.");
-    showMessage("Помилка з’єднання з сервером. Перевір API або тунель ngrok.");
-    hideLoader();
-    return false;
-  }
-}
     async function loadMenu() {
       showLoader("Завантажую робоче меню…");
 
       try {
         const { data } = await apiGet("/work/menu");
+        console.log("LOAD MENU RESPONSE", data);
+
+        if (!data.ok) {
+          setStatus("⚠️ Меню недоступне", data.message || "Не вдалося отримати меню.");
+          showMessage(data.message || "Сервер не повернув меню.");
+          return;
+        }
+
         renderMenu(data.menu || []);
-        setStatus("🟢 Меню готове", "Обери потрібну дію.");
+        setStatus(data.status_text || "🟢 Меню готове", "Обери потрібну дію.");
       } catch (err) {
-        console.error(err);
+        console.error("LOAD MENU ERROR", err);
         setStatus("⚠️ Меню недоступне", "Не вдалося отримати меню з API.");
         showMessage("Сервер не повернув меню.");
       } finally {
@@ -628,6 +640,7 @@
         };
 
         const { data } = await apiPost("/work/action", payload);
+        console.log("ACTION RESPONSE", data);
 
         if (!data.ok) {
           showMessage(data.message || "Дію не вдалося виконати.");
@@ -641,9 +654,17 @@
           setStatus("✅ Дію виконано", data.message);
         }
 
-        await loadMenu();
+        if (data.role) {
+          el.roleValue.textContent = mapRole(data.role);
+        }
+
+        if (data.employee_name) {
+          el.headerName.textContent = data.employee_name;
+        }
+
+        renderMenu(data.menu || []);
       } catch (err) {
-        console.error(err);
+        console.error("ACTION ERROR", err);
         showMessage("Помилка під час виконання дії.");
       } finally {
         btn.disabled = false;
@@ -673,5 +694,3 @@
   </script>
 </body>
 </html>
-
-
