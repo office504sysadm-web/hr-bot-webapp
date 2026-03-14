@@ -1,526 +1,657 @@
 <!DOCTYPE html>
-<html>
+<html lang="uk">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>WorkBuddy</title>
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-html {
-  height: 100%;
-}
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto;
-  background: linear-gradient(145deg, #5f6cff 0%, #7b61ff 50%, #9b70ff 100%);
-  color: white;
-  display: flex;
-  justify-content: center;
-  min-height: 100%;
-  margin: 0;
-  padding: 0;
-}
-.container {
-  width: 100%;
-  max-width: 420px;
-  padding: 18px;
-}
-/* HEADER */
-.header {
-  text-align: center;
-  margin-bottom: 15px;
-}
-.avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
-  margin: 0 auto 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  color: #5f6cff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-h2 {
-  font-size: 24px;
-  font-weight: 600;
-  margin-bottom: 2px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-.user-name {
-  font-size: 15px;
-  opacity: 0.95;
-  margin-top: 0;
-  margin-bottom: 5px;
-  font-weight: 400;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-}
-/* STATUS */
-.status-box {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 14px 12px;
-  margin-bottom: 16px;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-.status {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-.last-action {
-  font-size: 13px;
-  opacity: .85;
-}
-/* MENU */
-.menu {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 22px;
-  padding: 14px 18px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-.card:active {
-  transform: scale(0.97);
-  background: rgba(255, 255, 255, 1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-}
-/* Стиль для всіх іконок - однаковий, великий, білий з чорним контуром */
-.icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  color: #000;
-  box-shadow: 0 0 0 2px #000, inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  border: 2px solid #ffffff;
-}
-.text {
-  flex: 1;
-}
-.title {
-  color: #1c1c1e;
-  font-weight: 600;
-  font-size: 16px;
-  margin-bottom: 2px;
-}
-.subtitle {
-  color: #6e6e73;
-  font-size: 12px;
-  font-weight: 400;
-}
-/* SUCCESS */
-.success {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  background: white;
-  color: #333;
-  padding: 22px 28px;
-  border-radius: 24px;
-  font-size: 18px;
-  font-weight: 600;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  z-index: 1000;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-.success.show {
-  transform: translate(-50%, -50%) scale(1);
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WorkBuddy</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-start: #5f6cff;
+      --bg-mid: #7b61ff;
+      --bg-end: #9b70ff;
+      --card-bg: rgba(255, 255, 255, 0.18);
+      --card-stroke: rgba(255, 255, 255, 0.22);
+      --text-main: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.82);
+      --panel-bg: rgba(255, 255, 255, 0.93);
+      --panel-text: #111827;
+      --panel-sub: #6b7280;
+      --shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
+      --shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.12);
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+    }
+
+    html, body {
+      min-height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(145deg, var(--bg-start) 0%, var(--bg-mid) 50%, var(--bg-end) 100%);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 14px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+    }
+
+    .shell {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .top-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-stroke);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 30px;
+      padding: 20px 18px 18px;
+      box-shadow: var(--shadow);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .avatar {
+      width: 62px;
+      height: 62px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.94);
+      color: #5f6cff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      box-shadow: var(--shadow-soft);
+      flex-shrink: 0;
+    }
+
+    .header-text h1 {
+      font-size: 25px;
+      line-height: 1.05;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .header-text .subline {
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .status-box {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 24px;
+      padding: 16px 15px;
+      margin-bottom: 14px;
+    }
+
+    .status-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.76);
+      margin-bottom: 8px;
+    }
+
+    .status-main {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .status-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .meta-card {
+      background: rgba(255, 255, 255, 0.10);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 20px;
+      padding: 14px 12px;
+    }
+
+    .meta-title {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.76);
+      margin-bottom: 6px;
+    }
+
+    .meta-value {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .menu-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .action-btn {
+      width: 100%;
+      border: 0;
+      outline: none;
+      background: var(--panel-bg);
+      color: var(--panel-text);
+      border-radius: var(--radius-xl);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+      text-align: left;
+    }
+
+    .action-btn:active {
+      transform: scale(0.985);
+    }
+
+    .action-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .action-icon {
+      width: 54px;
+      height: 54px;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 6px 16px rgba(0,0,0,.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .action-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .action-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 3px;
+    }
+
+    .action-subtitle {
+      font-size: 12px;
+      color: var(--panel-sub);
+      line-height: 1.35;
+    }
+
+    .message-box {
+      display: none;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 16px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #fff;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .message-box.show {
+      display: block;
+    }
+
+    .loader {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 22px 0 8px;
+      color: rgba(255, 255, 255, 0.86);
+      font-size: 14px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,.88);
+    }
+
+    .success {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(30px);
+      background: rgba(255, 255, 255, 0.96);
+      color: #111827;
+      padding: 14px 18px;
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      font-size: 15px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+      z-index: 999;
+    }
+
+    .success.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
 </head>
 <body>
-<div id="app">
-  <div class="container">
-    <div class="header">
-      <div class="avatar">🤖</div>
-      <h2 id="username">WorkBuddy</h2>
-      <div id="userNameDisplay" class="user-name"></div>
-    </div>
-    <div class="status-box">
-      <div class="status" id="statusText">⚪ Ви ще не на роботі</div>
-      <div class="last-action" id="lastAction">Остання дія: —</div>
-    </div>
-    <div class="menu" id="menu">
-      <!-- Кнопки будуть відображатися динамічно через JavaScript -->
+  <div class="app">
+    <div class="shell">
+      <div class="top-card">
+        <div class="header">
+          <div class="avatar">🤖</div>
+          <div class="header-text">
+            <h1 id="headerName">WorkBuddy</h1>
+            <div class="subline" id="headerSubline">Завантаження профілю…</div>
+          </div>
+        </div>
+
+        <div class="status-box">
+          <div class="status-label">Поточний статус</div>
+          <div class="status-main" id="statusMain">⏳ Завантаження…</div>
+          <div class="status-sub" id="statusSub">Почекай кілька секунд, я перевіряю доступ і меню.</div>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="meta-title">Роль</div>
+            <div class="meta-value" id="roleValue">—</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-title">IP / сервер</div>
+            <div class="meta-value" id="ipValue">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="message-box" id="messageBox"></div>
+
+      <div class="menu-wrap" id="menuWrap"></div>
+
+      <div class="loader" id="loader">Перевіряю доступ до системи…</div>
+
+      <div class="pill hidden" id="debugPill">DEBUG</div>
     </div>
   </div>
-</div>
-<div class="success" id="successBox">✅ Збережено</div>
 
-<script>
-/* BLOCK MOBILE */
-if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-  document.body.innerHTML = '<div style="height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;color:white;font-family:sans-serif;background:linear-gradient(145deg, #5f6cff 0%, #7b61ff 50%, #9b70ff 100%);"> <div> 🤖<br><br> А шлях би його трапив!<br> Схоже, моє меню на телефоні не працює.<br> Краще відкрий мене з комп\'ютера 💻 </div> </div>';
-  throw new Error("Mobile blocked")
-}
+  <div class="success" id="successBox">✅ Дію збережено</div>
 
-/* TELEGRAM */
-const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
+  <script>
+    const API_URL = "https://reptilelike-elnora-nonabjuratory.ngrok-free.dev";
 
-// Отримуємо дані користувача
-const user = tg.initDataUnsafe.user;
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
 
-// Виводимо всі дані користувача в консоль для відладки
-console.log("User data from Telegram:", user);
+    const user = tg.initDataUnsafe?.user || null;
 
-if (user) {
-  // Встановлюємо ім'я в заголовок
-  document.getElementById("username").textContent = user.first_name;
-  
-  // Відображення повного імені користувача
-  const userNameDisplay = document.getElementById("userNameDisplay");
-  
-  // Формуємо повне ім'я: якщо є last_name - додаємо, якщо ні - тільки first_name
-  if (user.last_name) {
-    userNameDisplay.textContent = `${user.first_name} ${user.last_name}`;
-  } else {
-    userNameDisplay.textContent = user.first_name;
-  }
-  
-  // Якщо є username - можемо додатково показати в консолі
-  if (user.username) {
-    console.log(`Username: @${user.username}`);
-  }
-}
+    const el = {
+      headerName: document.getElementById("headerName"),
+      headerSubline: document.getElementById("headerSubline"),
+      statusMain: document.getElementById("statusMain"),
+      statusSub: document.getElementById("statusSub"),
+      roleValue: document.getElementById("roleValue"),
+      ipValue: document.getElementById("ipValue"),
+      menuWrap: document.getElementById("menuWrap"),
+      loader: document.getElementById("loader"),
+      messageBox: document.getElementById("messageBox"),
+      successBox: document.getElementById("successBox"),
+      debugPill: document.getElementById("debugPill"),
+    };
 
-// Статуси
-const STATUS = {
-  NOT_WORK: 'not_work',
-  WORK_START: 'work_start',
-  ONLINE_START: 'online_start',
-  COFFEE_START: 'coffee_start',
-  COFFEE_END: 'coffee_end',
-  LUNCH_START: 'lunch_start',
-  LUNCH_END: 'lunch_end',
-  WORK_END: 'work_end'
-};
+    const ACTION_META = {
+      start_office: {
+        icon: "🏢",
+        title: "Працюю в офісі",
+        subtitle: "Початок робочого дня в офісі"
+      },
+      start_remote: {
+        icon: "🏠",
+        title: "Працюю онлайн",
+        subtitle: "Початок віддаленої роботи"
+      },
+      coffee: {
+        icon: "☕",
+        title: "Кава",
+        subtitle: "Початок кава-брейку"
+      },
+      coffee_end: {
+        icon: "✅",
+        title: "Кінець кави",
+        subtitle: "Повернення до роботи"
+      },
+      lunch: {
+        icon: "🍽️",
+        title: "Обід",
+        subtitle: "Початок обіду"
+      },
+      lunch_end: {
+        icon: "✅",
+        title: "Кінець обіду",
+        subtitle: "Повернення до роботи"
+      },
+      finish: {
+        icon: "🏁",
+        title: "Кінець роботи",
+        subtitle: "Завершення робочого дня"
+      }
+    };
 
-// Ініціалізація з localStorage
-let userStatus = localStorage.getItem("userStatus") || STATUS.NOT_WORK;
-let statusTime = localStorage.getItem("statusTime") ? parseInt(localStorage.getItem("statusTime")) : null;
-let lastAction = localStorage.getItem("lastAction") || "—";
-let lastActionTime = localStorage.getItem("lastActionTime") || "";
-let coffeeUsed = parseInt(localStorage.getItem("coffeeUsed") || "0");
-let lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
-let workStartTime = localStorage.getItem("workStartTime") ? parseInt(localStorage.getItem("workStartTime")) : null;
+    let currentUser = null;
+    let accessInfo = null;
 
-// Функція перевірки чи минуло 22 години
-function canStartWork() {
-  if (!workStartTime) return true;
-  const now = Date.now();
-  const hoursPassed = (now - workStartTime) / (1000 * 60 * 60);
-  return hoursPassed >= 22;
-}
-
-// Функція отримання київського часу
-function getKyivTime() {
-  const now = new Date();
-  return new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Kiev' }));
-}
-
-// Функція перевірки робочого часу
-function isWorkingHours() {
-  const kyivTime = getKyivTime();
-  const hour = kyivTime.getHours();
-  const minutes = kyivTime.getMinutes();
-  const currentMinutes = hour * 60 + minutes;
-  
-  const workStart = 10 * 60; // 10:00
-  const workEnd = 19 * 60; // 19:00
-  
-  return currentMinutes >= workStart && currentMinutes < workEnd;
-}
-
-// Функція перевірки доступності перерв
-function isBreakAllowed() {
-  const kyivTime = getKyivTime();
-  const hour = kyivTime.getHours();
-  const minutes = kyivTime.getMinutes();
-  const currentMinutes = hour * 60 + minutes;
-  
-  const breakStart = 11 * 60; // 11:00
-  const breakEnd = 17 * 60; // 17:00
-  
-  return currentMinutes >= breakStart && currentMinutes < breakEnd;
-}
-
-// Функція створення кнопки - тепер всі іконки мають однаковий стиль
-function createButton(id, icon, title, subtitle, onClick) {
-  const div = document.createElement('div');
-  div.className = 'card';
-  div.id = id;
-  
-  div.innerHTML = `
-    <div class="icon">${icon}</div>
-    <div class="text">
-      <div class="title">${title}</div>
-      <div class="subtitle">${subtitle}</div>
-    </div>
-  `;
-  div.addEventListener('click', onClick);
-  return div;
-}
-
-// Оновлення меню
-function updateMenu() {
-  const menu = document.getElementById("menu");
-  menu.innerHTML = ''; // Очищаємо меню
-  
-  const buttons = [];
-  
-  // Логіка відображення кнопок залежно від статусу
-  if (userStatus === STATUS.NOT_WORK || userStatus === STATUS.WORK_END) {
-    // Якщо минуло 22 години або це перший раз
-    if (canStartWork()) {
-      buttons.push(
-        createButton('btn_work_start', '🏢', 'Прихід на роботу', 'Початок робочого дня', () => action(STATUS.WORK_START)),
-        createButton('btn_online_start', '💻', 'Працюю онлайн', 'Віддалена робота', () => action(STATUS.ONLINE_START))
-      );
+    function blockMobile() {
+      if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        document.body.innerHTML = `
+          <div style="
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            text-align:center;
+            color:white;
+            font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;
+            background:linear-gradient(145deg, #5f6cff 0%, #7b61ff 50%, #9b70ff 100%);
+            padding:24px;
+          ">
+            <div style="
+              max-width:380px;
+              background:rgba(255,255,255,.16);
+              border:1px solid rgba(255,255,255,.20);
+              border-radius:28px;
+              padding:28px 22px;
+              backdrop-filter:blur(16px);
+            ">
+              <div style="font-size:38px;margin-bottom:14px;">💻</div>
+              <div style="font-size:22px;font-weight:700;margin-bottom:10px;">Керування недоступне</div>
+              <div style="font-size:15px;line-height:1.5;opacity:.92;">
+                Робоче меню доступне тільки з комп’ютера через робочий сервер.
+              </div>
+            </div>
+          </div>
+        `;
+        throw new Error("Mobile blocked");
+      }
     }
-  }
-  
-  if (userStatus === STATUS.WORK_START || userStatus === STATUS.ONLINE_START || 
-      userStatus === STATUS.COFFEE_END || userStatus === STATUS.LUNCH_END) {
-    buttons.push(
-      createButton('btn_coffee_start', '☕', 'Кава брейк', 'Початок', () => action(STATUS.COFFEE_START)),
-      createButton('btn_lunch_start', '🍽️', 'Обід', 'Початок', () => action(STATUS.LUNCH_START)),
-      createButton('btn_work_end', '🏠', 'Вихід з офісу', 'Завершення робочого дня', () => action(STATUS.WORK_END))
-    );
-  }
-  
-  if (userStatus === STATUS.COFFEE_START) {
-    buttons.push(
-      createButton('btn_coffee_end', '✅', 'Кінець кави', 'Завершення', () => action(STATUS.COFFEE_END))
-    );
-  }
-  
-  if (userStatus === STATUS.LUNCH_START) {
-    buttons.push(
-      createButton('btn_lunch_end', '✅', 'Кінець обіду', 'Завершення', () => action(STATUS.LUNCH_END))
-    );
-  }
-  
-  // Додаємо всі кнопки в меню
-  buttons.forEach(button => menu.appendChild(button));
-}
 
-// Оновлення статусу на екрані
-function updateStatusDisplay() {
-  const statusText = document.getElementById("statusText");
-  const lastActionEl = document.getElementById("lastAction");
-  
-  const statusMessages = {
-    [STATUS.NOT_WORK]: "⚪ Ви ще не на роботі",
-    [STATUS.WORK_START]: "🟢 Ви на роботі (офіс)",
-    [STATUS.ONLINE_START]: "🟢 Ви на роботі (онлайн)",
-    [STATUS.COFFEE_START]: "☕ Ви на каві",
-    [STATUS.COFFEE_END]: "🟢 Ви на роботі",
-    [STATUS.LUNCH_START]: "🍽️ Ви на обіді",
-    [STATUS.LUNCH_END]: "🟢 Ви на роботі",
-    [STATUS.WORK_END]: "🔴 Робочий день завершено"
-  };
-  
-  statusText.textContent = statusMessages[userStatus] || statusMessages[STATUS.NOT_WORK];
-  lastActionEl.textContent = `Остання дія: ${lastAction} ${lastActionTime ? 'о ' + lastActionTime : ''}`;
-}
-
-// Збереження в localStorage
-function saveToStorage() {
-  localStorage.setItem("userStatus", userStatus);
-  localStorage.setItem("statusTime", statusTime);
-  localStorage.setItem("lastAction", lastAction);
-  localStorage.setItem("lastActionTime", lastActionTime);
-  localStorage.setItem("coffeeUsed", coffeeUsed);
-  localStorage.setItem("lunchUsed", lunchUsed);
-  localStorage.setItem("workStartTime", workStartTime);
-}
-
-// Показ повідомлення
-function showMessage(title, message) {
-  tg.showPopup({
-    title: title,
-    message: message,
-    buttons: [{ type: "ok" }]
-  });
-}
-
-// Відправка даних в Telegram
-function sendToTelegram(actionType, actionName, timeString) {
-  const data = {
-    action: actionType,
-    action_name: actionName,
-    time: timeString,
-    timestamp: Date.now(),
-    user_status: userStatus,
-    coffee_used: coffeeUsed,
-    lunch_used: lunchUsed,
-    user: user ? {
-      id: user.id,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      username: user.username
-    } : null
-  };
-  
-  tg.sendData(JSON.stringify(data));
-  console.log("Data sent to Telegram:", data);
-}
-
-// Основна функція дій
-function action(type) {
-  const kyivTime = getKyivTime();
-  const timeString = kyivTime.getHours() + ":" + (kyivTime.getMinutes() < 10 ? "0" + kyivTime.getMinutes() : kyivTime.getMinutes());
-  
-  const actionNames = {
-    [STATUS.WORK_START]: "Прихід на роботу",
-    [STATUS.ONLINE_START]: "Працюю онлайн",
-    [STATUS.COFFEE_START]: "Початок кави",
-    [STATUS.COFFEE_END]: "Кінець кави",
-    [STATUS.LUNCH_START]: "Початок обіду",
-    [STATUS.LUNCH_END]: "Кінець обіду",
-    [STATUS.WORK_END]: "Вихід з офісу"
-  };
-  
-  // Перевірки для початку роботи
-  if (type === STATUS.WORK_START || type === STATUS.ONLINE_START) {
-    if (!canStartWork()) {
-      showMessage("⛔ Недоступно", "Кнопки стануть доступні через 22 години після останнього виходу з офісу.");
-      return;
+    function showLoader(text = "Завантаження…") {
+      el.loader.textContent = text;
+      el.loader.classList.remove("hidden");
     }
-    workStartTime = Date.now();
-    userStatus = type;
-    statusTime = Date.now();
-  }
-  
-  // Перевірки для перерв
-  if (type === STATUS.COFFEE_START || type === STATUS.LUNCH_START) {
-    // Перевірка робочого часу
-    if (!isWorkingHours()) {
-      showMessage("⛔ Поза робочим часом", "Робочий час: з 10:00 до 19:00");
-      return;
+
+    function hideLoader() {
+      el.loader.classList.add("hidden");
     }
-    
-    // Перевірка доступності перерв за часом
-    if (!isBreakAllowed()) {
-      showMessage("⛔ Перерва недоступна", "Перерва недоступна в цей час.");
-      return;
+
+    function showMessage(text) {
+      el.messageBox.textContent = text;
+      el.messageBox.classList.add("show");
     }
-    
-    // Перевірка лімітів
-    if (type === STATUS.COFFEE_START) {
-      if (coffeeUsed >= 45) {
-        showMessage("⛔ Ліміт вичерпано", "Ви вже використали час на Кава брейк (45 хв).");
+
+    function hideMessage() {
+      el.messageBox.textContent = "";
+      el.messageBox.classList.remove("show");
+    }
+
+    function showSuccess(text = "✅ Дію збережено") {
+      el.successBox.textContent = text;
+      el.successBox.classList.add("show");
+      setTimeout(() => {
+        el.successBox.classList.remove("show");
+      }, 1300);
+    }
+
+    function setStatus(main, sub = "") {
+      el.statusMain.textContent = main;
+      el.statusSub.textContent = sub;
+    }
+
+    function mapRole(role) {
+      if (role === "hr") return "HR";
+      if (role === "finance") return "Finance";
+      if (role === "sysadmin") return "SysAdmin";
+      return role || "—";
+    }
+
+    function renderHeader() {
+      if (!currentUser) {
+        el.headerName.textContent = "WorkBuddy";
+        el.headerSubline.textContent = "Telegram user не знайдено";
         return;
       }
-      coffeeUsed += 15;
+
+      const fullName = [currentUser.first_name, currentUser.last_name].filter(Boolean).join(" ").trim();
+      el.headerName.textContent = currentUser.first_name || "WorkBuddy";
+      el.headerSubline.textContent = fullName || "Працівник";
     }
-    
-    if (type === STATUS.LUNCH_START) {
-      if (lunchUsed >= 60) {
-        showMessage("⛔ Ліміт вичерпано", "Ви вже використали час на Обід (60 хв).");
+
+    function createActionButton(actionId) {
+      const meta = ACTION_META[actionId] || {
+        icon: "✨",
+        title: actionId,
+        subtitle: "Дія"
+      };
+
+      const btn = document.createElement("button");
+      btn.className = "action-btn";
+      btn.type = "button";
+
+      btn.innerHTML = `
+        <div class="action-icon">${meta.icon}</div>
+        <div class="action-text">
+          <div class="action-title">${meta.title}</div>
+          <div class="action-subtitle">${meta.subtitle}</div>
+        </div>
+      `;
+
+      btn.addEventListener("click", async () => {
+        await handleAction(actionId, btn);
+      });
+
+      return btn;
+    }
+
+    function renderMenu(menuItems = []) {
+      el.menuWrap.innerHTML = "";
+
+      if (!Array.isArray(menuItems) || menuItems.length === 0) {
+        showMessage("Зараз у тебе немає доступних дій.");
         return;
       }
-      lunchUsed += 60;
+
+      hideMessage();
+
+      menuItems.forEach((item) => {
+        const actionId = item.id;
+        const btn = createActionButton(actionId);
+        el.menuWrap.appendChild(btn);
+      });
     }
-  }
-  
-  // Зміна статусу
-  if (type === STATUS.COFFEE_START) {
-    userStatus = STATUS.COFFEE_START;
-  } else if (type === STATUS.COFFEE_END) {
-    userStatus = STATUS.WORK_START;
-  } else if (type === STATUS.LUNCH_START) {
-    userStatus = STATUS.LUNCH_START;
-  } else if (type === STATUS.LUNCH_END) {
-    userStatus = STATUS.WORK_START;
-  } else if (type === STATUS.WORK_END) {
-    userStatus = STATUS.WORK_END;
-  } else if (type === STATUS.WORK_START || type === STATUS.ONLINE_START) {
-    // Статус вже встановлено вище
-  }
-  
-  // Оновлення lastAction
-  lastAction = actionNames[type];
-  lastActionTime = timeString;
-  
-  // Оновлення відображення
-  updateStatusDisplay();
-  updateMenu();
-  
-  // Збереження
-  saveToStorage();
-  
-  // Відправка даних в Telegram
-  sendToTelegram(type, actionNames[type], timeString);
-  
-  // Haptic feedback
-  tg.HapticFeedback.impactOccurred("medium");
-  
-  // Показ success
-  showSuccess();
-}
 
-// Показ success повідомлення
-function showSuccess() {
-  const box = document.getElementById("successBox");
-  box.classList.add("show");
-  setTimeout(() => {
-    box.classList.remove("show");
-  }, 1200);
-}
+    async function apiPost(path, payload) {
+      const res = await fetch(`${API_URL}${path}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify(payload)
+      });
 
-// Ініціалізація при завантаженні
-window.onload = () => {
-  // Відновлення значень з localStorage
-  userStatus = localStorage.getItem("userStatus") || STATUS.NOT_WORK;
-  statusTime = localStorage.getItem("statusTime") ? parseInt(localStorage.getItem("statusTime")) : null;
-  lastAction = localStorage.getItem("lastAction") || "—";
-  lastActionTime = localStorage.getItem("lastActionTime") || "";
-  coffeeUsed = parseInt(localStorage.getItem("coffeeUsed") || "0");
-  lunchUsed = parseInt(localStorage.getItem("lunchUsed") || "0");
-  workStartTime = localStorage.getItem("workStartTime") ? parseInt(localStorage.getItem("workStartTime")) : null;
-  
-  // Оновлення відображення
-  updateStatusDisplay();
-  updateMenu();
-  
-  // Перевіряємо кожну хвилину чи не змінився час (для блокування перерв)
-  setInterval(() => {
-    updateMenu();
-  }, 60000);
-  
-  // Повідомляємо Telegram що бот готовий
-  tg.ready();
-};
-</script>
+      const data = await res.json();
+      return { res, data };
+    }
+
+    async function apiGet(path) {
+      const res = await fetch(`${API_URL}${path}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        }
+      });
+
+      const data = await res.json();
+      return { res, data };
+    }
+
+    async function checkAccess() {
+      if (!currentUser?.id) {
+        setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
+        showMessage("Не вдалося отримати дані користувача з Telegram.");
+        return false;
+      }
+
+      showLoader("Перевіряю доступ до системи…");
+
+      try {
+        const { data } = await apiPost("/auth/check", {
+          telegram_id: currentUser.id
+        });
+
+        if (!data.ok) {
+          setStatus("⛔ Доступ заблоковано", data.message || "Немає доступу до системи.");
+          el.roleValue.textContent = "—";
+          el.ipValue.textContent = data.ip || "—";
+          showMessage(data.message || "Доступ заборонено.");
+          hideLoader();
+          return false;
+        }
+
+        accessInfo = data;
+        el.roleValue.textContent = mapRole(data.role);
+        el.ipValue.textContent = data.ip || "—";
+
+        setStatus("✅ Доступ підтверджено", "Можна завантажувати робоче меню.");
+        hideLoader();
+        return true;
+      } catch (err) {
+        console.error(err);
+        setStatus("⚠️ Помилка з’єднання", "Не вдалося підключитися до API.");
+        showMessage("Помилка з’єднання з сервером. Перевір API або тунель ngrok.");
+        hideLoader();
+        return false;
+      }
+    }
+
+    async function loadMenu() {
+      showLoader("Завантажую робоче меню…");
+
+      try {
+        const { data } = await apiGet("/work/menu");
+        renderMenu(data.menu || []);
+        setStatus("🟢 Меню готове", "Обери потрібну дію.");
+      } catch (err) {
+        console.error(err);
+        setStatus("⚠️ Меню недоступне", "Не вдалося отримати меню з API.");
+        showMessage("Сервер не повернув меню.");
+      } finally {
+        hideLoader();
+      }
+    }
+
+    async function handleAction(actionId, btn) {
+      if (!currentUser?.id) return;
+
+      btn.disabled = true;
+
+      try {
+        const payload = {
+          telegram_id: currentUser.id,
+          action: actionId
+        };
+
+        const { data } = await apiPost("/work/action", payload);
+
+        if (!data.ok) {
+          showMessage(data.message || "Дію не вдалося виконати.");
+          return;
+        }
+
+        tg.HapticFeedback?.impactOccurred?.("medium");
+        showSuccess(data.message || "✅ Дію збережено");
+
+        if (data.message) {
+          setStatus("✅ Дію виконано", data.message);
+        }
+
+        await loadMenu();
+      } catch (err) {
+        console.error(err);
+        showMessage("Помилка під час виконання дії.");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function init() {
+      blockMobile();
+
+      currentUser = user;
+      renderHeader();
+
+      if (!currentUser) {
+        setStatus("⛔ Немає даних користувача", "Відкрий це меню тільки з Telegram.");
+        showMessage("Telegram не передав дані користувача.");
+        hideLoader();
+        return;
+      }
+
+      const accessOk = await checkAccess();
+      if (!accessOk) return;
+
+      await loadMenu();
+    }
+
+    window.addEventListener("load", init);
+  </script>
 </body>
 </html>
