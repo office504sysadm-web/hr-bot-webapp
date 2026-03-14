@@ -561,13 +561,51 @@
     }
 
     async function checkAccess() {
-      console.log("AUTH CHECK START", currentUser?.id, API_URL);
+  console.log("AUTH CHECK START", currentUser?.id, API_URL);
 
-      if (!currentUser?.id) {
-        setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
-        showMessage("Не вдалося отримати дані користувача з Telegram.");
-        return false;
-      }
+  if (!currentUser?.id) {
+    setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
+    showMessage("Не вдалося отримати дані користувача з Telegram.");
+    return false;
+  }
+
+  showLoader("Перевіряю доступ до системи…");
+
+  try {
+    const { res, data } = await apiPost("/auth/check", {
+      telegram_id: currentUser.id
+    });
+
+    console.log("AUTH CHECK HTTP STATUS", res.status);
+    console.log("AUTH CHECK RESPONSE", data);
+
+    if (!data.ok) {
+      setStatus("⛔ Доступ заблоковано", data.message || "Немає доступу до системи.");
+      el.roleValue.textContent = "—";
+      el.ipValue.textContent = data.ip || "—";
+      showMessage(`AUTH FAIL: ${data.message || "Доступ заборонено."}`);
+      hideLoader();
+      return false;
+    }
+
+    accessInfo = data;
+    el.roleValue.textContent = mapRole(data.role);
+    el.ipValue.textContent = data.ip || "—";
+
+    setStatus("✅ Доступ підтверджено", "Можна завантажувати робоче меню.");
+    hideLoader();
+    return true;
+  } catch (err) {
+    console.error("AUTH CHECK ERROR", err);
+
+    const errText = `${err?.name || "Error"}: ${err?.message || "невідома помилка"}`;
+
+    setStatus("⚠️ Помилка з’єднання", errText);
+    showMessage(`AUTH ERROR: ${errText}`);
+    hideLoader();
+    return false;
+  }
+}
 
       showLoader("Перевіряю доступ до системи…");
 
@@ -699,4 +737,5 @@
   </script>
 </body>
 </html>
+
 
