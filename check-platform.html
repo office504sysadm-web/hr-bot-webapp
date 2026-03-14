@@ -326,7 +326,7 @@
 
   <script>
     const API_URL = "https://reptilelike-elnora-nonabjuratory.ngrok-free.dev";
-    console.log("WEBAPP VERSION 20260314-1805");
+    console.log("WEBAPP VERSION 20260314-1805-FIXED");
 
     const tg = window.Telegram.WebApp;
     tg.ready();
@@ -511,33 +511,34 @@
       hideMessage();
 
       menuItems.forEach((item) => {
-        const actionId = item.id;
+        const actionId = item.id || item;
         const btn = createActionButton(actionId);
         el.menuWrap.appendChild(btn);
       });
     }
 
     async function apiPost(path, payload) {
-  const res = await fetch(`${API_URL}${path}`, {
-    method: "POST",
-    mode: "cors",
-    headers: {
-      "Content-Type": "application/json",
-      "ngrok-skip-browser-warning": "true"
-    },
-    body: JSON.stringify(payload)
-  });
+      const res = await fetch(`${API_URL}${path}`, {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
+        body: JSON.stringify(payload)
+      });
 
-  const text = await res.text();
-  let data = {};
-  try {
-    data = JSON.parse(text);
-  } catch (e) {
-    data = { ok: false, message: text || "Некоректна відповідь сервера" };
-  }
+      const text = await res.text();
+      let data = {};
 
-  return { res, data };
-}
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        data = { ok: false, message: text || "Некоректна відповідь сервера" };
+      }
+
+      return { res, data };
+    }
 
     async function apiGet(path) {
       const res = await fetch(`${API_URL}${path}?telegram_id=${currentUser.id}`, {
@@ -551,6 +552,7 @@
 
       const text = await res.text();
       let data = {};
+
       try {
         data = JSON.parse(text);
       } catch (e) {
@@ -561,66 +563,29 @@
     }
 
     async function checkAccess() {
-  console.log("AUTH CHECK START", currentUser?.id, API_URL);
+      console.log("AUTH CHECK START", currentUser?.id, API_URL);
 
-  if (!currentUser?.id) {
-    setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
-    showMessage("Не вдалося отримати дані користувача з Telegram.");
-    return false;
-  }
-
-  showLoader("Перевіряю доступ до системи…");
-
-  try {
-    const { res, data } = await apiPost("/auth/check", {
-      telegram_id: currentUser.id
-    });
-
-    console.log("AUTH CHECK HTTP STATUS", res.status);
-    console.log("AUTH CHECK RESPONSE", data);
-
-    if (!data.ok) {
-      setStatus("⛔ Доступ заблоковано", data.message || "Немає доступу до системи.");
-      el.roleValue.textContent = "—";
-      el.ipValue.textContent = data.ip || "—";
-      showMessage(`AUTH FAIL: ${data.message || "Доступ заборонено."}`);
-      hideLoader();
-      return false;
-    }
-
-    accessInfo = data;
-    el.roleValue.textContent = mapRole(data.role);
-    el.ipValue.textContent = data.ip || "—";
-
-    setStatus("✅ Доступ підтверджено", "Можна завантажувати робоче меню.");
-    hideLoader();
-    return true;
-  } catch (err) {
-    console.error("AUTH CHECK ERROR", err);
-
-    const errText = `${err?.name || "Error"}: ${err?.message || "невідома помилка"}`;
-
-    setStatus("⚠️ Помилка з’єднання", errText);
-    showMessage(`AUTH ERROR: ${errText}`);
-    hideLoader();
-    return false;
-  }
-}
+      if (!currentUser?.id) {
+        setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
+        showMessage("Не вдалося отримати дані користувача з Telegram.");
+        return false;
+      }
 
       showLoader("Перевіряю доступ до системи…");
 
       try {
-        const { data } = await apiPost("/auth/check", {
+        const { res, data } = await apiPost("/auth/check", {
           telegram_id: currentUser.id
         });
 
+        console.log("AUTH CHECK HTTP STATUS", res.status);
         console.log("AUTH CHECK RESPONSE", data);
 
         if (!data.ok) {
           setStatus("⛔ Доступ заблоковано", data.message || "Немає доступу до системи.");
           el.roleValue.textContent = "—";
           el.ipValue.textContent = data.ip || "—";
-          showMessage(data.message || "Доступ заборонено.");
+          showMessage(`AUTH FAIL: ${data.message || "Доступ заборонено."}`);
           hideLoader();
           return false;
         }
@@ -634,8 +599,11 @@
         return true;
       } catch (err) {
         console.error("AUTH CHECK ERROR", err);
-        setStatus("⚠️ Помилка з’єднання", "Не вдалося підключитися до API.");
-        showMessage("Помилка з’єднання з сервером. Перевір API або тунель ngrok.");
+
+        const errText = `${err?.name || "Error"}: ${err?.message || "невідома помилка"}`;
+
+        setStatus("⚠️ Помилка з’єднання", errText);
+        showMessage(`AUTH ERROR: ${errText}`);
         hideLoader();
         return false;
       }
@@ -709,33 +677,32 @@
     }
 
     async function init() {
-  blockMobile();
+      blockMobile();
 
-  currentUser = user;
-  renderHeader();
+      currentUser = user;
+      renderHeader();
 
-  console.log("INIT USER", currentUser);
+      console.log("INIT USER", currentUser);
 
-  if (currentUser) {
-    showMessage(`DEBUG: Telegram user = ${currentUser.id}`);
-  } else {
-    showMessage("DEBUG: Telegram user = null");
-  }
+      if (currentUser) {
+        showMessage(`DEBUG: Telegram user = ${currentUser.id}`);
+      } else {
+        showMessage("DEBUG: Telegram user = null");
+      }
 
-  if (!currentUser) {
-    setStatus("⛔ Немає даних користувача", "Відкрий це меню тільки з Telegram.");
-    hideLoader();
-    return;
-  }
+      if (!currentUser) {
+        setStatus("⛔ Немає даних користувача", "Відкрий це меню тільки з Telegram.");
+        hideLoader();
+        return;
+      }
 
-  const accessOk = await checkAccess();
-  if (!accessOk) return;
+      const accessOk = await checkAccess();
+      if (!accessOk) return;
 
-  await loadMenu();
-}
+      await loadMenu();
+    }
+
     window.addEventListener("load", init);
   </script>
 </body>
 </html>
-
-
