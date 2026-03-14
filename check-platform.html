@@ -531,18 +531,17 @@
     }
 
     async function apiGet(path) {
-      const res = await fetch(`${API_URL}${path}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true"
-        }
-      });
-
-      const data = await res.json();
-      return { res, data };
+  const res = await fetch(`${API_URL}${path}?telegram_id=${currentUser.id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true"
     }
+  });
 
+  const data = await res.json();
+  return { res, data };
+}
     async function checkAccess() {
       if (!currentUser?.id) {
         setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
@@ -655,3 +654,4 @@
   </script>
 </body>
 </html>
+
