@@ -150,6 +150,108 @@
       font-weight: 600;
     }
 
+    .dashboard-card {
+      background: rgba(255, 255, 255, 0.93);
+      color: var(--panel-text);
+      border-radius: 30px;
+      padding: 18px 16px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .dashboard-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .dashboard-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--panel-text);
+    }
+
+    .dashboard-subtitle {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--panel-sub);
+      line-height: 1.4;
+    }
+
+    .dashboard-badge {
+      flex-shrink: 0;
+      background: rgba(95, 108, 255, 0.10);
+      color: #4f46e5;
+      border-radius: 16px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .dashboard-item {
+      background: #ffffff;
+      border-radius: 22px;
+      padding: 14px 12px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75), 0 6px 16px rgba(0,0,0,.06);
+      min-height: 84px;
+    }
+
+    .dashboard-item.wide {
+      grid-column: 1 / -1;
+      min-height: auto;
+    }
+
+    .dashboard-label {
+      font-size: 12px;
+      color: var(--panel-sub);
+      margin-bottom: 7px;
+    }
+
+    .dashboard-value {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--panel-text);
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .dashboard-value.small {
+      font-size: 14px;
+    }
+
+    .dashboard-progress {
+      background: rgba(17, 24, 39, 0.08);
+      border-radius: 999px;
+      height: 10px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .dashboard-progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #5f6cff 0%, #7b61ff 100%);
+      transition: width 0.25s ease;
+    }
+
+    .dashboard-footnote {
+      font-size: 12px;
+      color: var(--panel-sub);
+      line-height: 1.45;
+      padding: 2px 2px 0;
+    }
+
     .menu-wrap {
       display: flex;
       flex-direction: column;
@@ -293,6 +395,60 @@
         </div>
       </div>
 
+      <div class="dashboard-card" id="dashboardCard">
+        <div class="dashboard-head">
+          <div>
+            <div class="dashboard-title">Мій прогрес</div>
+            <div class="dashboard-subtitle" id="dashboardSubtitle">Завантажую статистику за сьогодні…</div>
+          </div>
+          <div class="dashboard-badge" id="dashboardBadge">—</div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="dashboard-item">
+            <div class="dashboard-label">Запізнення</div>
+            <div class="dashboard-value small" id="dashLate">—</div>
+          </div>
+
+          <div class="dashboard-item">
+            <div class="dashboard-label">Порушення</div>
+            <div class="dashboard-value small" id="dashViolation">—</div>
+          </div>
+
+          <div class="dashboard-item">
+            <div class="dashboard-label">☕ Кава</div>
+            <div class="dashboard-value" id="dashCoffee">0 / 0 хв</div>
+          </div>
+
+          <div class="dashboard-item">
+            <div class="dashboard-label">🍽️ Обід</div>
+            <div class="dashboard-value" id="dashLunch">0 / 0 хв</div>
+          </div>
+
+          <div class="dashboard-item">
+            <div class="dashboard-label">⭐ Зірки за день</div>
+            <div class="dashboard-value" id="dashStars">0 / 4</div>
+          </div>
+
+          <div class="dashboard-item">
+            <div class="dashboard-label">🔥 Streak</div>
+            <div class="dashboard-value" id="dashStreak">0 днів</div>
+          </div>
+
+          <div class="dashboard-item wide">
+            <div class="dashboard-label">Прогрес за місяць</div>
+            <div class="dashboard-value" id="dashMonth">0 зірок · 0%</div>
+            <div class="dashboard-progress">
+              <div class="dashboard-progress-fill" id="dashMonthProgress"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-footnote" id="dashboardFootnote">
+          Без запізнення + без порушень + коректне завершення дня + streak 5+ = максимум 4 зірки.
+        </div>
+      </div>
+
       <div class="message-box" id="messageBox"></div>
       <div class="menu-wrap" id="menuWrap"></div>
       <div class="loader" id="loader">Перевіряю доступ до системи…</div>
@@ -341,6 +497,17 @@
       loader: document.getElementById("loader"),
       messageBox: document.getElementById("messageBox"),
       successBox: document.getElementById("successBox"),
+      dashboardSubtitle: document.getElementById("dashboardSubtitle"),
+      dashboardBadge: document.getElementById("dashboardBadge"),
+      dashboardFootnote: document.getElementById("dashboardFootnote"),
+      dashLate: document.getElementById("dashLate"),
+      dashViolation: document.getElementById("dashViolation"),
+      dashCoffee: document.getElementById("dashCoffee"),
+      dashLunch: document.getElementById("dashLunch"),
+      dashStars: document.getElementById("dashStars"),
+      dashStreak: document.getElementById("dashStreak"),
+      dashMonth: document.getElementById("dashMonth"),
+      dashMonthProgress: document.getElementById("dashMonthProgress"),
     };
 
     const ACTION_META = {
@@ -479,6 +646,80 @@
       });
     }
 
+    function setDashboardLoading() {
+      el.dashboardSubtitle.textContent = "Завантажую статистику за сьогодні…";
+      el.dashboardBadge.textContent = "—";
+      el.dashLate.textContent = "—";
+      el.dashViolation.textContent = "—";
+      el.dashCoffee.textContent = "0 / 0 хв";
+      el.dashLunch.textContent = "0 / 0 хв";
+      el.dashStars.textContent = "0 / 4";
+      el.dashStreak.textContent = "0 днів";
+      el.dashMonth.textContent = "0 зірок · 0%";
+      el.dashMonthProgress.style.width = "0%";
+      el.dashboardFootnote.textContent = "Без запізнення + без порушень + коректне завершення дня + streak 5+ = максимум 4 зірки.";
+    }
+
+    function formatStatusBadge(state) {
+      if (state === "working_office") return "Офіс";
+      if (state === "working_online") return "Онлайн";
+      if (state === "coffee_break") return "Кава";
+      if (state === "lunch_break") return "Обід";
+      if (state === "finished") return "Завершено";
+      return "Старт";
+    }
+
+    function formatDashboardSubtitle(data) {
+      if (!data || data.state === "idle") {
+        return "Сьогодні робочий день ще не розпочато.";
+      }
+
+      const parts = [];
+
+      if (data.work_mode_label && data.work_mode_label !== "—") {
+        parts.push(data.work_mode_label);
+      }
+
+      if (data.start_time) {
+        parts.push(`старт ${data.start_time.slice(11, 16)}`);
+      }
+
+      if (data.current_break_type === "coffee") {
+        parts.push("зараз кава-брейк");
+      }
+
+      if (data.current_break_type === "lunch") {
+        parts.push("зараз обід");
+      }
+
+      if (data.day_completed && data.end_time) {
+        parts.push(`завершено о ${data.end_time.slice(11, 16)}`);
+      }
+
+      return parts.join(" · ") || "Статистика за сьогодні готова.";
+    }
+
+    function renderDashboard(data) {
+      if (!data) {
+        setDashboardLoading();
+        return;
+      }
+
+      const monthPercent = Math.max(0, Math.min(100, Number(data.month_progress_percent || 0)));
+
+      el.dashboardSubtitle.textContent = formatDashboardSubtitle(data);
+      el.dashboardBadge.textContent = formatStatusBadge(data.state);
+      el.dashLate.textContent = data.late_text || "Без запізнення";
+      el.dashViolation.textContent = data.violation_text || "Порушень немає";
+      el.dashCoffee.textContent = `${data.coffee_count || 0} / ${data.coffee_minutes || 0} хв`;
+      el.dashLunch.textContent = `${data.lunch_count || 0} / ${data.lunch_minutes || 0} хв`;
+      el.dashStars.textContent = `${data.stars_today || 0} / 4`;
+      el.dashStreak.textContent = `${data.streak_days || 0} днів`;
+      el.dashMonth.textContent = `${data.month_total_stars || 0} зірок · ${monthPercent}%`;
+      el.dashMonthProgress.style.width = `${monthPercent}%`;
+      el.dashboardFootnote.textContent = `Оцінено днів: ${data.month_rated_days || 0} · Найкращий streak: ${data.month_best_streak || 0} днів`;
+    }
+
     async function apiPost(path, payload) {
       const res = await fetch(`${API_URL}${path}`, {
         method: "POST",
@@ -561,6 +802,22 @@
       }
     }
 
+    async function loadDashboard() {
+      setDashboardLoading();
+
+      try {
+        const { data } = await apiGet("/work/dashboard");
+
+        if (!data.ok) {
+          return;
+        }
+
+        renderDashboard(data.dashboard || null);
+      } catch (err) {
+        console.error("DASHBOARD LOAD ERROR", err);
+      }
+    }
+
     async function loadMenu() {
       showLoader("Завантажую робоче меню…");
 
@@ -629,6 +886,7 @@
       const accessOk = await checkAccess();
       if (!accessOk) return;
 
+      await loadDashboard();
       await loadMenu();
     }
 
