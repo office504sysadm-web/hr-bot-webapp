@@ -308,7 +308,27 @@
     tg.ready();
     tg.expand();
 
-    const user = tg.initDataUnsafe?.user || null;
+    function getTelegramUser() {
+      if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        return tg.initDataUnsafe.user;
+      }
+
+      if (tg.initData) {
+        try {
+          const params = new URLSearchParams(tg.initData);
+          const rawUser = params.get("user");
+          if (rawUser) {
+            return JSON.parse(rawUser);
+          }
+        } catch (e) {
+          console.error("INIT DATA PARSE ERROR", e);
+        }
+      }
+
+      return null;
+    }
+
+    const user = getTelegramUser();
 
     const el = {
       headerName: document.getElementById("headerName"),
@@ -506,8 +526,8 @@
 
     async function checkAccess() {
       if (!currentUser?.id) {
-        setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
-        showMessage("Не вдалося отримати дані користувача з Telegram.");
+        setStatus("⛔ Немає даних користувача", "Відкрий це меню тільки з Telegram.");
+        showMessage("Telegram user не знайдено.");
         return false;
       }
 
