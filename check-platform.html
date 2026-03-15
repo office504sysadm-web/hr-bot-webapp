@@ -26,8 +26,6 @@
       --shadow: 0 20px 40px rgba(0, 0, 0, 0.18);
       --shadow-soft: 0 10px 24px rgba(0, 0, 0, 0.12);
       --radius-xl: 28px;
-      --radius-lg: 22px;
-      --radius-md: 18px;
     }
 
     html, body {
@@ -162,8 +160,8 @@
       width: 100%;
       border: 0;
       outline: none;
-      background: var(--panel-bg);
-      color: var(--panel-text);
+      background: rgba(255, 255, 255, 0.93);
+      color: #111827;
       border-radius: var(--radius-xl);
       padding: 14px 16px;
       display: flex;
@@ -171,12 +169,7 @@
       gap: 14px;
       cursor: pointer;
       box-shadow: var(--shadow-soft);
-      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
       text-align: left;
-    }
-
-    .action-btn:active {
-      transform: scale(0.985);
     }
 
     .action-btn:disabled {
@@ -211,7 +204,7 @@
 
     .action-subtitle {
       font-size: 12px;
-      color: var(--panel-sub);
+      color: #6b7280;
       line-height: 1.35;
     }
 
@@ -240,18 +233,6 @@
       padding: 22px 0 8px;
       color: rgba(255, 255, 255, 0.86);
       font-size: 14px;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 12px;
-      color: rgba(255,255,255,.88);
     }
 
     .success {
@@ -313,12 +294,8 @@
       </div>
 
       <div class="message-box" id="messageBox"></div>
-
       <div class="menu-wrap" id="menuWrap"></div>
-
       <div class="loader" id="loader">Перевіряю доступ до системи…</div>
-
-      <div class="pill hidden" id="debugPill">DEBUG</div>
     </div>
   </div>
 
@@ -326,7 +303,6 @@
 
   <script>
     const API_URL = "https://reptilelike-elnora-nonabjuratory.ngrok-free.dev";
-    console.log("WEBAPP VERSION 20260314-1805-FIXED");
 
     const tg = window.Telegram.WebApp;
     tg.ready();
@@ -345,49 +321,19 @@
       loader: document.getElementById("loader"),
       messageBox: document.getElementById("messageBox"),
       successBox: document.getElementById("successBox"),
-      debugPill: document.getElementById("debugPill"),
     };
 
     const ACTION_META = {
-      start_office: {
-        icon: "🏢",
-        title: "Працюю в офісі",
-        subtitle: "Початок робочого дня в офісі"
-      },
-      start_remote: {
-        icon: "🏠",
-        title: "Працюю онлайн",
-        subtitle: "Початок віддаленої роботи"
-      },
-      coffee: {
-        icon: "☕",
-        title: "Кава",
-        subtitle: "Початок кава-брейку"
-      },
-      coffee_end: {
-        icon: "✅",
-        title: "Кінець кави",
-        subtitle: "Повернення до роботи"
-      },
-      lunch: {
-        icon: "🍽️",
-        title: "Обід",
-        subtitle: "Початок обіду"
-      },
-      lunch_end: {
-        icon: "✅",
-        title: "Кінець обіду",
-        subtitle: "Повернення до роботи"
-      },
-      finish: {
-        icon: "🏁",
-        title: "Кінець роботи",
-        subtitle: "Завершення робочого дня"
-      }
+      start_office: { icon: "🏢", title: "Працюю в офісі", subtitle: "Початок робочого дня в офісі" },
+      start_remote: { icon: "🏠", title: "Працюю онлайн", subtitle: "Початок віддаленої роботи" },
+      coffee: { icon: "☕", title: "Кава", subtitle: "Початок кава-брейку" },
+      coffee_end: { icon: "✅", title: "Кінець кави", subtitle: "Повернення до роботи" },
+      lunch: { icon: "🍽️", title: "Обід", subtitle: "Початок обіду" },
+      lunch_end: { icon: "✅", title: "Кінець обіду", subtitle: "Повернення до роботи" },
+      finish: { icon: "🏁", title: "Кінець роботи", subtitle: "Завершення робочого дня" }
     };
 
     let currentUser = null;
-    let accessInfo = null;
 
     function blockMobile() {
       if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
@@ -445,9 +391,6 @@
     function showSuccess(text = "✅ Дію збережено") {
       el.successBox.textContent = text;
       el.successBox.classList.add("show");
-      setTimeout(() => {
-        el.successBox.classList.remove("show");
-      }, 1300);
     }
 
     function setStatus(main, sub = "") {
@@ -512,8 +455,7 @@
 
       menuItems.forEach((item) => {
         const actionId = item.id || item;
-        const btn = createActionButton(actionId);
-        el.menuWrap.appendChild(btn);
+        el.menuWrap.appendChild(createActionButton(actionId));
       });
     }
 
@@ -533,7 +475,7 @@
 
       try {
         data = JSON.parse(text);
-      } catch (e) {
+      } catch {
         data = { ok: false, message: text || "Некоректна відповідь сервера" };
       }
 
@@ -555,7 +497,7 @@
 
       try {
         data = JSON.parse(text);
-      } catch (e) {
+      } catch {
         data = { ok: false, message: text || "Некоректна відповідь сервера" };
       }
 
@@ -563,8 +505,6 @@
     }
 
     async function checkAccess() {
-      console.log("AUTH CHECK START", currentUser?.id, API_URL);
-
       if (!currentUser?.id) {
         setStatus("⛔ Telegram user не знайдено", "Відкрий меню через Telegram.");
         showMessage("Не вдалося отримати дані користувача з Telegram.");
@@ -574,34 +514,26 @@
       showLoader("Перевіряю доступ до системи…");
 
       try {
-        const { res, data } = await apiPost("/auth/check", {
+        const { data } = await apiPost("/auth/check", {
           telegram_id: currentUser.id
         });
-
-        console.log("AUTH CHECK HTTP STATUS", res.status);
-        console.log("AUTH CHECK RESPONSE", data);
 
         if (!data.ok) {
           setStatus("⛔ Доступ заблоковано", data.message || "Немає доступу до системи.");
           el.roleValue.textContent = "—";
           el.ipValue.textContent = data.ip || "—";
-          showMessage(`AUTH FAIL: ${data.message || "Доступ заборонено."}`);
+          showMessage(data.message || "Доступ заборонено.");
           hideLoader();
           return false;
         }
 
-        accessInfo = data;
         el.roleValue.textContent = mapRole(data.role);
         el.ipValue.textContent = data.ip || "—";
-
         setStatus("✅ Доступ підтверджено", "Можна завантажувати робоче меню.");
         hideLoader();
         return true;
       } catch (err) {
-        console.error("AUTH CHECK ERROR", err);
-
         const errText = `${err?.name || "Error"}: ${err?.message || "невідома помилка"}`;
-
         setStatus("⚠️ Помилка з’єднання", errText);
         showMessage(`AUTH ERROR: ${errText}`);
         hideLoader();
@@ -614,7 +546,6 @@
 
       try {
         const { data } = await apiGet("/work/menu");
-        console.log("LOAD MENU RESPONSE", data);
 
         if (!data.ok) {
           setStatus("⚠️ Меню недоступне", data.message || "Не вдалося отримати меню.");
@@ -625,7 +556,6 @@
         renderMenu(data.menu || []);
         setStatus(data.status_text || "🟢 Меню готове", "Обери потрібну дію.");
       } catch (err) {
-        console.error("LOAD MENU ERROR", err);
         setStatus("⚠️ Меню недоступне", "Не вдалося отримати меню з API.");
         showMessage("Сервер не повернув меню.");
       } finally {
@@ -637,42 +567,30 @@
       if (!currentUser?.id) return;
 
       btn.disabled = true;
+      hideMessage();
 
       try {
-        const payload = {
+        const { data } = await apiPost("/work/action", {
           telegram_id: currentUser.id,
           action: actionId
-        };
-
-        const { data } = await apiPost("/work/action", payload);
-        console.log("ACTION RESPONSE", data);
+        });
 
         if (!data.ok) {
+          btn.disabled = false;
           showMessage(data.message || "Дію не вдалося виконати.");
           return;
         }
 
         tg.HapticFeedback?.impactOccurred?.("medium");
         showSuccess(data.message || "✅ Дію збережено");
+        setStatus("✅ Дію виконано", data.message || "Операцію виконано.");
 
-        if (data.message) {
-          setStatus("✅ Дію виконано", data.message);
-        }
-
-        if (data.role) {
-          el.roleValue.textContent = mapRole(data.role);
-        }
-
-        if (data.employee_name) {
-          el.headerName.textContent = data.employee_name;
-        }
-
-        renderMenu(data.menu || []);
+        setTimeout(() => {
+          tg.close();
+        }, 350);
       } catch (err) {
-        console.error("ACTION ERROR", err);
-        showMessage("Помилка під час виконання дії.");
-      } finally {
         btn.disabled = false;
+        showMessage("Помилка під час виконання дії.");
       }
     }
 
@@ -681,14 +599,6 @@
 
       currentUser = user;
       renderHeader();
-
-      console.log("INIT USER", currentUser);
-
-      if (currentUser) {
-        showMessage(`DEBUG: Telegram user = ${currentUser.id}`);
-      } else {
-        showMessage("DEBUG: Telegram user = null");
-      }
 
       if (!currentUser) {
         setStatus("⛔ Немає даних користувача", "Відкрий це меню тільки з Telegram.");
