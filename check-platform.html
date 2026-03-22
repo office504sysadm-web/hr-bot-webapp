@@ -531,23 +531,20 @@
         font-size: 16px;
       }
     }
-
+  
     .dashboard-note {
       margin-top: 10px;
-      font-size: 15px;
-      line-height: 1.35;
-    }
-
-    .dashboard-note.danger {
-      color: #c62828;
+      min-height: 22px;
+      font-size: 14px;
+      line-height: 1.4;
       font-weight: 700;
     }
 
-    .hidden {
-      display: none !important;
+    .dashboard-note.danger {
+      color: #dc2626;
     }
 
-  </style>
+</style>
 </head>
 <body>
   <div class="app">
@@ -591,38 +588,37 @@
           <div class="dashboard-badge" id="dashboardBadge">—</div>
         </div>
 
-        
-<div class="dashboard-grid">
-  <div class="dashboard-item">
-    <div class="dashboard-label">☕ Кава</div>
-    <div class="dashboard-value balance" id="dashCoffee">0 / 0 хв</div>
-    <div class="dashboard-note danger hidden" id="dashCoffeeViolation"></div>
-  </div>
+        <div class="dashboard-grid">
+          <div class="dashboard-item">
+            <div class="dashboard-label">☕ Кава</div>
+            <div class="dashboard-value balance" id="dashCoffee">0 / 0 хв</div>
+            <div class="dashboard-note danger" id="dashCoffeeViolation"></div>
+          </div>
 
-  <div class="dashboard-item">
-    <div class="dashboard-label">🍽️ Обід</div>
-    <div class="dashboard-value balance" id="dashLunch">0 / 0 хв</div>
-    <div class="dashboard-note danger hidden" id="dashLunchViolation"></div>
-  </div>
+          <div class="dashboard-item">
+            <div class="dashboard-label">🍽️ Обід</div>
+            <div class="dashboard-value balance" id="dashLunch">0 / 0 хв</div>
+            <div class="dashboard-note danger" id="dashLunchViolation"></div>
+          </div>
 
-  <div class="dashboard-item">
-    <div class="dashboard-label">⭐ Зірки за день</div>
-    <div class="dashboard-value balance" id="dashStars">0 / 3</div>
-  </div>
+          <div class="dashboard-item">
+            <div class="dashboard-label">⭐ Зірки за день</div>
+            <div class="dashboard-value balance" id="dashStars">0 / 3</div>
+          </div>
 
-  <div class="dashboard-item">
-    <div class="dashboard-label">🔥 Streak</div>
-    <div class="dashboard-value balance" id="dashStreak">0 днів</div>
-  </div>
+          <div class="dashboard-item">
+            <div class="dashboard-label">🔥 Streak</div>
+            <div class="dashboard-value balance" id="dashStreak">0 днів</div>
+          </div>
 
-  <div class="dashboard-item wide">
-    <div class="dashboard-label">Прогрес за місяць</div>
-    <div class="dashboard-value" id="dashMonth">0 зірок · 0%</div>
-    <div class="dashboard-progress">
-      <div class="dashboard-progress-fill" id="dashMonthProgress"></div>
-    </div>
-  </div>
-</div>
+          <div class="dashboard-item wide">
+            <div class="dashboard-label">Прогрес за місяць</div>
+            <div class="dashboard-value" id="dashMonth">0 зірок · 0%</div>
+            <div class="dashboard-progress">
+              <div class="dashboard-progress-fill" id="dashMonthProgress"></div>
+            </div>
+          </div>
+        </div>
 
 
         <div class="dashboard-card">
@@ -714,8 +710,8 @@
       dashStreak: document.getElementById("dashStreak"),
       dashMonth: document.getElementById("dashMonth"),
       dashMonthProgress: document.getElementById("dashMonthProgress"),
-      leaderboardList: document.getElementById("leaderboardList"),
       leaderboardMonthLabel: document.getElementById("leaderboardMonthLabel"),
+      leaderboardList: document.getElementById("leaderboardList"),
     };
 
     const ACTION_META = {
@@ -813,6 +809,17 @@
       };
     }
 
+
+    function formatStatusText(state, workModeLabel = "") {
+      if (state === "working_office") return "🟢 Ви на роботі (офіс)";
+      if (state === "working_online") return "🟢 Ви на роботі (онлайн)";
+      if (state === "coffee_break") return "☕ Ви на каві";
+      if (state === "lunch_break") return "🍽️ Ви на обіді";
+      if (state === "finished") return "✅ Робочий день завершено";
+      if (workModeLabel) return `🟢 ${workModeLabel}`;
+      return "🟢 Статус оновлено";
+    }
+
     function setStatus(main, sub = "") {
       const parsed = splitStatusText(main);
       el.statusDot.textContent = parsed.dot;
@@ -886,14 +893,14 @@
       el.dashboardBadge.textContent = "—";
       el.dashCoffee.textContent = "0 / 0 хв";
       el.dashLunch.textContent = "0 / 0 хв";
-      setBreakViolation(el.dashCoffeeViolation, "");
-      setBreakViolation(el.dashLunchViolation, "");
+      el.dashCoffeeViolation.textContent = "";
+      el.dashLunchViolation.textContent = "";
       el.dashStars.textContent = "0 / 3";
       el.dashStreak.textContent = "0 днів";
       el.dashMonth.textContent = "0 зірок · 0%";
       el.dashMonthProgress.style.width = "0%";
       el.dashboardFootnote.textContent = "Вчасний старт + кава без порушень + обід без порушень = максимум 3 зірки.";
-      renderLeaderboard([]);
+      setLeaderboardLoading();
     }
 
     function formatStatusBadge(state) {
@@ -903,64 +910,6 @@
       if (state === "lunch_break") return "Обід";
       if (state === "finished") return "Завершено";
       return "Старт";
-    }
-
-
-    function normalizeViolationText(value) {
-      const text = String(value || "").trim();
-      if (!text) return "";
-      return text;
-    }
-
-    function formatMinutesHuman(totalMinutes) {
-      const minutes = Math.max(0, Number(totalMinutes) || 0);
-      if (minutes <= 60) {
-        return `${minutes} хв`;
-      }
-      const hours = Math.floor(minutes / 60);
-      const restMinutes = minutes % 60;
-      return restMinutes > 0 ? `${hours} год ${restMinutes} хв` : `${hours} год`;
-    }
-
-    function normalizeDurationInText(value, explicitMinutes) {
-      const source = String(value || "").trim();
-      const minutes = Number(explicitMinutes);
-
-      if (Number.isFinite(minutes) && minutes > 0) {
-        return source.replace(/Запізнення на\s+\d+\s*хв/i, `Запізнення на ${formatMinutesHuman(minutes)}`);
-      }
-
-      return source.replace(/Запізнення на\s+(\d+)\s*хв/gi, (_, raw) => {
-        const parsed = Number(raw);
-        return `Запізнення на ${formatMinutesHuman(parsed)}`;
-      });
-    }
-
-    function toStatusAlertText(data) {
-      if (!data || !data.is_late) return "";
-      const rawText = normalizeViolationText(data.arrival_violation_reason || data.late_text);
-      const text = normalizeDurationInText(rawText, data.late_minutes);
-      if (!text) return "";
-      return text.startsWith("🚨") ? text : `🚨 ${text}`;
-    }
-
-    function toBreakAlertText(value, minutes) {
-      const rawText = normalizeViolationText(value);
-      const text = normalizeDurationInText(rawText, minutes);
-      if (!text) return "";
-      return text.startsWith("🚨") ? text : `🚨 ${text}`;
-    }
-
-    function setBreakViolation(element, text, minutes) {
-      if (!element) return;
-      const normalized = toBreakAlertText(text, minutes);
-      if (!normalized) {
-        element.textContent = "";
-        element.classList.add("hidden");
-        return;
-      }
-      element.textContent = normalized;
-      element.classList.remove("hidden");
     }
 
     function formatDashboardSubtitle(data) {
@@ -994,6 +943,58 @@
     }
 
 
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatDurationMinutes(totalMinutes) {
+      const total = Math.max(0, Number(totalMinutes || 0));
+      if (!Number.isFinite(total)) return "0 хв";
+      if (total <= 60) return `${total} хв`;
+      const hours = Math.floor(total / 60);
+      const minutes = total % 60;
+      return minutes ? `${hours} год ${minutes} хв` : `${hours} год`;
+    }
+
+    function normalizeDurationText(text) {
+      return String(text || "").replace(/(\d+)\s*хв/g, (_, raw) => formatDurationMinutes(Number(raw)));
+    }
+
+    function getArrivalLateText(data) {
+      const source = data?.arrival_violation_reason || data?.late_text || "";
+      const normalized = normalizeDurationText(source).trim();
+      if (!normalized || /без запізнення/i.test(normalized)) {
+        return "";
+      }
+      return normalized.startsWith("🚨") ? normalized : `🚨 ${normalized}`;
+    }
+
+    function renderDashboardViolations(data) {
+      const coffeeViolation = normalizeDurationText(data?.coffee_violation_reason || "").trim();
+      const lunchViolation = normalizeDurationText(data?.lunch_violation_reason || "").trim();
+
+      el.dashCoffeeViolation.textContent = coffeeViolation ? `🚨 ${coffeeViolation}` : "";
+      el.dashLunchViolation.textContent = lunchViolation ? `🚨 ${lunchViolation}` : "";
+    }
+
+    function applyDashboardStatus(data) {
+      const main = data?.status_text || formatStatusText(data?.state, data?.work_mode_label);
+      const sub = getArrivalLateText(data);
+      setStatus(main, sub);
+    }
+
+    function setLeaderboardLoading() {
+      if (el.leaderboardList) {
+        el.leaderboardList.innerHTML = '<div class="timeline-item">Дані рейтингу завантажуються…</div>';
+      }
+    }
+
     function renderLeaderboard(items) {
       if (!el.leaderboardList) return;
       if (!Array.isArray(items) || !items.length) {
@@ -1003,7 +1004,7 @@
 
       el.leaderboardList.innerHTML = items.map((item) => `
         <div class="timeline-item">
-          <div><strong>#${item.position}</strong> ${escapeHtml(item.name || item.employee_name || '—')}</div>
+          <div><strong>#${item.position ?? "—"}</strong> ${escapeHtml(item.name || item.employee_name || '—')}</div>
           <div class="timeline-meta">⭐ ${item.stars ?? item.total_stars_month ?? 0} · 🚨 ${item.violations ?? item.total_violations_month ?? 0} · 🔥 ${item.streak ?? item.current_streak ?? 0}</div>
         </div>
       `).join('');
@@ -1019,43 +1020,18 @@
 
       el.dashboardSubtitle.textContent = formatDashboardSubtitle(data);
       el.dashboardBadge.textContent = formatStatusBadge(data.state);
-
-      const statusAlertText = toStatusAlertText(data);
-      if (statusAlertText) {
-        el.statusSub.textContent = statusAlertText;
-      } else if (!el.statusSub.dataset.menuText) {
-        el.statusSub.textContent = "Поточний стан робочого дня актуальний.";
-      }
-
+      applyDashboardStatus(data);
       el.dashCoffee.textContent = `${data.coffee_count || 0} / ${data.coffee_minutes || 0} хв`;
       el.dashLunch.textContent = `${data.lunch_count || 0} / ${data.lunch_minutes || 0} хв`;
-      setBreakViolation(el.dashCoffeeViolation, data.coffee_violation_reason || data.break_violation_reason);
-      setBreakViolation(el.dashLunchViolation, data.lunch_violation_reason, data.lunch_violation_minutes);
+      renderDashboardViolations(data);
       el.dashStars.textContent = `${data.stars_today || 0} / 3`;
-      renderLeaderboard(data.leaderboard || data.items || []);
+      if (Array.isArray(data.leaderboard) && data.leaderboard.length) {
+        renderLeaderboard(data.leaderboard);
+      }
       el.dashStreak.textContent = `${data.streak_days || 0} днів`;
       el.dashMonth.textContent = `${data.month_total_stars || 0} зірок · ${monthPercent}%`;
       el.dashMonthProgress.style.width = `${monthPercent}%`;
       el.dashboardFootnote.textContent = `Оцінено днів: ${data.month_rated_days || 0} · Найкращий streak: ${data.month_best_streak || 0} днів`;
-    }
-
-
-    async function loadLeaderboard() {
-      if (!currentUser?.id || !el.leaderboardList) return;
-
-      el.leaderboardList.innerHTML = '<div class="timeline-item">Дані рейтингу завантажуються…</div>';
-
-      try {
-        const { data } = await apiGet('/work/leaderboard');
-        if (!data?.ok) {
-          el.leaderboardList.innerHTML = '<div class="timeline-item">Не вдалося завантажити рейтинг.</div>';
-          return;
-        }
-
-        renderLeaderboard(data.leaderboard || data.items || []);
-      } catch (err) {
-        el.leaderboardList.innerHTML = '<div class="timeline-item">Не вдалося завантажити рейтинг.</div>';
-      }
     }
 
     async function apiPost(path, payload) {
@@ -1082,8 +1058,12 @@
     }
 
     async function apiGet(path) {
-      const separator = path.includes('?') ? '&' : '?';
-      const res = await fetch(`${API_URL}${path}${separator}telegram_id=${encodeURIComponent(currentUser.id)}`, {
+      const url = new URL(`${API_URL}${path}`);
+      if (!url.searchParams.has("telegram_id")) {
+        url.searchParams.set("telegram_id", currentUser.id);
+      }
+
+      const res = await fetch(url.toString(), {
         method: "GET",
         mode: "cors",
         headers: {
@@ -1152,13 +1132,28 @@
         }
 
         renderDashboard(data.dashboard || null);
-        if (data.dashboard && Array.isArray(data.dashboard.leaderboard) && data.dashboard.leaderboard.length) {
-          renderLeaderboard(data.dashboard.leaderboard);
-        } else {
-          await loadLeaderboard();
-        }
       } catch (err) {
         console.error("DASHBOARD LOAD ERROR", err);
+      }
+    }
+
+
+    async function loadLeaderboard() {
+      setLeaderboardLoading();
+
+      try {
+        const { res, data } = await apiGet("/work/leaderboard");
+        if (!res.ok || data?.ok === false) {
+          throw new Error(data?.message || `HTTP ${res.status}`);
+        }
+
+        const items = data?.leaderboard || data?.items || [];
+        renderLeaderboard(items);
+      } catch (err) {
+        console.error("LEADERBOARD LOAD ERROR", err);
+        if (el.leaderboardList) {
+          el.leaderboardList.innerHTML = '<div class="timeline-item">Не вдалося завантажити рейтинг.</div>';
+        }
       }
     }
 
@@ -1175,13 +1170,11 @@
         }
 
         renderMenu(data.menu || []);
-        const menuStatusText = data.status_text || "🟢 Меню готове";
-        if (el.statusSub.textContent && el.statusSub.textContent.trim().startsWith("🚨")) {
-          setStatus(menuStatusText, el.statusSub.textContent);
-        } else {
-          const defaultMenuSub = "Обери потрібну дію.";
-          el.statusSub.dataset.menuText = defaultMenuSub;
-          setStatus(menuStatusText, defaultMenuSub);
+        if (!el.statusSub.textContent.trim()) {
+          setStatus(data.status_text || "🟢 Меню готове", "");
+        } else if (data.status_text) {
+          el.statusMain.textContent = splitStatusText(data.status_text).label || el.statusMain.textContent;
+          el.statusDot.textContent = splitStatusText(data.status_text).dot;
         }
       } catch (err) {
         setStatus("⚠️ Меню недоступне", "Не вдалося отримати меню з API.");
@@ -1238,6 +1231,7 @@
       if (!accessOk) return;
 
       await loadDashboard();
+      await loadLeaderboard();
       await loadMenu();
     }
 
