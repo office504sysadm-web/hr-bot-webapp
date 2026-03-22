@@ -1032,7 +1032,7 @@
       setBreakViolation(el.dashCoffeeViolation, data.coffee_violation_reason || data.break_violation_reason);
       setBreakViolation(el.dashLunchViolation, data.lunch_violation_reason, data.lunch_violation_minutes);
       el.dashStars.textContent = `${data.stars_today || 0} / 3`;
-      renderLeaderboard(data.leaderboard || []);
+      renderLeaderboard(data.leaderboard || data.items || []);
       el.dashStreak.textContent = `${data.streak_days || 0} днів`;
       el.dashMonth.textContent = `${data.month_total_stars || 0} зірок · ${monthPercent}%`;
       el.dashMonthProgress.style.width = `${monthPercent}%`;
@@ -1052,7 +1052,7 @@
           return;
         }
 
-        renderLeaderboard(data.leaderboard || []);
+        renderLeaderboard(data.leaderboard || data.items || []);
       } catch (err) {
         el.leaderboardList.innerHTML = '<div class="timeline-item">Не вдалося завантажити рейтинг.</div>';
       }
