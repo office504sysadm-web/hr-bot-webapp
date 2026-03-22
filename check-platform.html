@@ -174,24 +174,6 @@
       text-overflow: ellipsis;
     }
 
-    .status-sub.alert {
-      color: #ffd4d4;
-      font-weight: 600;
-    }
-
-    .dashboard-alert {
-      margin-top: 8px;
-      font-size: 13px;
-      line-height: 1.4;
-      color: #b42318;
-      font-weight: 600;
-      min-height: 18px;
-    }
-
-    .dashboard-alert:empty {
-      display: none;
-    }
-
     .meta-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -549,6 +531,22 @@
         font-size: 16px;
       }
     }
+
+    .dashboard-note {
+      margin-top: 10px;
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .dashboard-note.danger {
+      color: #c62828;
+      font-weight: 700;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
   </style>
 </head>
 <body>
@@ -593,37 +591,38 @@
           <div class="dashboard-badge" id="dashboardBadge">—</div>
         </div>
 
-        <div class="dashboard-grid">
-          <div class="dashboard-item">
-            <div class="dashboard-label">☕ Кава</div>
-            <div class="dashboard-value balance" id="dashCoffee">0 / 0 хв</div>
-            <div class="dashboard-alert" id="dashCoffeeAlert"></div>
-          </div>
+        
+<div class="dashboard-grid">
+  <div class="dashboard-item">
+    <div class="dashboard-label">☕ Кава</div>
+    <div class="dashboard-value balance" id="dashCoffee">0 / 0 хв</div>
+    <div class="dashboard-note danger hidden" id="dashCoffeeViolation"></div>
+  </div>
 
-          <div class="dashboard-item">
-            <div class="dashboard-label">🍽️ Обід</div>
-            <div class="dashboard-value balance" id="dashLunch">0 / 0 хв</div>
-            <div class="dashboard-alert" id="dashLunchAlert"></div>
-          </div>
+  <div class="dashboard-item">
+    <div class="dashboard-label">🍽️ Обід</div>
+    <div class="dashboard-value balance" id="dashLunch">0 / 0 хв</div>
+    <div class="dashboard-note danger hidden" id="dashLunchViolation"></div>
+  </div>
 
-          <div class="dashboard-item">
-            <div class="dashboard-label">⭐ Зірки за день</div>
-            <div class="dashboard-value balance" id="dashStars">0 / 3</div>
-          </div>
+  <div class="dashboard-item">
+    <div class="dashboard-label">⭐ Зірки за день</div>
+    <div class="dashboard-value balance" id="dashStars">0 / 3</div>
+  </div>
 
-          <div class="dashboard-item">
-            <div class="dashboard-label">🔥 Streak</div>
-            <div class="dashboard-value balance" id="dashStreak">0 днів</div>
-          </div>
+  <div class="dashboard-item">
+    <div class="dashboard-label">🔥 Streak</div>
+    <div class="dashboard-value balance" id="dashStreak">0 днів</div>
+  </div>
 
-          <div class="dashboard-item wide">
-            <div class="dashboard-label">Прогрес за місяць</div>
-            <div class="dashboard-value" id="dashMonth">0 зірок · 0%</div>
-            <div class="dashboard-progress">
-              <div class="dashboard-progress-fill" id="dashMonthProgress"></div>
-            </div>
-          </div>
-        </div>
+  <div class="dashboard-item wide">
+    <div class="dashboard-label">Прогрес за місяць</div>
+    <div class="dashboard-value" id="dashMonth">0 зірок · 0%</div>
+    <div class="dashboard-progress">
+      <div class="dashboard-progress-fill" id="dashMonthProgress"></div>
+    </div>
+  </div>
+</div>
 
 
         <div class="dashboard-card">
@@ -708,13 +707,15 @@
       dashboardBadge: document.getElementById("dashboardBadge"),
       dashboardFootnote: document.getElementById("dashboardFootnote"),
       dashCoffee: document.getElementById("dashCoffee"),
-      dashCoffeeAlert: document.getElementById("dashCoffeeAlert"),
       dashLunch: document.getElementById("dashLunch"),
-      dashLunchAlert: document.getElementById("dashLunchAlert"),
+      dashCoffeeViolation: document.getElementById("dashCoffeeViolation"),
+      dashLunchViolation: document.getElementById("dashLunchViolation"),
       dashStars: document.getElementById("dashStars"),
       dashStreak: document.getElementById("dashStreak"),
       dashMonth: document.getElementById("dashMonth"),
       dashMonthProgress: document.getElementById("dashMonthProgress"),
+      leaderboardList: document.getElementById("leaderboardList"),
+      leaderboardMonthLabel: document.getElementById("leaderboardMonthLabel"),
     };
 
     const ACTION_META = {
@@ -812,17 +813,11 @@
       };
     }
 
-    function setStatus(main, sub = "", isAlert = false) {
+    function setStatus(main, sub = "") {
       const parsed = splitStatusText(main);
       el.statusDot.textContent = parsed.dot;
       el.statusMain.textContent = parsed.label || "—";
       el.statusSub.textContent = sub;
-      el.statusSub.classList.toggle("alert", Boolean(isAlert));
-    }
-
-    function formatBreakAlert(text) {
-      if (!text) return "";
-      return `🚨 ${text}`;
     }
 
     function mapRole(role) {
@@ -890,9 +885,9 @@
       el.dashboardSubtitle.textContent = "Завантажую статистику за сьогодні…";
       el.dashboardBadge.textContent = "—";
       el.dashCoffee.textContent = "0 / 0 хв";
-      el.dashCoffeeAlert.textContent = "";
       el.dashLunch.textContent = "0 / 0 хв";
-      el.dashLunchAlert.textContent = "";
+      setBreakViolation(el.dashCoffeeViolation, "");
+      setBreakViolation(el.dashLunchViolation, "");
       el.dashStars.textContent = "0 / 3";
       el.dashStreak.textContent = "0 днів";
       el.dashMonth.textContent = "0 зірок · 0%";
@@ -908,6 +903,38 @@
       if (state === "lunch_break") return "Обід";
       if (state === "finished") return "Завершено";
       return "Старт";
+    }
+
+
+    function normalizeViolationText(value) {
+      const text = String(value || "").trim();
+      if (!text) return "";
+      return text;
+    }
+
+    function toStatusAlertText(data) {
+      if (!data || !data.is_late) return "";
+      const text = normalizeViolationText(data.arrival_violation_reason || data.late_text);
+      if (!text) return "";
+      return text.startsWith("🚨") ? text : `🚨 ${text}`;
+    }
+
+    function toBreakAlertText(value) {
+      const text = normalizeViolationText(value);
+      if (!text) return "";
+      return text.startsWith("🚨") ? text : `🚨 ${text}`;
+    }
+
+    function setBreakViolation(element, text) {
+      if (!element) return;
+      const normalized = toBreakAlertText(text);
+      if (!normalized) {
+        element.textContent = "";
+        element.classList.add("hidden");
+        return;
+      }
+      element.textContent = normalized;
+      element.classList.remove("hidden");
     }
 
     function formatDashboardSubtitle(data) {
@@ -963,27 +990,45 @@
       }
 
       const monthPercent = Math.max(0, Math.min(100, Number(data.month_progress_percent || 0)));
-      const arrivalAlert = data.arrival_violation_reason ? `🚨 ${data.arrival_violation_reason}` : "";
-      const coffeeAlert = formatBreakAlert(data.coffee_violation_reason);
-      const lunchAlert = formatBreakAlert(data.lunch_violation_reason);
 
       el.dashboardSubtitle.textContent = formatDashboardSubtitle(data);
       el.dashboardBadge.textContent = formatStatusBadge(data.state);
+
+      const statusAlertText = toStatusAlertText(data);
+      if (statusAlertText) {
+        el.statusSub.textContent = statusAlertText;
+      } else if (!el.statusSub.dataset.menuText) {
+        el.statusSub.textContent = "Поточний стан робочого дня актуальний.";
+      }
+
       el.dashCoffee.textContent = `${data.coffee_count || 0} / ${data.coffee_minutes || 0} хв`;
-      el.dashCoffeeAlert.textContent = coffeeAlert;
       el.dashLunch.textContent = `${data.lunch_count || 0} / ${data.lunch_minutes || 0} хв`;
-      el.dashLunchAlert.textContent = lunchAlert;
+      setBreakViolation(el.dashCoffeeViolation, data.coffee_violation_reason || data.break_violation_reason);
+      setBreakViolation(el.dashLunchViolation, data.lunch_violation_reason);
       el.dashStars.textContent = `${data.stars_today || 0} / 3`;
       renderLeaderboard(data.leaderboard || []);
       el.dashStreak.textContent = `${data.streak_days || 0} днів`;
       el.dashMonth.textContent = `${data.month_total_stars || 0} зірок · ${monthPercent}%`;
       el.dashMonthProgress.style.width = `${monthPercent}%`;
       el.dashboardFootnote.textContent = `Оцінено днів: ${data.month_rated_days || 0} · Найкращий streak: ${data.month_best_streak || 0} днів`;
+    }
 
-      if (arrivalAlert) {
-        setStatus(data.status_text || "—", arrivalAlert, true);
-      } else {
-        setStatus(data.status_text || "—", "");
+
+    async function loadLeaderboard() {
+      if (!currentUser?.id || !el.leaderboardList) return;
+
+      el.leaderboardList.innerHTML = '<div class="timeline-item">Дані рейтингу завантажуються…</div>';
+
+      try {
+        const { data } = await apiGet(`/work/leaderboard?telegram_id=${encodeURIComponent(currentUser.id)}`);
+        if (!data?.ok) {
+          el.leaderboardList.innerHTML = '<div class="timeline-item">Не вдалося завантажити рейтинг.</div>';
+          return;
+        }
+
+        renderLeaderboard(data.leaderboard || []);
+      } catch (err) {
+        el.leaderboardList.innerHTML = '<div class="timeline-item">Не вдалося завантажити рейтинг.</div>';
       }
     }
 
@@ -1080,6 +1125,11 @@
         }
 
         renderDashboard(data.dashboard || null);
+        if (data.dashboard && Array.isArray(data.dashboard.leaderboard) && data.dashboard.leaderboard.length) {
+          renderLeaderboard(data.dashboard.leaderboard);
+        } else {
+          await loadLeaderboard();
+        }
       } catch (err) {
         console.error("DASHBOARD LOAD ERROR", err);
       }
@@ -1098,6 +1148,14 @@
         }
 
         renderMenu(data.menu || []);
+        const menuStatusText = data.status_text || "🟢 Меню готове";
+        if (el.statusSub.textContent && el.statusSub.textContent.trim().startsWith("🚨")) {
+          setStatus(menuStatusText, el.statusSub.textContent);
+        } else {
+          const defaultMenuSub = "Обери потрібну дію.";
+          el.statusSub.dataset.menuText = defaultMenuSub;
+          setStatus(menuStatusText, defaultMenuSub);
+        }
       } catch (err) {
         setStatus("⚠️ Меню недоступне", "Не вдалося отримати меню з API.");
         showMessage("Сервер не повернув меню.");
