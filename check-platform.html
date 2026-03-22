@@ -912,22 +912,48 @@
       return text;
     }
 
+    function formatMinutesHuman(totalMinutes) {
+      const minutes = Math.max(0, Number(totalMinutes) || 0);
+      if (minutes <= 60) {
+        return `${minutes} хв`;
+      }
+      const hours = Math.floor(minutes / 60);
+      const restMinutes = minutes % 60;
+      return restMinutes > 0 ? `${hours} год ${restMinutes} хв` : `${hours} год`;
+    }
+
+    function normalizeDurationInText(value, explicitMinutes) {
+      const source = String(value || "").trim();
+      const minutes = Number(explicitMinutes);
+
+      if (Number.isFinite(minutes) && minutes > 0) {
+        return source.replace(/Запізнення на\s+\d+\s*хв/i, `Запізнення на ${formatMinutesHuman(minutes)}`);
+      }
+
+      return source.replace(/Запізнення на\s+(\d+)\s*хв/gi, (_, raw) => {
+        const parsed = Number(raw);
+        return `Запізнення на ${formatMinutesHuman(parsed)}`;
+      });
+    }
+
     function toStatusAlertText(data) {
       if (!data || !data.is_late) return "";
-      const text = normalizeViolationText(data.arrival_violation_reason || data.late_text);
+      const rawText = normalizeViolationText(data.arrival_violation_reason || data.late_text);
+      const text = normalizeDurationInText(rawText, data.late_minutes);
       if (!text) return "";
       return text.startsWith("🚨") ? text : `🚨 ${text}`;
     }
 
-    function toBreakAlertText(value) {
-      const text = normalizeViolationText(value);
+    function toBreakAlertText(value, minutes) {
+      const rawText = normalizeViolationText(value);
+      const text = normalizeDurationInText(rawText, minutes);
       if (!text) return "";
       return text.startsWith("🚨") ? text : `🚨 ${text}`;
     }
 
-    function setBreakViolation(element, text) {
+    function setBreakViolation(element, text, minutes) {
       if (!element) return;
-      const normalized = toBreakAlertText(text);
+      const normalized = toBreakAlertText(text, minutes);
       if (!normalized) {
         element.textContent = "";
         element.classList.add("hidden");
@@ -1004,7 +1030,7 @@
       el.dashCoffee.textContent = `${data.coffee_count || 0} / ${data.coffee_minutes || 0} хв`;
       el.dashLunch.textContent = `${data.lunch_count || 0} / ${data.lunch_minutes || 0} хв`;
       setBreakViolation(el.dashCoffeeViolation, data.coffee_violation_reason || data.break_violation_reason);
-      setBreakViolation(el.dashLunchViolation, data.lunch_violation_reason);
+      setBreakViolation(el.dashLunchViolation, data.lunch_violation_reason, data.lunch_violation_minutes);
       el.dashStars.textContent = `${data.stars_today || 0} / 3`;
       renderLeaderboard(data.leaderboard || []);
       el.dashStreak.textContent = `${data.streak_days || 0} днів`;
@@ -1020,7 +1046,7 @@
       el.leaderboardList.innerHTML = '<div class="timeline-item">Дані рейтингу завантажуються…</div>';
 
       try {
-        const { data } = await apiGet(`/work/leaderboard?telegram_id=${encodeURIComponent(currentUser.id)}`);
+        const { data } = await apiGet('/work/leaderboard');
         if (!data?.ok) {
           el.leaderboardList.innerHTML = '<div class="timeline-item">Не вдалося завантажити рейтинг.</div>';
           return;
@@ -1056,7 +1082,8 @@
     }
 
     async function apiGet(path) {
-      const res = await fetch(`${API_URL}${path}?telegram_id=${currentUser.id}`, {
+      const separator = path.includes('?') ? '&' : '?';
+      const res = await fetch(`${API_URL}${path}${separator}telegram_id=${encodeURIComponent(currentUser.id)}`, {
         method: "GET",
         mode: "cors",
         headers: {
