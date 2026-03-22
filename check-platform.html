@@ -347,6 +347,28 @@
       text-overflow: ellipsis;
     }
 
+
+    .timeline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .timeline-item {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 12px 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75), 0 4px 12px rgba(0,0,0,.05);
+      color: var(--panel-text);
+      line-height: 1.4;
+    }
+
+    .timeline-meta {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--panel-sub);
+    }
+
     .menu-wrap {
       display: flex;
       flex-direction: column;
@@ -705,6 +727,8 @@
       dashStreak: document.getElementById("dashStreak"),
       dashMonth: document.getElementById("dashMonth"),
       dashMonthProgress: document.getElementById("dashMonthProgress"),
+      leaderboardList: document.getElementById("leaderboardList"),
+      leaderboardMonthLabel: document.getElementById("leaderboardMonthLabel"),
     };
 
     const ACTION_META = {
@@ -870,6 +894,15 @@
       });
     }
 
+    function setLeaderboardLoading() {
+      if (el.leaderboardMonthLabel) {
+        el.leaderboardMonthLabel.textContent = "Поточний місяць";
+      }
+      if (el.leaderboardList) {
+        el.leaderboardList.innerHTML = '<div class="timeline-item">Дані рейтингу завантажуються…</div>';
+      }
+    }
+
     function setDashboardLoading() {
       el.dashboardSubtitle.textContent = "Завантажую статистику за сьогодні…";
       el.dashboardBadge.textContent = "—";
@@ -882,7 +915,7 @@
       el.dashMonth.textContent = "0 зірок · 0%";
       el.dashMonthProgress.style.width = "0%";
       el.dashboardFootnote.textContent = "Вчасний старт + кава без порушень + обід без порушень = максимум 3 зірки.";
-      renderLeaderboard([]);
+      setLeaderboardLoading();
     }
 
     function formatStatusBadge(state) {
@@ -925,8 +958,18 @@
     }
 
 
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function renderLeaderboard(items) {
       if (!el.leaderboardList) return;
+
       if (!Array.isArray(items) || !items.length) {
         el.leaderboardList.innerHTML = '<div class="timeline-item">Поки немає даних для рейтингу.</div>';
         return;
@@ -934,7 +977,7 @@
 
       el.leaderboardList.innerHTML = items.map((item) => `
         <div class="timeline-item">
-          <div><strong>#${item.position}</strong> ${escapeHtml(item.name || item.employee_name || '—')}</div>
+          <div><strong>#${item.position ?? '—'}</strong> ${escapeHtml(item.name || item.employee_name || '—')}</div>
           <div class="timeline-meta">⭐ ${item.stars ?? item.total_stars_month ?? 0} · 🚨 ${item.violations ?? item.total_violations_month ?? 0} · 🔥 ${item.streak ?? item.current_streak ?? 0}</div>
         </div>
       `).join('');
@@ -955,7 +998,10 @@
       el.dashCoffee.textContent = `${data.coffee_count || 0} / ${data.coffee_minutes || 0} хв`;
       el.dashLunch.textContent = `${data.lunch_count || 0} / ${data.lunch_minutes || 0} хв`;
       el.dashStars.textContent = `${data.stars_today || 0} / 3`;
-      renderLeaderboard(data.leaderboard || []);
+      if (el.leaderboardMonthLabel) {
+        el.leaderboardMonthLabel.textContent = data.leaderboard_period_label || "Поточний місяць";
+      }
+      renderLeaderboard(data.leaderboard || data.team_leaderboard || []);
       el.dashStreak.textContent = `${data.streak_days || 0} днів`;
       el.dashMonth.textContent = `${data.month_total_stars || 0} зірок · ${monthPercent}%`;
       el.dashMonthProgress.style.width = `${monthPercent}%`;
@@ -1060,6 +1106,28 @@
       }
     }
 
+    async function loadLeaderboard() {
+      setLeaderboardLoading();
+
+      try {
+        const { data } = await apiGet("/work/leaderboard");
+
+        if (!data.ok) {
+          renderLeaderboard([]);
+          return;
+        }
+
+        if (el.leaderboardMonthLabel) {
+          el.leaderboardMonthLabel.textContent = data.period_label || data.month_label || "Поточний місяць";
+        }
+
+        renderLeaderboard(data.leaderboard || data.items || []);
+      } catch (err) {
+        console.error("LEADERBOARD LOAD ERROR", err);
+        renderLeaderboard([]);
+      }
+    }
+
     async function loadMenu() {
       showLoader("Завантажую робоче меню…");
 
@@ -1129,6 +1197,7 @@
       if (!accessOk) return;
 
       await loadDashboard();
+      await loadLeaderboard();
       await loadMenu();
     }
 
