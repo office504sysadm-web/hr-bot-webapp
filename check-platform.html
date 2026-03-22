@@ -598,7 +598,7 @@
 
           <div class="dashboard-item">
             <div class="dashboard-label">⭐ Зірки за день</div>
-            <div class="dashboard-value balance" id="dashStars">0 / 4</div>
+            <div class="dashboard-value balance" id="dashStars">0 / 3</div>
           </div>
 
           <div class="dashboard-item">
@@ -615,8 +615,19 @@
           </div>
         </div>
 
+
+        <div class="dashboard-card">
+          <div class="dashboard-head">
+            <div>🏆 Рейтинг команди</div>
+            <div class="dashboard-sub" id="leaderboardMonthLabel">Поточний місяць</div>
+          </div>
+          <div id="leaderboardList" class="timeline-list">
+            <div class="timeline-item">Дані рейтингу завантажуються…</div>
+          </div>
+        </div>
+
         <div class="dashboard-footnote" id="dashboardFootnote">
-          Без запізнення + без порушень + коректне завершення дня + streak 5+ = максимум 4 зірки.
+          Вчасний старт + кава без порушень + обід без порушень = максимум 3 зірки.
         </div>
       </div>
 
@@ -866,11 +877,12 @@
       el.dashViolation.textContent = "—";
       el.dashCoffee.textContent = "0 / 0 хв";
       el.dashLunch.textContent = "0 / 0 хв";
-      el.dashStars.textContent = "0 / 4";
+      el.dashStars.textContent = "0 / 3";
       el.dashStreak.textContent = "0 днів";
       el.dashMonth.textContent = "0 зірок · 0%";
       el.dashMonthProgress.style.width = "0%";
-      el.dashboardFootnote.textContent = "Без запізнення + без порушень + коректне завершення дня + streak 5+ = максимум 4 зірки.";
+      el.dashboardFootnote.textContent = "Вчасний старт + кава без порушень + обід без порушень = максимум 3 зірки.";
+      renderLeaderboard([]);
     }
 
     function formatStatusBadge(state) {
@@ -912,6 +924,22 @@
       return parts.join(" · ") || "Статистика за сьогодні готова.";
     }
 
+
+    function renderLeaderboard(items) {
+      if (!el.leaderboardList) return;
+      if (!Array.isArray(items) || !items.length) {
+        el.leaderboardList.innerHTML = '<div class="timeline-item">Поки немає даних для рейтингу.</div>';
+        return;
+      }
+
+      el.leaderboardList.innerHTML = items.map((item) => `
+        <div class="timeline-item">
+          <div><strong>#${item.position}</strong> ${escapeHtml(item.employee_name || '—')}</div>
+          <div class="timeline-meta">⭐ ${item.total_stars_month || 0} · 🚨 ${item.total_violations_month || 0} · 🔥 ${item.current_streak || 0}</div>
+        </div>
+      `).join('');
+    }
+
     function renderDashboard(data) {
       if (!data) {
         setDashboardLoading();
@@ -926,7 +954,8 @@
       el.dashViolation.textContent = data.violation_text || "Порушень немає";
       el.dashCoffee.textContent = `${data.coffee_count || 0} / ${data.coffee_minutes || 0} хв`;
       el.dashLunch.textContent = `${data.lunch_count || 0} / ${data.lunch_minutes || 0} хв`;
-      el.dashStars.textContent = `${data.stars_today || 0} / 4`;
+      el.dashStars.textContent = `${data.stars_today || 0} / 3`;
+      renderLeaderboard(data.leaderboard || []);
       el.dashStreak.textContent = `${data.streak_days || 0} днів`;
       el.dashMonth.textContent = `${data.month_total_stars || 0} зірок · ${monthPercent}%`;
       el.dashMonthProgress.style.width = `${monthPercent}%`;
