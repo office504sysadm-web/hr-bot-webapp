@@ -347,6 +347,77 @@
       text-overflow: ellipsis;
     }
 
+    .timeline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .leaderboard-card,
+    .timeline-item {
+      background: #ffffff;
+      border: 1px solid rgba(17, 24, 39, 0.04);
+      border-radius: 24px;
+      padding: 16px 18px;
+      box-shadow: 0 8px 22px rgba(17, 24, 39, 0.06);
+    }
+
+    .leaderboard-card.empty,
+    .timeline-item.empty {
+      color: var(--panel-sub);
+    }
+
+    .leaderboard-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .leaderboard-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--panel-text);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .leaderboard-role {
+      font-size: 12px;
+      line-height: 1.2;
+      color: var(--panel-sub);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 40%;
+      text-align: right;
+    }
+
+    .leaderboard-stats {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .leaderboard-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .leaderboard-stat strong {
+      color: var(--panel-text);
+      font-weight: 700;
+    }
+
     .menu-wrap {
       display: flex;
       flex-direction: column;
@@ -627,7 +698,7 @@
             <div class="dashboard-sub" id="leaderboardMonthLabel">Поточний місяць</div>
           </div>
           <div id="leaderboardList" class="timeline-list">
-            <div class="timeline-item">Дані рейтингу завантажуються…</div>
+            <div class="leaderboard-card empty">Дані рейтингу завантажуються…</div>
           </div>
         </div>
 
@@ -963,7 +1034,26 @@
     }
 
     function normalizeDurationText(text) {
-      return String(text || "").replace(/(\d+)\s*хв/g, (_, raw) => formatDurationMinutes(Number(raw)));
+      const raw = String(text || "").trim();
+      if (!raw) return "";
+      const cleaned = raw.replace(/^🚨\s*/, "").trim();
+
+      const hourMinMatch = cleaned.match(/(\d+)\s*год\s*(\d+)\s*хв/i);
+      if (hourMinMatch) {
+        return formatDurationMinutes(Number(hourMinMatch[1]) * 60 + Number(hourMinMatch[2]));
+      }
+
+      const hoursOnlyMatch = cleaned.match(/(\d+)\s*год/i);
+      if (hoursOnlyMatch && !/хв/i.test(cleaned)) {
+        return formatDurationMinutes(Number(hoursOnlyMatch[1]) * 60);
+      }
+
+      const minutesOnlyMatch = cleaned.match(/(\d+)\s*хв/i);
+      if (minutesOnlyMatch) {
+        return formatDurationMinutes(Number(minutesOnlyMatch[1]));
+      }
+
+      return cleaned;
     }
 
     function getArrivalLateText(data) {
@@ -972,7 +1062,10 @@
       if (!normalized || /без запізнення/i.test(normalized)) {
         return "";
       }
-      return normalized.startsWith("🚨") ? normalized : `🚨 ${normalized}`;
+      if (/^запізнення\s+на/i.test(normalized)) {
+        return `🚨 ${normalized}`;
+      }
+      return normalized.startsWith("🚨") ? normalized : `🚨 Запізнення на ${normalized}`;
     }
 
     function renderDashboardViolations(data) {
@@ -991,23 +1084,39 @@
 
     function setLeaderboardLoading() {
       if (el.leaderboardList) {
-        el.leaderboardList.innerHTML = '<div class="timeline-item">Дані рейтингу завантажуються…</div>';
+        el.leaderboardList.innerHTML = '<div class="leaderboard-card empty">Дані рейтингу завантажуються…</div>';
       }
     }
 
     function renderLeaderboard(items) {
       if (!el.leaderboardList) return;
       if (!Array.isArray(items) || !items.length) {
-        el.leaderboardList.innerHTML = '<div class="timeline-item">Поки немає даних для рейтингу.</div>';
+        el.leaderboardList.innerHTML = '<div class="leaderboard-card empty">Поки немає даних для рейтингу.</div>';
         return;
       }
 
-      el.leaderboardList.innerHTML = items.map((item) => `
-        <div class="timeline-item">
-          <div><strong>#${item.position ?? "—"}</strong> ${escapeHtml(item.name || item.employee_name || '—')}</div>
-          <div class="timeline-meta">⭐ ${item.stars ?? item.total_stars_month ?? 0} · 🚨 ${item.violations ?? item.total_violations_month ?? 0} · 🔥 ${item.streak ?? item.current_streak ?? 0}</div>
-        </div>
-      `).join('');
+      el.leaderboardList.innerHTML = items.map((item) => {
+        const position = item.position ?? "—";
+        const name = escapeHtml(item.name || item.employee_name || "—");
+        const role = escapeHtml(item.role || item.role_name || "");
+        const stars = item.stars ?? item.total_stars_month ?? 0;
+        const violations = item.violations ?? item.total_violations_month ?? 0;
+        const streak = item.streak ?? item.current_streak ?? 0;
+
+        return `
+          <div class="leaderboard-card">
+            <div class="leaderboard-top">
+              <div class="leaderboard-name">#${position} ${name}</div>
+              <div class="leaderboard-role">${role}</div>
+            </div>
+            <div class="leaderboard-stats">
+              <span class="leaderboard-stat">⭐ <strong>${stars}</strong></span>
+              <span class="leaderboard-stat">🚨 <strong>${violations}</strong></span>
+              <span class="leaderboard-stat">🔥 <strong>${streak}</strong></span>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function renderDashboard(data) {
@@ -1152,7 +1261,7 @@
       } catch (err) {
         console.error("LEADERBOARD LOAD ERROR", err);
         if (el.leaderboardList) {
-          el.leaderboardList.innerHTML = '<div class="timeline-item">Не вдалося завантажити рейтинг.</div>';
+          el.leaderboardList.innerHTML = '<div class="leaderboard-card empty">Не вдалося завантажити рейтинг.</div>';
         }
       }
     }
